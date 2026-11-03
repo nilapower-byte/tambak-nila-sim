@@ -882,7 +882,7 @@ function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){
 function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();S=newGame();computeWater();closeSheet();intro()}})}
 function intro(){setSpeed(0);modal(`<div class="logo">Tambak Nila Sim</div><p>Anda mewarisi sebidang lahan di tepi sungai dan modal <b>${rp(15e6)}</b>. Bangun kolam, alirkan air, tebar benih, dan rawat ikan sampai panen.</p>
  <div class="tip"><b>Kondisi nyata</b>Oksigen turun di malam hari, amonia naik bila pakan berlebih, cuaca berganti, listrik bisa padam, dan ikan bisa sakit. Angka mengikuti SNI dan literatur budidaya.</div>
- <p>Ikuti <b>misi</b> di kiri atas. Tiap misi adalah satu tahap budidaya sungguhan.</p><button class="btn pri" id="mGo" style="padding:14px">Mulai bertani</button>`,m=>{m.querySelector('#mGo').onclick=()=>{closeModal();S.started=true;setSpeed(1);save()}})}
+ <p>Ikuti <b>misi</b> di kiri atas. Tiap misi adalah satu tahap budidaya sungguhan.</p><button class="btn pri" id="mGo" style="padding:14px">Mulai</button>`,m=>{m.querySelector('#mGo').onclick=()=>{closeModal();S.started=true;setSpeed(1);save()}})}
 
 /* ================= BUILD BAR ================= */
 const PREV={};
