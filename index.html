@@ -2,12 +2,19 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Tambak Nila Sim</title>
 <meta name="theme-color" content="#7cc6e8">
-<style>[hidden]{display:none!important}body{margin:0}</style>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tambak Nila">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>[hidden]{display:none!important}html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}</style>
 </head>
 <body>
-<title>Tambak Nila Sim</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
 <style>
 /* Layout: landscape-first 3D farm. One HUD strip across the top, mission card top-left, details panel docked right, tool dock bottom-centre */
@@ -769,10 +776,14 @@ function tap(sx,sy){
 function select(o){ui.sel=o;if(o){lastFocus=o;openSheet({type:T[o.type].pond?'pond':'obj',o})}}
 addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key===' '){e.preventDefault();setSpeed(ui.speed?0:ui.lastSpeed||1)}if(e.key==='Escape'){if(ui.tool)endBuild();else closeSheet()}if(e.key==='1')setSpeed(1);if(e.key==='2')setSpeed(3);if(e.key==='3')setSpeed(8);if(e.key==='q')camS.azT-=Math.PI/4;if(e.key==='e')camS.azT+=Math.PI/4});
 $('#camL').onclick=()=>camS.azT-=Math.PI/4;$('#camR').onclick=()=>camS.azT+=Math.PI/4;$('#camF').onclick=()=>{fit();camS.azT=Math.round(camS.az/(Math.PI*2))*Math.PI*2+Math.PI/4};
-function goFull(){const d=document.documentElement;try{const p=d.requestFullscreen&&d.requestFullscreen();if(p&&p.then)p.then(()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>toast('info','Layar penuh tidak tersedia di sini','Putar HP secara manual, atau buka game di browser.'))}catch(e){}}
-$('#fsBtn').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen&&document.exitFullscreen()}else goFull()};
+function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement)}
+function goFull(quiet){const d=document.documentElement;const rq=d.requestFullscreen||d.webkitRequestFullscreen;const lock=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};const fail=()=>{if(!quiet)toast('info','Layar penuh tidak tersedia di sini','Di iPhone: tekan Bagikan lalu "Tambah ke Layar Utama", lalu buka game dari ikon itu.')};if(!rq){fail();return}try{const p=rq.call(d,{navigationUI:'hide'});if(p&&p.then)p.then(lock).catch(fail);else lock()}catch(e){fail()}}
+const TOUCH=matchMedia('(pointer:coarse)').matches;let autoFullTried=false;
+function autoFull(e){if(e&&e.target&&e.target.closest&&e.target.closest('#fsBtn,#rotFs'))return;if(autoFullTried||!TOUCH||isFull()||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches)return;autoFullTried=true;goFull(true)}
+addEventListener('pointerup',autoFull,{capture:true});
+$('#fsBtn').onclick=()=>{autoFullTried=true;if(isFull()){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else goFull()};
 function checkOrient(){const port=innerHeight>innerWidth&&innerWidth<820;$('#rot').hidden=!(port&&!ui.portraitOk)}
-$('#rotOk').onclick=()=>{ui.portraitOk=true;checkOrient()};$('#rotFs').onclick=()=>{goFull();ui.portraitOk=true;checkOrient()};
+$('#rotOk').onclick=()=>{ui.portraitOk=true;checkOrient()};$('#rotFs').onclick=()=>{autoFullTried=true;goFull();ui.portraitOk=true;checkOrient()};
 /* ================= SHEETS ================= */
 function openSheet(s){ui.sheet=s;$('#sheet').hidden=false;renderSheet()}
 function closeSheet(){ui.sheet=null;$('#sheet').hidden=true;ui.sel=null;navOn(null)}
@@ -913,6 +924,9 @@ function start(saved){
  requestAnimationFrame(frame);
 }
 addEventListener('resize',()=>{if(R)resize()});
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(R)resize()});
+addEventListener('orientationchange',()=>setTimeout(()=>{if(R)resize()},300));
+document.addEventListener('fullscreenchange',()=>setTimeout(()=>{if(R)resize()},100));
 window.claude?.hot?.snapshot?.(()=>S);
 window.claude?.hot?.ready?window.claude.hot.ready(d=>start(d&&d.v===1?d:null)):start(window.claude?.hot?.data&&window.claude.hot.data.v===1?window.claude.hot.data:null);
 window.__T={get S(){return S},hourTick,dayTick,place,feed,tebar,siapkan,sampling,panen,computeWater,setSpeed,checkMissions,camS,select};
