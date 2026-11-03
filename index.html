@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7cc6e8">
+<style>[hidden]{display:none!important}body{margin:0}</style>
+</head>
+<body>
+<title>Tambak Nila Sim</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: landscape-first 3D farm. One HUD strip across the top, mission card top-left, details panel docked right, tool dock bottom-centre */
+:root{
+ --bg:#7cc6e8;--panel:#fffaf0;--panel2:#fff1d6;--ink:#3a2816;--ink2:#7b634b;--line:#ecd9b8;
+ --acc:#f58a1f;--acc2:#d96c06;--teal:#138a74;--good:#2e9b4f;--warn:#d99a00;--bad:#d4432f;--goodbg:#e3f5e6;--warnbg:#fff1c9;--badbg:#fde3de;--blue:#1873a8;--bluebg:#dff1fb;
+ --shadow:0 4px 0 rgba(110,70,20,.22),0 10px 22px rgba(50,30,5,.22);
+ --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;--body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+ --sheetW:min(380px,46vw);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--panel:#2b2219;--panel2:#3a2e22;--ink:#f7ead6;--ink2:#c9b298;--line:#4b3c2c;--goodbg:#1f3a27;--warnbg:#41351a;--badbg:#45231d;--bluebg:#1b3346;color-scheme:dark}}
+:root[data-theme="dark"]{--panel:#2b2219;--panel2:#3a2e22;--ink:#f7ead6;--ink2:#c9b298;--line:#4b3c2c;--goodbg:#1f3a27;--warnbg:#41351a;--badbg:#45231d;--bluebg:#1b3346;color-scheme:dark}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#cv{position:fixed;inset:0;touch-action:none;display:block;width:100%;height:100%}
+#fx2d{position:fixed;inset:0;pointer-events:none;z-index:3}
+#floats{position:fixed;inset:0;pointer-events:none;z-index:3;overflow:hidden}
+.fl{position:absolute;transform:translate(-50%,-50%);font-weight:800;font-size:13px;white-space:nowrap;text-shadow:0 0 3px rgba(40,25,5,.9),0 1px 2px rgba(40,25,5,.9)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+svg.i{width:18px;height:18px;flex:none}
+.pill{display:flex;align-items:center;gap:6px;background:var(--panel);border-radius:999px;padding:4px 12px 4px 5px;box-shadow:var(--shadow);font-weight:800;white-space:nowrap}
+.pill .ic{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--panel2)}
+.pill small{font-weight:700;color:var(--ink2);font-size:10.5px;display:block;line-height:1.1}
+.pill b{font-family:var(--display);font-size:15px;line-height:1.05;font-variant-numeric:tabular-nums}
+#hud{position:fixed;top:0;left:0;right:0;padding:calc(8px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px));display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none;z-index:5}
+#hud>*{pointer-events:auto}
+.money .ic{background:#ffd76a;color:#8a5a00}
+.speed,.camb{display:flex;background:var(--panel);border-radius:999px;box-shadow:var(--shadow);padding:3px}
+.speed button,.camb button{min-width:36px;height:30px;border-radius:999px;font-family:var(--display);font-weight:800;font-size:14px;display:grid;place-items:center}
+.speed button.on{background:var(--acc);color:#fff}
+.spacer{flex:1}
+#mission{position:fixed;left:max(10px,env(safe-area-inset-left,0px));top:calc(56px + env(safe-area-inset-top,0px));width:min(290px,calc(100% - 20px));z-index:4;background:var(--panel);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+#mission .mh{display:flex;gap:10px;align-items:center;padding:8px 10px;width:100%;text-align:left}
+#mission .flag{width:32px;height:32px;border-radius:10px;background:var(--acc);color:#fff;display:grid;place-items:center;flex:none}
+#mission .mt{flex:1;min-width:0}
+#mission .mt small{color:var(--ink2);font-weight:800;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase}
+#mission .mt b{display:block;font-family:var(--display);font-size:15px;line-height:1.15}
+#mission .mb{padding:0 12px 12px;font-size:12.5px;line-height:1.45;display:grid;gap:6px}
+#mission .mb p{margin:0}
+#mission .why{background:var(--panel2);border-radius:10px;padding:7px 9px;color:var(--ink2)}
+#mission .rw{font-weight:800;color:var(--teal)}
+#mission.min .mb{display:none}
+#mission .chev{transition:transform .2s}
+#mission.min .chev{transform:rotate(-90deg)}
+#toasts{position:fixed;right:max(10px,env(safe-area-inset-right,0px));top:calc(56px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:8px;z-index:6;width:min(300px,calc(100% - 20px));pointer-events:none;transition:right .2s}
+body.sheet-open #toasts{right:calc(var(--sheetW) + 22px)}
+body.sheet-open #dock{left:calc((100% - var(--sheetW) - 20px)/2)}
+.toast{background:var(--panel);border-radius:14px;box-shadow:var(--shadow);padding:8px 12px;font-size:12.5px;line-height:1.35;border-left:6px solid var(--teal);animation:tin .25s ease-out;pointer-events:auto}
+.toast b{display:block;font-weight:800}
+.toast span{color:var(--ink2)}
+.toast.good{border-color:var(--good)}.toast.warn{border-color:var(--warn)}.toast.bad{border-color:var(--bad)}.toast.gold{border-color:var(--acc);background:linear-gradient(90deg,var(--warnbg),var(--panel))}
+@keyframes tin{from{transform:translateX(30px);opacity:0}}
+#dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;background:var(--panel);border-radius:20px;padding:5px;box-shadow:var(--shadow);z-index:5;max-width:calc(100% - 20px)}
+#dock button{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 8px;border-radius:14px;font-weight:800;font-size:11.5px;min-width:56px;position:relative}
+#dock button .ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--panel2)}
+#dock button .ic svg{width:21px;height:21px}
+#dock button.on .ic,#dock button:hover .ic{background:var(--acc);color:#fff}
+#build{position:fixed;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;gap:10px;overflow-x:auto;padding:6px max(12px,env(safe-area-inset-left,0px)) 10px;scrollbar-width:none;justify-content:safe center}
+#build::-webkit-scrollbar{display:none}
+.bcard{flex:none;width:112px;background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:6px;text-align:left;display:flex;flex-direction:column;gap:3px;border:3px solid transparent}
+.bcard.on{border-color:var(--acc)}
+.bcard img{width:100%;height:60px;object-fit:cover;background:var(--panel2);border-radius:10px;display:block}
+.bcard b{font-family:var(--display);font-size:13.5px;line-height:1.1}
+.bcard small{font-weight:800;color:var(--acc2);font-size:11.5px}
+.bcard.no{opacity:.55}
+#place{position:fixed;left:50%;transform:translateX(-50%);top:calc(56px + env(safe-area-inset-top,0px));z-index:6;background:var(--ink);color:var(--panel);border-radius:999px;padding:7px 7px 7px 16px;display:flex;gap:10px;align-items:center;font-weight:800;box-shadow:var(--shadow);font-size:13px;max-width:calc(100% - 20px)}
+#place button{background:var(--acc);color:#fff;border-radius:999px;padding:6px 14px;font-weight:800}
+#sheet{position:fixed;right:max(10px,env(safe-area-inset-right,0px));top:calc(56px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:var(--sheetW);z-index:8;background:var(--panel);border-radius:20px;box-shadow:0 8px 30px rgba(40,25,5,.3);display:flex;flex-direction:column;animation:sin .22s ease-out}
+@keyframes sin{from{transform:translateX(40px);opacity:.3}}
+#sheet .sx{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--panel2);font-size:20px;font-weight:800;display:grid;place-items:center;z-index:2}
+#sheetBody{overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+h2{font-family:var(--display);font-size:22px;line-height:1.05;margin:0;text-wrap:balance}
+h3{font-family:var(--display);font-size:16px;margin:0}
+.ph{display:flex;align-items:flex-end;gap:10px;padding-right:38px}
+.ph>div{flex:1;min-width:0}
+.chip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 10px;font-weight:800;font-size:12px;background:var(--panel2);white-space:nowrap}
+.chip.isi{background:var(--goodbg);color:var(--good)}.chip.siap{background:var(--bluebg);color:var(--blue)}.chip.persiapan{background:var(--warnbg);color:var(--warn)}
+.tip{border-radius:12px;padding:9px 11px;font-size:12.5px;line-height:1.45;background:var(--panel2);margin:0}
+.tip b{display:block}
+.tip.good{background:var(--goodbg)}.tip.warn{background:var(--warnbg)}.tip.bad{background:var(--badbg)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st{background:var(--panel2);border-radius:12px;padding:7px 10px}
+.st small{display:block;font-size:10.5px;font-weight:800;color:var(--ink2)}
+.st b{font-family:var(--display);font-size:19px;line-height:1.1;font-variant-numeric:tabular-nums}
+.st em{font-style:normal;font-size:11px;color:var(--ink2);font-weight:700}
+.gs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.g{background:var(--panel2);border-radius:12px;padding:6px 4px;text-align:center}
+.g small{display:block;font-size:10px;font-weight:800;color:var(--ink2)}
+.g b{font-family:var(--display);font-size:17px;line-height:1.1;font-variant-numeric:tabular-nums}
+.g i{display:block;height:5px;border-radius:9px;margin-top:4px;background:var(--line);overflow:hidden}
+.g i em{display:block;height:100%}
+.g.good b{color:var(--good)}.g.warn b{color:var(--warn)}.g.bad b{color:var(--bad)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{display:flex;flex-direction:column;align-items:center;gap:2px;justify-content:center;background:var(--panel2);border-radius:14px;padding:9px 8px;font-weight:800;font-size:13px;line-height:1.15;text-align:center;box-shadow:0 3px 0 var(--line)}
+.btn small{display:block;font-weight:700;color:var(--ink2);font-size:11px}
+.btn.pri{background:var(--acc);color:#fff;box-shadow:0 3px 0 var(--acc2)}
+.btn.pri small{color:#fff3e2}
+.btn.wide{grid-column:1/-1}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.danger{color:var(--bad)}
+.prog{height:12px;border-radius:9px;background:var(--line);overflow:hidden}
+.prog em{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#44c3a3)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:5px 4px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-size:10.5px;color:var(--ink2);font-weight:800}
+td.r,th.r{text-align:right}
+.tw{overflow-x:auto}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv b{font-variant-numeric:tabular-nums}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.mis{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.mis .n{width:26px;height:26px;border-radius:50%;background:var(--panel2);display:grid;place-items:center;font-weight:800;flex:none;font-size:12px}
+.mis.done .n{background:var(--good);color:#fff}
+.mis.cur .n{background:var(--acc);color:#fff}
+.mis p{margin:2px 0 0;color:var(--ink2)}
+.list{margin:0;padding-left:18px;line-height:1.55;font-size:12.5px}
+.ref{font-size:11.5px;color:var(--ink2);line-height:1.5;margin:0}
+a{color:var(--teal);font-weight:800}
+#modal{position:fixed;inset:0;z-index:20;background:rgba(30,20,8,.5);display:grid;place-items:center;padding:16px}
+#modal .box{background:var(--panel);border-radius:22px;box-shadow:var(--shadow);max-width:460px;width:100%;padding:18px 20px;display:flex;flex-direction:column;gap:10px;max-height:92%;overflow:auto}
+#modal .logo{font-family:var(--display);font-size:30px;line-height:1;color:var(--acc2)}
+#modal p{margin:0;line-height:1.5}
+.row2{display:flex;gap:8px}
+.row2>*{flex:1}
+#rot{position:fixed;inset:0;z-index:30;background:linear-gradient(160deg,#1b5e7a,#0f3347);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
+#rot .ph2{width:84px;height:140px;border:6px solid #fff;border-radius:16px;animation:turn 2.2s ease-in-out infinite}
+@keyframes turn{0%,25%{transform:rotate(0)}55%,100%{transform:rotate(-90deg)}}
+#rot h2{color:#fff}
+#rot p{margin:0;max-width:300px;line-height:1.5;color:#d8eef7}
+#rot .btn{min-width:220px}
+#rot .btn:not(.pri){background:rgba(255,255,255,.14);color:#fff;box-shadow:none}
+/* short landscape screens (phones turned sideways) */
+@media (max-height:500px){
+ .pill{padding:3px 10px 3px 4px}.pill b{font-size:13.5px}.pill .ic{width:22px;height:22px}.pill small{font-size:9.5px}
+ .speed button,.camb button{height:26px;min-width:32px;font-size:13px}
+ #mission,#toasts,#place,#sheet{top:calc(46px + env(safe-area-inset-top,0px))}
+ #mission .mt b{font-size:14px}
+ #toasts{width:260px}.toast{padding:6px 10px;font-size:11.5px}
+ #dock button{min-width:50px;padding:3px 6px;font-size:10.5px}#dock button .ic{width:30px;height:30px}#dock button .ic svg{width:18px;height:18px}
+ #build{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+ .bcard{width:100px}.bcard img{height:46px}
+ h2{font-size:19px}
+}
+/* portrait phones: panel becomes a bottom sheet */
+@media (max-width:620px) and (orientation:portrait){
+ :root{--sheetW:auto}
+ #sheet{left:0;right:0;top:auto;bottom:0;width:auto;max-height:66%;border-radius:22px 22px 0 0;animation:sup .22s ease-out}
+ #sheetBody{padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+ #mission{top:calc(100px + env(safe-area-inset-top,0px))}
+ #toasts{top:calc(158px + env(safe-area-inset-top,0px));left:10px;width:auto}
+ body.sheet-open #toasts{right:10px}
+ body.sheet-open #dock{left:50%}
+ .camb{position:fixed;right:10px;bottom:calc(92px + env(safe-area-inset-bottom,0px));flex-direction:column}
+ .spacer{display:none}
+ .hide-sm{display:none}
+}
+@keyframes sup{from{transform:translateY(40px);opacity:.3}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<canvas id="cv" aria-label="Peta tambak 3D"></canvas>
+<canvas id="fx2d"></canvas>
+<div id="floats"></div>
+<div id="hud">
+ <div class="pill money"><span class="ic" id="icCoin"></span><div><small>Uang</small><b id="hMoney">-</b></div></div>
+ <div class="pill"><span class="ic" id="hWx"></span><div><small id="hWxN">Cerah</small><b id="hDay">-</b></div></div>
+ <div class="pill hide-sm"><span class="ic" id="icFish"></span><div><small>Harga nila</small><b id="hPrice">-</b></div></div>
+ <div class="pill"><span class="ic" id="icSack"></span><div><small>Pakan</small><b id="hFeed">-</b></div></div>
+ <div class="speed" id="speed" role="group" aria-label="Kecepatan waktu"><button data-sp="0" aria-label="Jeda" id="spP"></button><button data-sp="1">1×</button><button data-sp="3">3×</button><button data-sp="8">8×</button></div>
+ <span class="spacer"></span>
+ <div class="camb" role="group" aria-label="Kamera"><button id="camL" aria-label="Putar kiri">⟲</button><button id="camR" aria-label="Putar kanan">⟳</button><button id="camF" aria-label="Pusatkan peta">◎</button><button id="fsBtn" aria-label="Layar penuh">⤢</button></div>
+</div>
+<div id="mission"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="build" hidden></div>
+<div id="place" hidden><span id="placeTxt"></span><button id="placeDone">Selesai</button></div>
+<nav id="dock">
+ <button data-nav="build"><span class="ic" data-icon="build"></span>Bangun</button>
+ <button data-nav="feed"><span class="ic" data-icon="sack"></span>Pakan</button>
+ <button data-nav="report"><span class="ic" data-icon="chart"></span>Laporan</button>
+ <button data-nav="mis"><span class="ic" data-icon="flag"></span>Misi<span class="badge" id="misBadge" hidden></span></button>
+ <button data-nav="help"><span class="ic" data-icon="help"></span>Bantuan</button>
+</nav>
+<div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
+<div id="modal" hidden></div>
+<div id="rot" hidden><div class="ph2"></div><h2>Putar HP Anda</h2><p>Tambak Nila Sim paling nyaman dimainkan dalam posisi mendatar.</p><button class="btn pri" id="rotFs">Layar penuh mendatar</button><button class="btn" id="rotOk">Main tegak saja</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ================= ICONS ================= */
+const ICO={
+ coin:'<circle cx="12" cy="12" r="8" fill="currentColor" opacity=".25"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 010 3h-3a1.5 1.5 0 000 3h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+ fish:'<path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z" fill="#f2994a"/><circle cx="8" cy="11" r="1.2" fill="#3a2816"/>',
+ sack:'<path d="M7 5h10l-1.5 3c3 2 4.5 5 4.5 8 0 3-2 4-8 4s-8-1-8-4c0-3 1.5-6 4.5-8z" fill="#d9a35b"/><path d="M8 8h8" stroke="#8a5a2b" stroke-width="1.6"/><text x="12" y="17" font-size="6" text-anchor="middle" fill="#6b4320" font-weight="800">kg</text>',
+ build:'<path d="M3 20h18M5 20V10l7-5 7 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><rect x="10" y="13" width="4" height="7" fill="currentColor"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
+ flag:'<path d="M5 21V4m0 0h11l-2 4 2 4H5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>',
+ help:'<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .7-1.5 1.2-1.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1.2" fill="currentColor"/>',
+ pause:'<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',
+ cerah:'<circle cx="12" cy="12" r="5" fill="#ffb320"/><g stroke="#ffb320" stroke-width="2" stroke-linecap="round"><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></g>',
+ panas:'<circle cx="12" cy="12" r="6" fill="#ff6a2b"/><g stroke="#ff6a2b" stroke-width="2.2" stroke-linecap="round"><path d="M12 1v3M12 20v3M1 12h3M20 12h3M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2"/></g>',
+ berawan:'<circle cx="9" cy="9" r="4" fill="#ffb320"/><path d="M7 19a4 4 0 010-8 5 5 0 019.6 1.5A3.3 3.3 0 0117 19z" fill="#b9c6d2"/>',
+ hujan:'<path d="M7 14a4 4 0 010-8 5 5 0 019.6 1.5A3.3 3.3 0 0117 14z" fill="#8fa1b3"/><g stroke="#3a8fd6" stroke-width="2" stroke-linecap="round"><path d="M8 17l-1 3M12 17l-1 3M16 17l-1 3"/></g>',
+ malam:'<path d="M15 3a8 8 0 108 10A7 7 0 0115 3z" fill="#f3d36b"/>'
+};
+const svg=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`;
+
+/* ================= DATA ================= */
+const W=12,H=12,FEEDP=12500,SACK=30,BENIHP=350;
+const T={
+ terpal:{n:'Kolam terpal',w:1,h:1,cost:2000000,pond:1,vol:6.4,area:7,rec:500,prep:72,
+  desc:'Kolam bulat Ø3 m, tinggi 1 m. Murah dan cepat dipasang. Airnya sedikit, jadi oksigen dan amonia cepat berubah: perlu aerator dan ganti air rutin.'},
+ tanah:{n:'Kolam tanah',w:2,h:2,cost:3500000,pond:1,vol:80,area:100,rec:600,prep:96,
+  desc:'10 × 10 m, dalam 80 cm. Air banyak dan stabil, ada pakan alami (plankton). Butuh lahan luas dan pengeringan sebelum tebar.'},
+ saluran:{n:'Saluran air',w:1,h:1,cost:75000,desc:'Mengalirkan air dari sungai atau sumur bor ke kolam. Sambung tanpa putus sampai menempel di kolam.'},
+ sumur:{n:'Sumur bor + tandon',w:1,h:1,cost:3000000,desc:'Sumber air bersih di mana saja. Air dipompa ke tandon lalu dialirkan. Listrik pompa Rp 2.000/hari.'},
+ gudang:{n:'Gudang pakan',w:1,h:1,cost:1500000,desc:'Menambah tempat simpan pakan 900 kg. Pakan harus kering, tidak kena hujan dan lantai.'},
+ genset:{n:'Genset',w:1,h:1,cost:2500000,desc:'Menyalakan aerator saat listrik padam di malam hari. Tanpa genset, oksigen bisa anjlok menjelang subuh.'},
+ pondok:{n:'Pondok jaga',w:1,h:1,cost:2000000,desc:'Tempat tinggal pekerja dan menyimpan alat. Diperlukan untuk merekrut pekerja.'},
+ pohon:{n:'Pohon'},batu:{n:'Batu'}
+};
+const BUILD=['terpal','tanah','saluran','sumur','gudang','genset','pondok','hapus'];
+const WX={cerah:{n:'Cerah',t:29.5,cf:1},berawan:{n:'Berawan',t:28,cf:.5},hujan:{n:'Hujan',t:26.5,cf:.25},panas:{n:'Panas terik',t:32.3,cf:1.15}};
+const FR=w=>w<10?6:w<20?5:w<50?4:w<100?3.2:w<200?2.6:2.2;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd=Math.random;
+const fmtN=(n,d=0)=>Number(n).toLocaleString('id-ID',{maximumFractionDigits:d,minimumFractionDigits:d});
+const rp=n=>{const a=Math.abs(n),s=n<0?'-':'';if(a>=1e6)return s+'Rp '+fmtN(a/1e6,a>=1e8?0:a>=1e7?1:2)+' jt';if(a>=1e3)return s+'Rp '+fmtN(Math.round(a/1e3))+' rb';return s+'Rp '+fmtN(Math.round(a))};
+const rpFull=n=>(n<0?'-':'')+'Rp '+fmtN(Math.round(Math.abs(n)));
+const $=s=>document.querySelector(s);
+
+/* ================= STATE ================= */
+let S;
+function newGame(){
+ const s={v:1,money:15e6,day:1,t:6,weather:'cerah',tempBase:29.5,price:30000,outage:false,feed:0,workers:0,payDay:0,nextId:1,objs:[],ledger:[],harvests:[],flags:{},done:[],streak:0,tomorrow:'berawan',started:false};
+ const add=(type,x,y,extra)=>{const o=Object.assign({id:s.nextId++,type,x,y},extra||{});s.objs.push(o);return o};
+ add('pondok',10,10);
+ [[3,1],[5,0],[8,0],[11,1],[11,4],[11,8],[2,11],[5,11],[8,11],[1,8],[2,4],[9,6],[6,9],[11,11],[1,0],[4,7]].forEach(([x,y],i)=>add('pohon',x,y,{v:i%3}));
+ [[7,3],[9,9],[3,9]].forEach(([x,y])=>add('batu',x,y));
+ return s;
+}
+const ponds=()=>S.objs.filter(o=>T[o.type]&&T[o.type].pond);
+const byType=t=>S.objs.filter(o=>o.type===t);
+function occGrid(){const g=[...Array(H)].map(()=>Array(W).fill(null));for(const o of S.objs){const t=T[o.type],w=t.w||1,h=t.h||1;for(let j=0;j<h;j++)for(let i=0;i<w;i++)if(g[o.y+j])g[o.y+j][o.x+i]=o}return g}
+let OCC;
+function computeWater(){
+ OCC=occGrid();
+ const wet=new Set(),q=[];
+ const isSrc=(x,y)=>x===0&&y>=0&&y<H||(OCC[y]&&OCC[y][x]&&OCC[y][x].type==='sumur');
+ const N4=[[1,0],[-1,0],[0,1],[0,-1]];
+ for(const o of byType('saluran'))if(N4.some(([dx,dy])=>isSrc(o.x+dx,o.y+dy))){wet.add(o.id);q.push(o)}
+ while(q.length){const o=q.shift();for(const[dx,dy]of N4){const n=OCC[o.y+dy]&&OCC[o.y+dy][o.x+dx];if(n&&n.type==='saluran'&&!wet.has(n.id)){wet.add(n.id);q.push(n)}}}
+ for(const o of byType('saluran'))o.wet=wet.has(o.id);
+ for(const p of ponds()){const t=T[p.type];let c=false;
+  for(let j=0;j<t.h&&!c;j++)for(let i=0;i<t.w&&!c;i++){const x=p.x+i,y=p.y+j;for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(isSrc(nx,ny)){c=true;break}const n=OCC[ny]&&OCC[ny][nx];if(n&&n.type==='saluran'&&n.wet){c=true;break}}}
+  p.conn=c}
+}
+function initPond(o){Object.assign(o,{name:'Kolam '+(ponds().length),st:'kering',prep:0,n:0,n0:0,w:0,w0:0,ws:0,sday:0,stockDay:0,fedToday:0,meals:0,waste:0,amm:.02,do:7,ph:7.4,temp:29,stress:0,sick:null,probio:0,aer:0,feedTotal:0,cost:0,doMin:9,splash:0})}
+
+/* ================= LEDGER ================= */
+function log(cat,amt,label){S.ledger.unshift({day:S.day,cat,amt,label});if(S.ledger.length>400)S.ledger.length=400}
+function pay(cat,amt,label,force){if(!force&&S.money<amt){toast('bad','Uang tidak cukup',`Perlu ${rp(amt)}, uang Anda ${rp(S.money)}.`);return false}S.money-=amt;log(cat,-amt,label);floatMoney(-amt);return true}
+function earn(cat,amt,label){S.money+=amt;log(cat,amt,label);floatMoney(amt)}
+function totals(){const t={in:0,out:0,cat:{}};for(const l of S.ledger){if(l.cat==='Bonus misi')continue;if(l.amt>0)t.in+=l.amt;else t.out-=l.amt;t.cat[l.cat]=(t.cat[l.cat]||0)+l.amt}t.laba=t.in-t.out;return t}
+
+/* ================= MISSIONS ================= */
+const MIS=[
+ {id:'bangun',t:'Bangun kolam pertama',how:'Tekan Bangun, pilih Kolam terpal (murah) atau Kolam tanah, lalu ketuk lahan kosong.',why:'Pilih lahan datar dekat sumber air. Satu kolam terpal Ø3 m cukup untuk ±500 ekor.',r:300000,ok:()=>ponds().length>0},
+ {id:'air',t:'Alirkan air ke kolam',how:'Bangun Saluran air dari tepi sungai sampai menempel di kolam, atau bangun Sumur bor tepat di sebelah kolam.',why:'Air harus bisa masuk dan dibuang kapan saja. Tanpa air, kolam tidak bisa disiapkan.',r:200000,ok:()=>ponds().some(p=>p.conn)},
+ {id:'siap',t:'Siapkan kolam',how:'Ketuk kolam, tekan Siapkan kolam. Tunggu 3 hari (terpal) atau 4 hari (tanah).',why:'Terpal: isi air + garam, diamkan agar bau terpal hilang. Tanah: keringkan, kapur, pupuk, isi air sampai hijau (plankton).',r:200000,ok:()=>ponds().some(p=>p.st==='siap'||p.st==='isi')},
+ {id:'pakan',t:'Beli pakan',how:'Tekan Pakan di bawah, beli minimal 1 karung (30 kg).',why:'Siapkan pakan sebelum benih datang. Pakai pelet apung protein 28–32%.',r:100000,ok:()=>S.flags.beli},
+ {id:'tebar',t:'Tebar benih',how:'Ketuk kolam yang sudah siap, tekan Tebar benih. Lakukan pagi (06–09) atau sore.',why:'Siang hari air panas dan benih mudah stres. Di dunia nyata, apungkan kantong 15–30 menit dulu (aklimatisasi).',r:300000,ok:()=>ponds().some(p=>p.st==='isi')},
+ {id:'feed7',t:'Beri pakan 2× sehari selama 7 hari',how:'Ketuk kolam lalu Beri pakan pagi (07–09) dan sore (15–17). Jangan malam.',why:'Jadwal tetap membuat ikan makan lahap dan pakan tidak tersisa. Pakan malam banyak terbuang jadi amonia.',r:500000,ok:()=>S.flags.streak7},
+ {id:'sampling',t:'Lakukan sampling berat',how:'Ketuk kolam, tekan Sampling. Ulangi tiap 7–10 hari.',why:'Jatah pakan dihitung dari berat ikan. Tanpa sampling, jatah pakan tertinggal dan ikan kurang makan.',r:200000,ok:()=>S.flags.sampling},
+ {id:'aerator',t:'Pasang aerator',how:'Ketuk kolam, tekan Pasang aerator.',why:'Oksigen paling rendah menjelang subuh. Makin besar ikan, makin banyak oksigen yang dipakai.',r:300000,ok:()=>ponds().some(p=>p.aer>0)},
+ {id:'gantiair',t:'Turunkan amonia dengan ganti air',how:'Bila amonia di atas 0,5 mg/L, ketuk kolam lalu Ganti air 30%.',why:'Amonia berasal dari kotoran dan sisa pakan. Di atas 1 mg/L ikan stres dan mudah sakit.',r:300000,ok:()=>S.flags.gantiair},
+ {id:'panen',t:'Panen pertama',how:'Saat sampling menunjukkan ±250 g (4 ekor/kg), ketuk kolam lalu Panen.',why:'Di dunia nyata ikan dipuasakan 1 hari dan dipanen pagi agar tidak stres panas.',r:1000000,ok:()=>S.harvests.length>=1},
+ {id:'tingkat',t:'Jalankan 3 kolam berisi ikan',how:'Bangun kolam lagi dan tebar dengan jarak ±1 bulan.',why:'Tebar bertahap berarti panen tiap bulan dan uang masuk rutin.',r:1000000,ok:()=>ponds().filter(p=>p.st==='isi').length>=3},
+ {id:'sortir',t:'Sortir dan pindahkan ikan',how:'Siapkan kolam kosong, lalu di kolam berisi ikan tekan Sortir & pindah.',why:'Ikan besar dipisah dari yang kecil agar yang kecil tidak kalah makan dan kepadatan turun.',r:500000,ok:()=>S.flags.sortir},
+ {id:'rutin',t:'Panen 3 kali',how:'Teruskan siklus di setiap kolam.',why:'Bandingkan FCR dan SR tiap panen di Laporan untuk memperbaiki siklus berikutnya.',r:2000000,ok:()=>S.harvests.length>=3},
+ {id:'laba',t:'Untung bersih Rp 10 juta',how:'Buka Laporan untuk melihat pengeluaran terbesar.',why:'Pakan biasanya 60–70% biaya. FCR rendah berarti untung lebih besar.',r:0,ok:()=>totals().laba>=10e6}
+];
+let misOpen=true;
+function curMission(){return MIS.find(m=>!S.done.includes(m.id))}
+function checkMissions(){
+ for(const m of MIS){if(S.done.includes(m.id))continue;if(m.ok()){S.done.push(m.id);if(m.r)earn('Bonus misi',m.r,'Misi: '+m.t);toast('gold','Misi selesai: '+m.t,m.r?'Bonus '+rp(m.r):'Selamat, Anda pembudidaya yang untung!');burst()}}
+ renderMission();
+}
+function renderMission(){
+ const m=curMission(),el=$('#mission');
+ if(!m){el.innerHTML=`<div class="mh"><span class="flag">${svg('flag')}</span><div class="mt"><small>Semua misi selesai</small><b>Tambak Anda berjalan mandiri</b></div></div>`;return}
+ const i=MIS.indexOf(m);
+ el.className=misOpen?'':'min';
+ el.innerHTML=`<button class="mh" id="misT" aria-expanded="${misOpen}"><span class="flag">${svg('flag')}</span><span class="mt"><small>Misi ${i+1} dari ${MIS.length}</small><b>${m.t}</b></span><svg class="i chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button>
+ <div class="mb"><p>${m.how}</p><p class="why"><b>Kenapa?</b> ${m.why}</p>${m.r?`<p class="rw">Hadiah: ${rp(m.r)}</p>`:''}</div>`;
+ $('#misBadge').hidden=true;
+}
+
+/* ================= TOASTS & FX ================= */
+function toast(kind,title,body){const d=document.createElement('div');d.className='toast '+kind;d.innerHTML=`<b>${title}</b>${body?`<span>${body}</span>`:''}`;const box=$('#toasts');box.prepend(d);while(box.children.length>(innerWidth<560||innerHeight<500?2:3))box.lastChild.remove();setTimeout(()=>d.remove(),kind==='bad'?9000:6000)}
+let lastFocus=null;
+function floatMoney(a){if(lastFocus)floatAt(lastFocus,(a>0?'+':'')+rp(a),a>0?'#ffd43b':'#ffffff')}
+
+
+/* ================= WORKERS (villagers) ================= */
+const VIL=[];
+function homeTile(){const h=byType('pondok')[0];return h?[h.x+.5,h.y+1.15]:[W-.5,H-.5]}
+function sendVillager(o,col='#e2553b'){const[hx,hy]=homeTile();const t=T[o.type];const tx=o.x+t.w+.15,ty=o.y+t.h-.3;VIL.push({x:hx,y:hy,tx,ty,hx,hy,ph:0,col,wait:0})}
+
+/* ================= SIM ================= */
+const daylight=h=>h>=6&&h<18?Math.sin((h-6)/12*Math.PI):0;
+const tempAt=(h,p)=>S.tempBase+(p&&p.type==='tanah'?1:2)*Math.sin((h-8)/24*2*Math.PI);
+const isNight=h=>h>=19||h<5;
+let ui={speed:1,lastSpeed:1,sel:null,tool:null,hover:null,sheet:null};
+function hourTick(){
+ const h=Math.floor(S.t)%24;
+ S.outNow=S.outage&&(h>=20||h<4)&&!byType('genset').length;
+ if(S.outage&&h===20)toast(byType('genset').length?'info':'bad',byType('genset').length?'Listrik padam, genset menyala':'Listrik padam malam ini',byType('genset').length?'Aerator tetap jalan.':'Aerator mati sampai jam 04. Oksigen kolam padat bisa anjlok.');
+ for(const p of ponds()){
+  if(p.st==='persiapan'){p.prep--;if(p.prep<=0){p.st='siap';p.do=7;p.amm=.02;toast('good',p.name+' siap ditebar','Air sudah siap. Tebar benih pagi atau sore.')}continue}
+  if(p.st!=='isi')continue;
+  const big=p.type==='tanah',temp=tempAt(h,p);p.temp=temp;
+  const dens=p.n*p.w/1000/T[p.type].vol,sat=14.6-.25*temp,dl=daylight(h)*WX[S.weather].cf,plank=big?1.6:.8;
+  const aer=S.outNow?0:Math.min(p.aer,2)*(big?1.3:2.5);
+  const target=sat+plank*(dl*1.8-1)-dens*.23-p.amm*.5+aer;
+  p.do+=(clamp(target,.3,11)-p.do)*.3;p.doMin=Math.min(p.doMin,p.do);
+  const rainPh=S.weather==='hujan'?(big?-.3:-.6):0;
+  p.ph+=(7.4+(big?dl*.9:dl*.3)+rainPh-p.ph)*.15;
+  let s=0;if(p.do<3)s+=(3-p.do)*.6;if(p.amm>1)s+=(p.amm-1)*.5;if(temp>32)s+=.3;if(temp<25)s+=.15;if(p.ph<6.5||p.ph>9)s+=.3;
+  p.stress=p.stress*.9+s;
+  if(p.do<1.5){const d=Math.max(1,Math.round(p.n*.04*(1.5-p.do)));kill(p,d)}
+  if(p.do<2.5&&p.alertDay!==S.day){p.alertDay=S.day;toast('bad',`${p.name}: oksigen rendah (${fmtN(p.do,1)} mg/L)`,'Ikan megap-megap di permukaan. Pasang/tambah aerator, ganti air, kurangi pakan.');if(S.autoPause!==false)setSpeed(0)}
+  if(!p.sick&&p.stress>4&&rnd()<.004*(p.stress-3)){p.sick={k:temp>30?'strep':'aero',d:S.day,tr:false};toast('bad',`${p.name}: ikan sakit`,p.sick.k==='strep'?'Gejala Streptococcus: berenang berputar, mata menonjol. Dipicu air panas dan stres.':'Gejala Aeromonas: luka merah di sisik/sirip. Dipicu air kotor dan stres.');if(S.autoPause!==false)setSpeed(0)}
+ }
+ if(S.workers){const list=ponds().filter(p=>p.st==='isi').slice(0,S.workers*4);
+  for(const p of list){
+   if(h===8||h===16)feed(p,true);
+   if(h===9&&S.day-p.sday>=10)sampling(p,true);
+   if(h===10&&p.amm>.8&&p.conn)gantiAir(p,true);
+  }}
+ if(h===18)toast('info','Prakiraan besok: '+WX[S.tomorrow].n,S.tomorrow==='panas'?'Suhu air tinggi, nafsu makan turun dan risiko penyakit naik.':S.tomorrow==='hujan'?'pH air bisa turun. Tutup sebagian kolam terpal bila perlu.':'');
+ checkMissions();
+ if(ui.sheet&&ui.sheet.type==='pond')renderSheet();
+}
+function kill(p,d){d=Math.min(d,p.n);p.n-=d;p.dead=(p.dead||0)+d;if(p.n<=0){p.st='kering';p.n=0;p.sick=null;toast('bad',p.name+': semua ikan mati','Kolam dikosongkan. Siapkan ulang sebelum tebar lagi.')}}
+function dayTick(){
+ const avgT=S.tempBase;
+ for(const p of ponds()){
+  if(p.st!=='isi'){p.fedToday=0;p.meals=0;p.waste=0;continue}
+  const need=p.n*p.w*FR(p.w)/100/1000;
+  const app=need*1.1*(p.sick?.4:1)*(p.doMin<3?.6:1)*(avgT>31.5?.8:1);
+  const eaten=Math.min(p.fedToday,app),waste=p.fedToday-eaten+p.waste;
+  const tf=clamp(1-((avgT-29)/6)**2,.3,1);
+  const gmax=.085*Math.pow(p.w,.75)*tf*(p.sick?.3:1)*(p.doMin<3?.75:1);
+  const sat=need>0?Math.min(1,eaten/need):0;
+  let g=gmax*Math.pow(sat,.8);if(p.type==='tanah')g+=gmax*.08;if(sat<.05)g-=p.w*.003;
+  p.w=Math.max(1,p.w+g);
+  const dec=(p.type==='tanah'?.25:.15)+(p.probio>0?.15:0);
+  p.amm=Math.max(.02,p.amm*(1-dec)+(eaten*.6+waste*1.5)/T[p.type].vol);
+  if(p.probio>0)p.probio--;
+  const m=.001+(p.sick?(p.sick.tr?.006:.02):0)+(p.stress>3?.003:0);
+  const d=Math.floor(p.n*m+rnd());if(d>0)kill(p,d);
+  if(p.sick){if(p.sick.tr&&S.day-p.sick.trd>=4&&p.stress<4){p.sick=null;toast('good',p.name+': ikan sudah sembuh','Pertahankan air bersih dan pakan tidak berlebih.')}else if(!p.sick.tr&&p.stress<2&&rnd()<.08)p.sick=null}
+  p.fedToday=0;p.waste=0;p.doMin=9;
+ }
+ const isi=ponds().filter(p=>p.st==='isi');
+ if(isi.length){S.streak=isi.every(p=>p.meals>=2)?S.streak+1:0;if(S.streak>=7)S.flags.streak7=true}
+ for(const p of ponds())p.meals=0;
+ const aer=ponds().reduce((a,p)=>a+p.aer,0),elec=aer*3000+byType('sumur').length*2000;
+ if(elec)pay('Listrik',elec,'Listrik aerator & pompa',true);
+ if(S.workers&&S.day-S.payDay>=30){S.payDay=S.day;pay('Gaji',S.workers*1500000,'Gaji pekerja '+S.workers+' orang',true)}
+ S.price=Math.round(clamp(S.price+(rnd()-.5)*1400+(30500-S.price)*.08,26000,35000)/100)*100;
+ S.weather=S.tomorrow;S.tempBase=WX[S.weather].t+(rnd()-.5);
+ const r=rnd(),wnext={cerah:[.5,.25,.18,.07],berawan:[.35,.3,.3,.05],hujan:[.3,.35,.35,0],panas:[.5,.2,.1,.2]}[S.weather];
+ let acc=0;S.tomorrow=['cerah','berawan','hujan','panas'].find((k,i)=>(acc+=wnext[i])>r)||'cerah';
+ S.outage=rnd()<.05;
+ S.day++;
+ if(S.money<0)toast('bad','Uang minus','Tagihan listrik/gaji membuat kas minus. Panen atau kurangi biaya.');
+ save();
+}
+
+/* ================= ACTIONS ================= */
+function feedRation(p){const ws=p.ws||p.w0;return Math.round(p.n*ws*FR(ws)/100/1000/2*100)/100}
+function feed(p,auto){
+ if(p.st!=='isi')return;
+ const r=feedRation(p),amt=Math.min(S.feed,r);
+ if(amt<=0){if(!auto)toast('warn','Stok pakan habis','Beli pakan di menu Pakan.');else if(!S.feedWarn){S.feedWarn=S.day;toast('warn','Pekerja tidak bisa memberi pakan','Stok pakan habis.')}return}
+ const h=Math.floor(S.t)%24;
+ S.feed=Math.round((S.feed-amt)*100)/100;p.feedTotal+=amt;p.cost+=amt*FEEDP;p.meals++;
+ if(isNight(h)){p.fedToday+=amt*.4;p.waste+=amt*.6;if(!auto)toast('warn','Memberi pakan malam hari','Ikan kurang makan saat gelap, sebagian pakan tenggelam dan jadi amonia.')}
+ else p.fedToday+=amt;
+ if(!auto&&p.meals===3)toast('warn','Sudah 3 kali hari ini','Lebih dari 2–3 kali bukan masalah bila jatahnya dibagi. Tapi tiap tombol memberi jatah penuh, jadi pakan berlebih jadi amonia.');
+ p.splash=performance.now()+2500;splashAt(p,18,'#c98a3a');floatAt(p,'-'+fmtN(amt,1)+' kg pakan','#fff');sendVillager(p,auto?'#3a7bd5':'#e2553b');
+}
+function sampling(p,auto){p.ws=Math.round(p.w*(.95+rnd()*.1));p.sday=S.day;p.stress+=.3;S.flags.sampling=true;floatAt(p,'± '+p.ws+' g/ekor','#fff');sendVillager(p,auto?'#3a7bd5':'#e2553b');
+ if(!auto)toast('info',`${p.name}: rata-rata ${p.ws} g/ekor`,`Jatah pakan disesuaikan: ${fmtN(feedRation(p),2)} kg per kali makan.`)}
+function gantiAir(p,auto){if(!p.conn){toast('bad','Tidak ada air','Sambungkan kolam ke saluran atau sumur.');return}
+ const c=p.type==='tanah'?25000:10000;lastFocus=p;if(!pay('Air & obat',c,'Ganti air '+p.name))return;
+ if(p.amm>.5)S.flags.gantiair=true;p.amm*=.65;p.ph=p.ph*.7+7.3*.3;p.stress=Math.max(0,p.stress-.5);p.do=Math.min(9,p.do+.8);p.cost+=c;splashAt(p,22,'#bfe8ff');sendVillager(p,auto?'#3a7bd5':'#e2553b');
+ if(!auto)toast('good',`${p.name}: air diganti 30%`,`Amonia turun ke ${fmtN(p.amm,2)} mg/L.`)}
+function probio(p){lastFocus=p;if(!pay('Air & obat',50000,'Probiotik '+p.name))return;p.probio=6;p.cost+=50000;toast('good','Probiotik ditebar','Bakteri baik mempercepat penguraian amonia selama 6 hari.');sendVillager(p)}
+function obati(p){lastFocus=p;if(!pay('Air & obat',200000,'Pengobatan '+p.name))return;p.sick.tr=true;p.sick.trd=S.day;p.cost+=200000;p.stress=Math.max(0,p.stress-1);toast('info','Pengobatan dimulai','Rendam garam 1–2 g/L, kurangi pakan 50%, ganti air. Butuh ±4 hari bila air tetap baik.');sendVillager(p)}
+function addAer(p){const c=p.type==='tanah'?1500000:600000;lastFocus=p;if(!pay('Investasi',c,(p.type==='tanah'?'Kincir air ':'Aerator ')+p.name))return;p.aer++;toast('good',p.type==='tanah'?'Kincir terpasang':'Aerator terpasang','Listrik ±Rp 3.000/hari. Paling penting jam 00–06.')}
+function siapkan(p){
+ if(!p.conn){toast('bad','Belum ada air','Sambungkan kolam ke sungai lewat saluran, atau bangun sumur bor di sebelahnya.');return}
+ const t=p.type==='tanah',c=t?(8*2000+38*1000+25000):(7*1500+20000);lastFocus=p;
+ if(!pay('Persiapan',c,(t?'Kapur, pupuk, air ':'Garam, air ')+p.name))return;
+ p.st='persiapan';p.prep=T[p.type].prep;p.prepCost=c;sendVillager(p);
+ toast('info',p.name+': persiapan dimulai',t?'Dikeringkan, dikapur 8 kg, dipupuk 38 kg kotoran, lalu diisi air sampai hijau. ±4 hari.':'Diisi air + garam 7 kg, didiamkan agar bau terpal hilang. ±3 hari.');
+}
+function tebar(p,q){lastFocus=p;const c=q*BENIHP;if(!pay('Benih',c,`Benih ${fmtN(q)} ekor ${p.name}`))return;
+ const h=Math.floor(S.t)%24;
+ Object.assign(p,{st:'isi',n:q,n0:q,w:8,w0:8,ws:8,sday:S.day,stockDay:S.day,feedTotal:0,cost:c+(p.prepCost||0),stress:1,sick:null,do:7,amm:.05,meals:0,fedToday:0,waste:0,dead:0});
+ if(h>=10&&h<=15){p.stress+=3;toast('warn','Tebar di siang hari','Air sedang panas. Benih stres, risiko mati awal lebih tinggi. Lain kali tebar pagi atau sore.')}
+ else toast('good',`${fmtN(q)} benih ditebar`,'Ukuran 5–7 cm (±8 g). Mulai beri pakan besok pagi 2× sehari.');
+ splashAt(p,26,'#bfe8ff');sendVillager(p);
+}
+function sortir(p,tid){const t=S.objs.find(o=>o.id===tid);if(!t||t.st!=='siap')return;
+ const m=Math.floor(p.n/2),f=m/p.n;
+ Object.assign(t,{st:'isi',n:m,n0:Math.round(p.n0*f),w:p.w*1.12,w0:p.w0,ws:Math.round((p.ws||p.w)*1.12),sday:p.sday,stockDay:p.stockDay,feedTotal:p.feedTotal*f,cost:p.cost*f+(t.prepCost||0),stress:p.stress+1.5,sick:null,do:7,amm:.05,meals:0,fedToday:0,waste:0,dead:0});
+ p.n-=m;p.n0-=t.n0;p.w*=.88;p.ws=Math.round((p.ws||p.w)*.88);p.feedTotal*=(1-f);p.cost*=(1-f);p.stress+=1.5;
+ S.flags.sortir=true;sendVillager(p);splashAt(p);splashAt(t);
+ toast('good',`Ikan besar dipindah ke ${t.name}`,`${fmtN(m)} ekor (±${t.ws} g) pindah. Yang kecil (±${p.ws} g) tetap di ${p.name}, kepadatan turun.`);
+}
+function panen(p){
+ const kg=p.n*p.w/1000,mult=p.w>=250?1:p.w>=200?.95:p.w>=150?.85:.6,price=S.price*mult,rev=kg*price,hc=Math.round(kg*500);
+ lastFocus=p;earn('Penjualan',Math.round(rev),`Panen ${p.name} ${fmtN(kg,1)} kg`);pay('Panen',hc,'Biaya panen & angkut '+p.name,true);
+ const gain=kg-p.n0*p.w0/1000,fcr=gain>0?p.feedTotal/gain:0,cost=p.cost+hc;
+ S.harvests.unshift({day:S.day,name:p.name,kg,size:p.w,sr:p.n/p.n0,fcr,rev,cost,laba:rev-cost,days:S.day-p.stockDay});
+ Object.assign(p,{st:'kering',n:0,sick:null,ws:0,feedTotal:0,cost:0});
+ splashAt(p,30,'#ffd43b');burst();
+ toast('gold',`Panen ${fmtN(kg,1)} kg, ${rp(rev)}`,`Ukuran ${Math.round(p.w)} g · SR ${fmtN(S.harvests[0].sr*100)}% · FCR ${fmtN(fcr,2)} · laba kolam ${rp(rev-cost)}`);
+ checkMissions();
+}
+function buyFeed(n){const cap=feedCap();if(S.feed+n*SACK>cap){toast('warn','Gudang penuh',`Kapasitas ${fmtN(cap)} kg. Bangun Gudang pakan untuk +900 kg.`);return}
+ lastFocus=null;if(!pay('Pakan',n*SACK*FEEDP,`Pakan ${n} karung (${n*SACK} kg)`))return;S.feed+=n*SACK;S.flags.beli=true;toast('good',`${n*SACK} kg pakan dibeli`,'Simpan di tempat kering, pakai dalam 2–3 bulan.');checkMissions();renderSheet()}
+const feedCap=()=>90+byType('gudang').length*900;
+function hire(){if(!byType('pondok').length){toast('warn','Butuh pondok jaga','Bangun Pondok jaga dulu.');return}if(S.workers>=3)return;if(!pay('Gaji',1500000,'Gaji pekerja baru (30 hari)'))return;S.workers++;S.payDay=S.day;toast('good','Pekerja direkrut','Memberi pakan jam 08 dan 16, sampling tiap 10 hari, ganti air bila amonia tinggi. 1 pekerja menangani 4 kolam.');renderSheet()}
+function fire(){if(S.workers>0){S.workers--;toast('info','Pekerja diberhentikan','');renderSheet()}}
+
+/* ================= BUILD ================= */
+function canPlace(type,x,y){const t=T[type];if(x<1||y<0||x+t.w>W||y+t.h>H)return false;for(let j=0;j<t.h;j++)for(let i=0;i<t.w;i++)if(OCC[y+j][x+i])return false;return true}
+function place(type,x,y){
+ if(!canPlace(type,x,y)){toast('warn','Tidak bisa dibangun di sini','Lahan harus kosong dan bukan sungai. Hapus pohon/batu dulu.');return}
+ const o={id:S.nextId++,type,x,y};lastFocus=o;
+ if(!pay('Investasi',T[type].cost,T[type].n))return;
+ S.objs.push(o);if(T[type].pond)initPond(o);
+ computeWater();splashAt(o,10,'#b08050');
+ if(T[type].pond){toast('good',o.name+' dibangun',o.conn?'Sudah tersambung air. Ketuk kolam untuk menyiapkannya.':'Belum ada air. Sambungkan Saluran air ke sungai (kiri) atau bangun Sumur bor di sebelahnya.');endBuild();select(o)}
+ else if(type==='saluran'){if(o.wet&&!S.flags.wetTip){S.flags.wetTip=1;toast('info','Air mengalir','Saluran biru berarti berisi air. Sambung terus sampai menempel di kolam.')}}
+ else endBuild();
+ checkMissions();save();
+}
+function demolish(o){
+ if(T[o.type].pond&&o.st==='isi'){toast('warn','Kolam masih berisi ikan','Panen atau pindahkan ikan dulu.');return}
+ if(o.type==='pohon'||o.type==='batu'){lastFocus=o;if(!pay('Investasi',50000,'Bersihkan lahan'))return}
+ else if(T[o.type].cost){earn('Investasi',Math.round(T[o.type].cost*.2),'Jual bekas '+T[o.type].n)}
+ S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();
+}
+function startBuild(type){ui.tool=type;closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang ingin dihapus':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
+function endBuild(){ui.tool=null;$('#place').hidden=true;$('#build').hidden=true;navOn(null)}
+
+/* ================= 3D WORLD ================= */
+const cv=$('#cv'),fx2=$('#fx2d'),fctx=fx2.getContext('2d');let cw=innerWidth,ch=innerHeight;
+let R,SC,CAM,SUN,HEMI,SKY,RAIN3,CLOUDS3=[],RIVER,TILES,SELF,GHOST;
+const RAY=new THREE.Raycaster(),GROUND=new THREE.Plane(new THREE.Vector3(0,1,0),0);
+const camS={tx:6.2,tz:6.2,dist:20,az:Math.PI/4,azT:Math.PI/4,pol:.92};
+function skyColors(h){
+ const keys=[[0,'#0d1736','#1d2b52'],[5,'#1d2b52','#4a4f7a'],[6.5,'#f3a36b','#fde0b2'],[8,'#6fc0ec','#d3f0fb'],[16.5,'#6fc0ec','#d3f0fb'],[18,'#f08a5d','#fcd29c'],[19.5,'#24305e','#4a4f7a'],[24,'#0d1736','#1d2b52']];
+ for(let i=0;i<keys.length-1;i++){const a=keys[i],b=keys[i+1];if(h>=a[0]&&h<=b[0]){const f=(h-a[0])/(b[0]-a[0]);return[mix(a[1],b[1],f),mix(a[2],b[2],f)]}}return['#6fc0ec','#d3f0fb']}
+function mix(a,b,f){const p=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));const A=p(a),B=p(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*f).toString(16).padStart(2,'0')).join('')}
+function darkness(h){if(h>=19.5||h<4.5)return .5;if(h<6.5)return .5*(6.5-h)/2;if(h>17.5)return .5*(h-17.5)/2;return 0}
+const hash=(x,y)=>{let h=(x*374761393+y*668265263)^0x5bd1e995;h=Math.imul(h^(h>>>13),1274126177);return((h^(h>>>16))>>>0)/4294967295};
+function waterCol(p){if(p.st==='persiapan')return p.type==='tanah'?'#7fb87a':'#8ccbe0';if(p.st!=='isi')return p.type==='tanah'?'#6fae78':'#5eb8d6';const bad=p.amm>1||p.do<2.5,mid=p.amm>.5||p.do<4;return bad?'#7f7a3c':mid?'#5f9c63':p.type==='tanah'?'#3f9f7a':'#2fa3a8'}
+function connects(x,y){if(x===0&&y>=0&&y<H)return'river';const n=OCC[y]&&OCC[y][x];if(!n)return null;return n.type==='saluran'||T[n.type].pond||n.type==='sumur'?n.type:null}
+
+/* ---------- materials & helpers ---------- */
+const MAT={};
+const M_=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,flatShading:true,roughness:.9,metalness:0},o||{}));
+function initMat(){Object.assign(MAT,{
+ grass:M_(0x8fcd5b),grassOut:M_(0x76b347),tile:M_(0xffffff),dirt:M_(0xa8734a),dirtD:M_(0x86562f),wood:M_(0xc98b4f),woodD:M_(0x8f5d32),roof:M_(0xdb5a3a),roofG:M_(0x9aa6ad,{metalness:.3,roughness:.6}),
+ metal:M_(0xb8c2c8,{metalness:.4,roughness:.5}),concrete:M_(0xcfccc3),tarp:M_(0x2f74bd,{side:THREE.DoubleSide,roughness:.6}),tarpIn:M_(0x1b4675),white:M_(0xf4f4ee),trunk:M_(0x7a4f2a),
+ leaf0:M_(0x3f8f3a),leaf1:M_(0x2f7d3f),leaf2:M_(0x5aa847),rock:M_(0x9da3a6),rock2:M_(0xc3c8ca),yellow:M_(0xf2c230),dark:M_(0x33383c),tank:M_(0x2f80c9,{roughness:.5}),skin:M_(0xe0a874),hat:M_(0xe9c46a),
+ fish:M_(0x56625e),bed:M_(0x7d6a4a),cream:M_(0xe8dcc0),red:M_(0xd24b3a),hill:M_(0x6aa843),hill2:M_(0x5c9a3c),mount:M_(0x86a274),paddy:M_(0x9fd07a),sack:M_(0xd9a35b),cloud:M_(0xffffff,{roughness:1}),
+ foam:new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.85}),
+ river:new THREE.MeshStandardMaterial({color:0x48a3d8,transparent:true,opacity:.9,roughness:.2,metalness:.1,flatShading:true}),
+ chanW:new THREE.MeshStandardMaterial({color:0x4fb3e8,roughness:.2}),chanD:M_(0x9a6b44),
+ sel:new THREE.MeshBasicMaterial({color:0xffd740,transparent:true,opacity:.9}),
+ ghostOk:new THREE.MeshBasicMaterial({color:0x50c85a,transparent:true,opacity:.45,depthWrite:false}),ghostNo:new THREE.MeshBasicMaterial({color:0xd6432f,transparent:true,opacity:.45,depthWrite:false})
+})}
+const BOX=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+function mesh(geo,mat,x,y,z,parent,noShadow){const m=new THREE.Mesh(geo,mat);m.position.set(x||0,y||0,z||0);m.castShadow=!noShadow;m.receiveShadow=true;if(parent)parent.add(m);return m}
+const sideTop=(side,top)=>[side,side,top,side,side,side];
+function prism(w,h,len,mat,parent,x,y,z){const s=new THREE.Shape();s.moveTo(-w/2,0);s.lineTo(w/2,0);s.lineTo(0,h);s.closePath();const g=new THREE.ExtrudeGeometry(s,{depth:len,bevelEnabled:false});g.translate(0,0,-len/2);return mesh(g,mat,x,y,z,parent)}
+const waterMat=()=>new THREE.MeshStandardMaterial({color:0x2fa3a8,transparent:true,opacity:.86,roughness:.12,metalness:.05});
+const colMat={};const cmat=c=>colMat[c]||(colMat[c]=M_(c));
+
+/* ---------- terrain ---------- */
+function buildTerrain(){
+ const n=(W-1)*H;TILES=new THREE.InstancedMesh(BOX(1,1,1),MAT.tile,n);TILES.receiveShadow=true;
+ const pal=[0x86c152,0x7fba4c,0x8cc75a].map(c=>new THREE.Color(c));const m=new THREE.Matrix4();let i=0;
+ for(let y=0;y<H;y++)for(let x=1;x<W;x++){m.makeTranslation(x+.5,-.5,y+.5);TILES.setMatrixAt(i,m);TILES.setColorAt(i,pal[Math.floor(hash(x,y)*3)]);i++}
+ SC.add(TILES);
+ const og=sideTop(MAT.dirt,MAT.grassOut);
+ for(const[x0,x1,z0,z1]of[[-40,-2,-40,52],[1,52,-40,0],[1,52,12,52],[12,52,0,12]]){const b=mesh(BOX(x1-x0,1,z1-z0),og,(x0+x1)/2,-.5,(z0+z1)/2,SC,true)}
+ mesh(BOX(3,.5,92),MAT.bed,-.5,-.85,6,SC,true);
+ mesh(BOX(.02,.62,12),MAT.dirt,1.005,-.31,6,SC,true);
+ const rg=new THREE.PlaneGeometry(3,92,6,92);rg.rotateX(-Math.PI/2);RIVER=mesh(rg,MAT.river,-.5,-.2,6,SC,true);RIVER.userData.base=rg.attributes.position.array.slice();
+ // stones on river bank
+ for(let k=0;k<14;k++){const z=-8+k*2.3+hash(k,3)*1.2;if(z>-.5&&z<12.5&&k%2)continue;const r=mesh(new THREE.DodecahedronGeometry(.18+hash(k,9)*.15,0),MAT.rock,-2.1+hash(k,5)*.3,-.05,z,SC);r.scale.y=.6}
+ // rice terraces across the river
+ for(let k=0;k<4;k++){const x0=-3.2-k*2.6,top=.18+k*.38;const t=mesh(BOX(2.5,top+1,14),sideTop(MAT.dirt,MAT.paddy),x0-1.25,top-(top+1)/2,5.5,SC);
+  const w=mesh(new THREE.PlaneGeometry(2.2,13.6),new THREE.MeshStandardMaterial({color:0x8fc9b0,transparent:true,opacity:.55,roughness:.1}),x0-1.25,top+.01,5.5,SC,true);w.rotation.x=-Math.PI/2;
+  for(let j=0;j<26;j++){const tf=mesh(new THREE.ConeGeometry(.05,.18,4),MAT.leaf2,x0-2.3+hash(j,k)*2.1,top+.09,-1+hash(k,j)*13,SC,true)}}
+ // hills & mountains
+ for(let k=0;k<16;k++){const a=k/16*Math.PI*2+.2,r=30+hash(k,1)*12,x=6+Math.cos(a)*r,z=6+Math.sin(a)*r;if(x<4&&x>-6)continue;const h=mesh(new THREE.IcosahedronGeometry(1,1),k%2?MAT.hill:MAT.hill2,x,-.6,z,SC,true);h.scale.set(6+hash(k,2)*6,2+hash(k,4)*3,6+hash(k,6)*6)}
+ for(let k=0;k<9;k++){const a=k/9*Math.PI*2+.5,r=62+hash(k,8)*12;const c=mesh(new THREE.ConeGeometry(10+hash(k,1)*6,10+hash(k,2)*10,6),MAT.mount,6+Math.cos(a)*r,3,6+Math.sin(a)*r,SC,true);c.castShadow=false}
+ // trees outside the farm
+ let placed=0;for(let k=0;placed<46&&k<400;k++){const x=-16+hash(k,11)*36,z=-14+hash(k,12)*36;if(x>-0.2&&x<13.2&&z>-1.2&&z<13.2)continue;if(x>-2.8&&x<1.6)continue;if(x<-2.8&&x>-14&&z>-1.5&&z<12.5)continue;const t=bTree({v:k%3,x:0,y:0,id:k}).g;t.position.set(x,0,z);const s=.9+hash(k,13)*.6;t.scale.set(s,s,s);SC.add(t);placed++}
+ // neighbour houses
+ for(const[x,z,ry]of[[15.5,3.5,.3],[16.5,8,-.4],[14.5,14.5,.9],[4,-3,0]]){const g=bPondok({}).g;g.position.set(x,0,z);g.rotation.y=ry;SC.add(g)}
+ // fence (farm boundary)
+ const post=new THREE.InstancedMesh(BOX(.07,.36,.07),MAT.woodD,40);post.castShadow=true;let pi=0;
+ for(let x=1;x<=W;x++){m.makeTranslation(x,.18,0);post.setMatrixAt(pi++,m)}for(let z=1;z<=H;z++){m.makeTranslation(W,.18,z);post.setMatrixAt(pi++,m)}for(let x=1;x<W;x++){m.makeTranslation(x,.18,H);post.setMatrixAt(pi++,m)}
+ post.count=pi;SC.add(post);
+ for(const h of[.12,.27]){mesh(BOX(W-1,.04,.03),MAT.wood,(W+1)/2,h,0,SC);mesh(BOX(.03,.04,H),MAT.wood,W,h,H/2,SC);mesh(BOX(W-1,.04,.03),MAT.wood,(W+1)/2,h,H,SC)}
+}
+function setTileVisible(x,y,vis){if(x<1)return;const i=y*(W-1)+(x-1),m=new THREE.Matrix4();if(vis)m.makeTranslation(x+.5,-.5,y+.5);else m.makeScale(0,0,0);TILES.setMatrixAt(i,m);TILES.instanceMatrix.needsUpdate=true}
+
+/* ---------- object builders ---------- */
+function fishSet(g,n){const geo=new THREE.SphereGeometry(.045,6,4);return[...Array(n)].map(()=>{const f=mesh(geo,MAT.fish,0,0,0,g,true);f.scale.set(2,.55,.9);f.visible=false;return f})}
+function foamSet(g,n=7,r=.08){const geo=new THREE.SphereGeometry(r*.35,6,4);return[...Array(n)].map(()=>mesh(geo,MAT.foam,0,0,0,g,true))}
+function bTerpal(o){const g=new THREE.Group(),P={};
+ mesh(new THREE.CylinderGeometry(.42,.42,.5,28,1,true),MAT.tarp,0,.25,0,g);
+ const fl=mesh(new THREE.CircleGeometry(.41,28),MAT.tarpIn,0,.02,0,g,true);fl.rotation.x=-Math.PI/2;
+ const rim=mesh(new THREE.TorusGeometry(.42,.022,6,28),MAT.metal,0,.5,0,g);rim.rotation.x=Math.PI/2;
+ const mid=mesh(new THREE.TorusGeometry(.43,.012,4,28),MAT.metal,0,.26,0,g);mid.rotation.x=Math.PI/2;
+ for(let i=0;i<8;i++){const a=i/8*Math.PI*2;mesh(new THREE.CylinderGeometry(.014,.014,.52,4),MAT.metal,Math.cos(a)*.435,.26,Math.sin(a)*.435,g)}
+ P.wmat=waterMat();P.water=mesh(new THREE.CircleGeometry(.405,28),P.wmat,0,.4,0,g,true);P.water.rotation.x=-Math.PI/2;
+ P.fish=fishSet(g,8);P.r=.32;P.cx=0;P.cz=0;P.level=[.04,.42];
+ P.aers=[];for(let i=0;i<Math.min(o.aer||0,2);i++){const a=new THREE.Group();mesh(new THREE.SphereGeometry(.05,8,6),MAT.white,0,0,0,a,true);a.userData.px=i?.16:-.12;a.userData.pz=i?.1:-.1;g.add(a);a.userData.foam=foamSet(a);P.aers.push(a)}
+ if(o.aer){mesh(BOX(.16,.12,.12),MAT.dark,.56,.06,.16,g);const hose=mesh(new THREE.CylinderGeometry(.012,.012,.45,4),MAT.dark,.48,.3,.1,g);hose.rotation.z=.5}
+ return{g,P}}
+function bTanah(o){const g=new THREE.Group(),P={};
+ mesh(BOX(2,.1,2),MAT.dirtD,1,-.6,1,g);
+ const bank=sideTop(MAT.dirt,MAT.grass),bw=.24,bh=.74,by=.12-bh/2;
+ mesh(BOX(2,bh,bw),bank,1,by,bw/2,g);mesh(BOX(2,bh,bw),bank,1,by,2-bw/2,g);mesh(BOX(bw,bh,2-2*bw),bank,bw/2,by,1,g);mesh(BOX(bw,bh,2-2*bw),bank,2-bw/2,by,1,g);
+ P.wmat=waterMat();P.water=mesh(new THREE.PlaneGeometry(2-2*bw,2-2*bw),P.wmat,1,-.1,1,g,true);P.water.rotation.x=-Math.PI/2;
+ mesh(BOX(.2,.34,.2),MAT.concrete,1.9,.04,1.62,g);mesh(BOX(.04,.2,.24),MAT.woodD,1.79,.12,1.62,g);
+ P.fish=fishSet(g,10);P.r=.6;P.cx=1;P.cz=1;P.level=[-.52,-.1];
+ P.wheels=[];for(let i=0;i<Math.min(o.aer||0,2);i++){const k=new THREE.Group();k.position.set(.65+i*.7,0,1.25-i*.55);
+  mesh(BOX(.07,.07,.36),MAT.white,-.22,0,0,k,true);mesh(BOX(.07,.07,.36),MAT.white,.22,0,0,k,true);mesh(BOX(.12,.1,.12),MAT.dark,.22,.08,0,k);
+  const wh=new THREE.Group();wh.position.y=.04;k.add(wh);mesh(new THREE.CylinderGeometry(.02,.02,.42,6),MAT.metal,0,0,0,wh,true).rotation.z=Math.PI/2;
+  for(let j=0;j<6;j++){const a=j/6*Math.PI*2;const pd=mesh(BOX(.3,.025,.1),cmat(0xe04b3c),0,Math.sin(a)*.08,Math.cos(a)*.08,wh,true);pd.rotation.x=-a}
+  k.userData.wheel=wh;k.userData.foam=foamSet(k,8,.12);g.add(k);P.wheels.push(k)}
+ return{g,P}}
+function bSaluran(o,dirsOverride){const g=new THREE.Group();
+ const dirs=dirsOverride||[[1,0],[-1,0],[0,1],[0,-1]].filter(d=>connects(o.x+d[0],o.y+d[1]));
+ const wm=o.wet?MAT.chanW:MAT.chanD;
+ const seg=(dx,dz,len,cx,cz)=>{const along=dx!==0;mesh(BOX(along?len:.46,.06,along?.46:len),MAT.dirt,cx,.03,cz,g,true);mesh(BOX(along?len:.24,.02,along?.24:len),wm,cx,.065,cz,g,true);
+  for(const s of[-1,1]){mesh(BOX(along?len:.08,.09,along?.08:len),MAT.dirtD,cx+(along?0:s*.19),.045,cz+(along?s*.19:0),g)}};
+ seg(1,0,.46,0,0);
+ if(!dirs.length)seg(1,0,.7,0,0);
+ for(const[dx,dz]of dirs)seg(dx,dz,.5,dx*.25,dz*.25);
+ return{g,P:{}}}
+function bSumur(){const g=new THREE.Group();
+ mesh(BOX(.64,.1,.64),MAT.concrete,0,.05,0,g);
+ for(const[a,b]of[[-.2,-.2],[.2,-.2],[.2,.2],[-.2,.2]])mesh(new THREE.CylinderGeometry(.025,.03,1.05,5),MAT.metal,a,.6,b,g);
+ mesh(BOX(.56,.04,.56),MAT.metal,0,1.1,0,g);
+ mesh(new THREE.CylinderGeometry(.26,.26,.42,16),MAT.tank,0,1.33,0,g);mesh(new THREE.ConeGeometry(.27,.12,16),MAT.tank,0,1.6,0,g);
+ mesh(new THREE.CylinderGeometry(.03,.03,1.1,6),MAT.metal,.3,.6,.06,g);mesh(BOX(.2,.16,.16),MAT.red,-.16,.18,.22,g);
+ return{g,P:{}}}
+function bGudang(){const g=new THREE.Group();
+ mesh(BOX(.84,.06,.84),MAT.concrete,0,.03,0,g);
+ mesh(BOX(.78,.56,.78),MAT.cream,0,.34,0,g);mesh(BOX(.38,.42,.02),MAT.roofG,0,.27,.4,g);
+ prism(.98,.36,.96,MAT.roofG,g,0,.62,0);
+ for(const[x,y,z]of[[.3,.08,.5],[.42,.08,.5],[.36,.2,.5]])mesh(BOX(.12,.12,.1),MAT.sack,x,y+.04,z,g);
+ return{g,P:{}}}
+function bPondok(o){const g=new THREE.Group(),P={};
+ for(const[a,b]of[[-.3,-.3],[.3,-.3],[.3,.3],[-.3,.3]])mesh(new THREE.CylinderGeometry(.025,.025,.22,5),MAT.woodD,a,.11,b,g);
+ mesh(BOX(.76,.06,.76),MAT.woodD,0,.23,0,g);mesh(BOX(.62,.44,.62),MAT.wood,0,.48,0,g);
+ mesh(BOX(.18,.3,.02),MAT.dark,-.1,.41,.315,g);
+ P.win=new THREE.MeshStandardMaterial({color:0x4d6b80,emissive:0xffc45a,emissiveIntensity:0,flatShading:true});mesh(BOX(.02,.14,.2),P.win,.315,.52,0,g);mesh(BOX(.16,.12,.02),P.win,.15,.52,.315,g);
+ prism(.86,.36,.84,MAT.roof,g,0,.7,0);
+ mesh(BOX(.2,.03,.16),MAT.woodD,-.1,.12,.44,g);
+ P.light=new THREE.PointLight(0xffc45a,0,3.5);P.light.position.set(.6,.55,.4);g.add(P.light);
+ return{g,P}}
+function bGenset(){const g=new THREE.Group(),P={};
+ mesh(BOX(.62,.06,.5),MAT.concrete,0,.03,0,g);mesh(BOX(.46,.3,.34),MAT.yellow,0,.21,0,g);mesh(BOX(.26,.14,.02),MAT.dark,-.04,.22,.175,g);mesh(new THREE.CylinderGeometry(.025,.025,.24,6),MAT.dark,.15,.46,-.08,g);
+ P.smoke=[...Array(4)].map(()=>mesh(new THREE.SphereGeometry(.06,6,4),cmat(0x8a8a8a),.15,.6,-.08,g,true));return{g,P}}
+function bTree(o){const g=new THREE.Group();const v=o.v||0;
+ mesh(new THREE.CylinderGeometry(.04,.06,.4,5),MAT.trunk,0,.2,0,g);
+ if(v===1){mesh(new THREE.ConeGeometry(.3,.55,7),MAT.leaf1,0,.55,0,g);mesh(new THREE.ConeGeometry(.22,.45,7),MAT.leaf1,0,.85,0,g)}
+ else if(v===2){mesh(new THREE.IcosahedronGeometry(.3,0),MAT.leaf2,0,.55,0,g);mesh(new THREE.IcosahedronGeometry(.2,0),MAT.leaf2,.15,.72,.05,g)}
+ else{mesh(new THREE.IcosahedronGeometry(.32,1),MAT.leaf0,0,.6,0,g);mesh(new THREE.IcosahedronGeometry(.2,0),MAT.leaf0,-.18,.48,.1,g);mesh(new THREE.IcosahedronGeometry(.18,0),MAT.leaf0,.16,.5,-.12,g)}
+ g.rotation.y=hash(o.id||1,7)*6;return{g,P:{}}}
+function bBatu(o){const g=new THREE.Group();const a=mesh(new THREE.DodecahedronGeometry(.26,0),MAT.rock,0,.1,0,g);a.scale.set(1,.65,.9);const b=mesh(new THREE.DodecahedronGeometry(.13,0),MAT.rock2,.25,.06,.15,g);g.rotation.y=hash(o.id,3)*6;return{g,P:{}}}
+function bVillager(col){const g=new THREE.Group();
+ const l1=mesh(BOX(.04,.13,.045),MAT.dark,-.03,.065,0,g),l2=mesh(BOX(.04,.13,.045),MAT.dark,.03,.065,0,g);
+ mesh(new THREE.CylinderGeometry(.055,.07,.15,8),cmat(col),0,.2,0,g);mesh(new THREE.SphereGeometry(.045,8,6),MAT.skin,0,.31,0,g);mesh(new THREE.ConeGeometry(.12,.06,12),MAT.hat,0,.37,0,g);
+ const bucket=mesh(new THREE.CylinderGeometry(.03,.025,.05,8),MAT.sack,.08,.15,0,g);g.userData={l1,l2,bucket};g.scale.setScalar(1.3);return g}
+const BUILDERS={terpal:bTerpal,tanah:bTanah,saluran:bSaluran,sumur:bSumur,gudang:bGudang,pondok:bPondok,genset:bGenset,pohon:bTree,batu:bBatu};
+
+/* ---------- sync game state -> scene ---------- */
+const OBJ3=new Map();let PICK=[];
+function objKey(o){if(o.type==='saluran')return'c'+[[1,0],[-1,0],[0,1],[0,-1]].map(d=>connects(o.x+d[0],o.y+d[1])?1:0).join('')+(o.wet?'w':'d');if(T[o.type].pond)return o.type+(o.aer||0);return o.type}
+function syncObjects(){
+ if(!OCC)return;const seen=new Set();let changed=false;
+ for(const o of S.objs){seen.add(o.id);const k=objKey(o);let e=OBJ3.get(o.id);
+  if(e&&e.key!==k){SC.remove(e.g);e=null;changed=true}
+  if(!e){const b=BUILDERS[o.type](o);const t=T[o.type];b.g.position.set(o.type==='tanah'?o.x:o.x+.5,0,o.type==='tanah'?o.y:o.y+.5);b.g.traverse(m=>m.userData.oid=o.id);SC.add(b.g);e={g:b.g,P:b.P,key:k,o};OBJ3.set(o.id,e);changed=true;if(o.type==='tanah')for(let j=0;j<2;j++)for(let i=0;i<2;i++)setTileVisible(o.x+i,o.y+j,false)}
+  e.o=o}
+ for(const[id,e]of OBJ3)if(!seen.has(id)){SC.remove(e.g);if(e.badge)SC.remove(e.badge);if(e.o.type==='tanah')for(let j=0;j<2;j++)for(let i=0;i<2;i++)setTileVisible(e.o.x+i,e.o.y+j,true);OBJ3.delete(id);changed=true}
+ if(changed){PICK=[];for(const e of OBJ3.values())e.g.traverse(m=>{if(m.isMesh)PICK.push(m)})}
+}
+
+/* ---------- badges ---------- */
+const BTEX={};
+function badgeTex(sym,col,f){const key=sym+col+(f==null?'':Math.round(f*12));if(BTEX[key])return BTEX[key];const c=document.createElement('canvas');c.width=64;c.height=80;const x=c.getContext('2d');
+ if(f!=null){x.fillStyle='rgba(255,250,240,.95)';x.beginPath();x.arc(32,32,26,0,7);x.fill();x.strokeStyle='#138a74';x.lineWidth=8;x.beginPath();x.arc(32,32,17,-Math.PI/2,-Math.PI/2+f*Math.PI*2);x.stroke()}
+ else{x.fillStyle=col;x.beginPath();x.arc(32,30,26,0,7);x.fill();x.beginPath();x.moveTo(20,50);x.lineTo(32,72);x.lineTo(44,50);x.fill();x.strokeStyle='rgba(255,255,255,.9)';x.lineWidth=3;x.beginPath();x.arc(32,30,24,0,7);x.stroke();
+  x.fillStyle='#fff';x.font='800 32px Nunito, system-ui, sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(sym,32,32)}
+ const t=new THREE.CanvasTexture(c);BTEX[key]=new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true});return BTEX[key]}
+function pondBadge(p){const bh=Math.floor(S.t)%24;
+ if(p.st==='persiapan')return['','',1-p.prep/T[p.type].prep];
+ if(p.st==='isi'&&(p.do<3||p.amm>1||p.sick))return['!','#d4432f'];
+ if(p.st==='isi'&&(p.ws||0)>=250)return['$','#2e9b4f'];
+ if(p.st==='isi'&&p.meals<2&&((bh>=7&&bh<10&&p.meals<1)||(bh>=15&&bh<18)))return['•••','#f58a1f'];
+ if(p.st==='siap')return['+','#1873a8'];
+ if(!p.conn)return['~','#7b634b'];return null}
+
+/* ---------- fx ---------- */
+const FX3=[],FLOATS=[];const fxGeo=new THREE.SphereGeometry(.03,5,4);
+function objCenter(o){const t=T[o.type];return new THREE.Vector3(o.x+(t.w||1)/2,T[o.type].pond?(o.type==='terpal'?.45:0):.4,o.y+(t.h||1)/2)}
+function splashAt(o,n=14,col='#ffffff'){const c=objCenter(o),t=T[o.type];for(let i=0;i<n;i++){const m=new THREE.Mesh(fxGeo,new THREE.MeshBasicMaterial({color:col,transparent:true}));m.position.set(c.x+(Math.random()-.5)*.5*(t.w||1),c.y,c.z+(Math.random()-.5)*.5*(t.h||1));SC.add(m);FX3.push({m,v:new THREE.Vector3((Math.random()-.5)*1.2,1+Math.random()*1.4,(Math.random()-.5)*1.2),life:.7+Math.random()*.4})}}
+function floatAt(o,txt,col){if(!o||!T[o.type])return;const el=document.createElement('div');el.className='fl';el.textContent=txt;el.style.color=col;$('#floats').appendChild(el);const p=objCenter(o);p.y+=.8;FLOATS.push({el,p,life:1.8})}
+const CONF=[];
+function burst(){for(let i=0;i<50;i++)CONF.push({x:cw/2,y:ch/3,vx:(Math.random()-.5)*600,vy:-200-Math.random()*320,life:1.7,col:['#f58a1f','#ffd43b','#2e9b4f','#3aa0e0','#e2553b'][i%5],r:3+Math.random()*3})}
+
+/* ---------- scene setup ---------- */
+function initScene(){
+ R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.75));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+ SC=new THREE.Scene();SC.fog=new THREE.Fog(0xcdeefa,40,95);
+ CAM=new THREE.PerspectiveCamera(34,1,.1,400);
+ HEMI=new THREE.HemisphereLight(0xe6f4ff,0x6b8f3a,.7);SC.add(HEMI);
+ SUN=new THREE.DirectionalLight(0xffffff,.9);SUN.castShadow=true;const mob=Math.min(innerWidth,innerHeight)<600;SUN.shadow.mapSize.set(mob?1024:2048,mob?1024:2048);
+ Object.assign(SUN.shadow.camera,{left:-12,right:12,top:12,bottom:-12,near:1,far:70});SUN.shadow.bias=-.0006;SUN.shadow.normalBias=.02;SC.add(SUN);SC.add(SUN.target);
+ SKY=new THREE.Mesh(new THREE.SphereGeometry(300,24,12),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:{top:{value:new THREE.Color()},bot:{value:new THREE.Color()}},
+  vertexShader:'varying float h;void main(){h=normalize(position).y;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 top;uniform vec3 bot;varying float h;void main(){gl_FragColor=vec4(mix(bot,top,clamp(h*1.8+.05,0.,1.)),1.);}'}));SC.add(SKY);
+ initMat();buildTerrain();
+ for(let k=0;k<8;k++){const c=new THREE.Group();for(let j=0;j<4;j++){const s=mesh(new THREE.IcosahedronGeometry(1,1),MAT.cloud,j*1.1-1.6,Math.sin(j*2)*.3,(j%2)*.6,c);s.scale.setScalar(.8+hash(k,j)*.7);s.receiveShadow=false;s.castShadow=false}c.position.set(-30+k*9+hash(k,1)*6,9+hash(k,2)*3,-12+hash(k,3)*30);c.userData.v=.25+hash(k,4)*.35;SC.add(c);CLOUDS3.push(c)}
+ const rg=new THREE.BufferGeometry(),N=700,pos=new Float32Array(N*6);for(let i=0;i<N;i++){const x=Math.random()*30-9,y=Math.random()*14,z=Math.random()*30-9;pos.set([x,y,z,x-.05,y-.45,z],i*6)}rg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+ RAIN3=new THREE.LineSegments(rg,new THREE.LineBasicMaterial({color:0xc8dcff,transparent:true,opacity:.6}));RAIN3.visible=false;SC.add(RAIN3);
+ SELF=new THREE.Group();for(let i=0;i<4;i++)SELF.add(mesh(BOX(1,.04,.06),MAT.sel,0,0,0,null,true));SC.add(SELF);SELF.visible=false;
+ GHOST=mesh(BOX(1,.12,1),MAT.ghostOk,0,.06,0,SC,true);GHOST.visible=false;
+}
+function resize(){cw=innerWidth;ch=innerHeight;R.setSize(cw,ch,false);CAM.aspect=cw/ch;CAM.updateProjectionMatrix();fx2.width=cw;fx2.height=ch;checkOrient()}
+function fit(){camS.tx=6.2;camS.tz=6.6;camS.dist=cw<ch?38:cw<900?18.5:19.5}
+function updateCamera(dt){camS.az+=(camS.azT-camS.az)*Math.min(1,dt*7);camS.tx=clamp(camS.tx,-2,14);camS.tz=clamp(camS.tz,-2,14);camS.dist=clamp(camS.dist,6,48);
+ const s=Math.sin(camS.pol),c=Math.cos(camS.pol);CAM.position.set(camS.tx+camS.dist*s*Math.cos(camS.az),camS.dist*c,camS.tz+camS.dist*s*Math.sin(camS.az));CAM.lookAt(camS.tx,0,camS.tz);SKY.position.copy(CAM.position)}
+
+/* ---------- per-frame world update ---------- */
+const sunCol=new THREE.Color(),tmpV=new THREE.Vector3();
+function updateWorld(t,dt){
+ const h=S.t%24,dl=daylight(h),dk=darkness(h);const[top,bot]=skyColors(h);SKY.material.uniforms.top.value.set(top);SKY.material.uniforms.bot.value.set(bot);SC.fog.color.set(bot);
+ const cloudy=S.weather==='hujan'?.4:S.weather==='berawan'?.65:1;
+ if(dl>0){const a=(h-6)/12*Math.PI;SUN.position.set(camS.tx-Math.cos(a)*20,Math.sin(a)*24+4,camS.tz+12);SUN.intensity=(.2+.62*Math.sqrt(dl))*cloudy;const w=Math.min(1,dl/.35);sunCol.setRGB(1,.72+.28*w,.5+.5*w);SUN.color.copy(sunCol)}
+ else{SUN.position.set(camS.tx+10,22,camS.tz+6);SUN.intensity=.2;SUN.color.set(0x9fb4ff)}
+ SUN.target.position.set(camS.tx,0,camS.tz);
+ HEMI.intensity=(.3+.36*(1-dk/.5))*(S.weather==='hujan'?.9:1);HEMI.color.set(dk>.3?0x7d8cc4:0xe6f4ff);
+ // river waves
+ const pa=RIVER.geometry.attributes.position,b=RIVER.userData.base;for(let i=0;i<pa.count;i++){pa.array[i*3+1]=b[i*3+1]+Math.sin(b[i*3+2]*1.3+t*2.2+b[i*3]*2)*.03}pa.needsUpdate=true;
+ // clouds & rain
+ for(const c of CLOUDS3){c.position.x+=c.userData.v*dt*(ui.speed?1:.3);if(c.position.x>40)c.position.x=-34}
+ MAT.cloud.color.set(S.weather==='hujan'?0x9aa4b2:S.weather==='berawan'?0xdfe5ea:0xffffff);
+ RAIN3.visible=S.weather==='hujan';if(RAIN3.visible){RAIN3.position.set(camS.tx-6,0,camS.tz-6);const ra=RAIN3.geometry.attributes.position.array;for(let i=0;i<ra.length;i+=6){ra[i+1]-=dt*14;ra[i+4]-=dt*14;if(ra[i+4]<0){ra[i+1]+=14;ra[i+4]+=14}}RAIN3.geometry.attributes.position.needsUpdate=true}
+ const nowMs=performance.now();
+ for(const e of OBJ3.values()){const o=e.o,P=e.P;
+  if(T[o.type].pond){const p=o;
+   const prog=p.st==='persiapan'?clamp(1-p.prep/T[p.type].prep,0,1):p.st==='kering'?0:1;
+   const lvl=P.level[0]+(P.level[1]-P.level[0])*Math.min(1,prog*1.5);
+   P.water.visible=prog>0;P.water.position.y=lvl+Math.sin(t*1.3+p.id)*.004;P.wmat.color.set(waterCol(p));
+   const k=p.st==='isi'&&p.n?clamp(Math.round(p.n/90),2,P.fish.length):0,fed=p.splash>nowMs;
+   P.fish.forEach((f,i)=>{f.visible=i<k;if(!f.visible)return;const dir=i%2?1:-1,a=t*(.35+i*.05)*dir+i*2.4,r=P.r*(.35+.55*((Math.sin(i*1.7)+1)/2))*(fed?.45:1);
+    f.position.set(P.cx+Math.cos(a)*r,lvl-(fed?.005:.035)+(fed?Math.abs(Math.sin(t*9+i))*.05:0),P.cz+Math.sin(a)*r);f.rotation.y=-Math.atan2(Math.cos(a)*dir,-Math.sin(a)*dir)});
+   const on=!S.outNow;
+   for(const a of P.aers||[]){a.position.set(a.userData.px,lvl+.01,a.userData.pz);a.userData.foam.forEach((s,i)=>{const f=((t*1.8)+i/7)%1;s.visible=on&&prog>=1;s.position.set(Math.cos(i*2.3)*.12*f,.01,Math.sin(i*2.3)*.12*f);s.scale.setScalar(1.6*(1-f)+.3)})}
+   for(const w of P.wheels||[]){w.position.y=lvl+.03;if(on&&ui.speed)w.userData.wheel.rotation.x+=dt*7;w.userData.foam.forEach((s,i)=>{const f=((t*1.5)+i/8)%1;s.visible=on&&prog>=1;s.position.set((hash(i,2)-.5)*.4,0,.12+f*.35);s.scale.setScalar(1.4*(1-f)+.3)})}
+   const bd=pondBadge(p);
+   if(bd){if(!e.badge){e.badge=new THREE.Sprite(badgeTex('+','#000'));e.badge.renderOrder=10;SC.add(e.badge)}e.badge.material=badgeTex(bd[0],bd[1],bd[2]);e.badge.visible=true;const c=objCenter(p);e.badge.position.set(c.x,(p.type==='terpal'?1.05:.85)+Math.sin(t*3+p.id)*.04,c.z);const s=Math.max(.42,camS.dist/40);e.badge.scale.set(s,s*1.25,1)}
+   else if(e.badge)e.badge.visible=false}
+  else if(o.type==='pondok'){P.win.emissiveIntensity=dk*2.2;P.light.intensity=dk*2.4}
+  else if(o.type==='genset'){P.smoke.forEach((s,i)=>{const f=((t*.7)+i/4)%1;s.visible=!!S.outNow;s.position.set(.15+f*.15,.6+f*.5,-.08);s.scale.setScalar(.5+f*1.4)})}
+ }
+ // villagers
+ for(const v of VIL){if(!v.m){v.m=bVillager(v.col);SC.add(v.m)}v.m.position.set(v.x,0,v.y);const walk=v.wait<=0;const ph=t*10;v.m.userData.l1.rotation.x=walk?Math.sin(ph)*.6:0;v.m.userData.l2.rotation.x=walk?-Math.sin(ph)*.6:0;v.m.userData.bucket.visible=!walk;
+  if(walk){const dx=v.tx-v.x,dz=v.ty-v.y;if(dx||dz)v.m.rotation.y=Math.atan2(dx,dz)}}
+ // selection & ghost
+ if(ui.sel&&S.objs.includes(ui.sel)){const tt=T[ui.sel.type],w=tt.w||1,hh=tt.h||1,x=ui.sel.x,z=ui.sel.y,y=.08+(ui.sel.type==='tanah'?.06:0);const[a,b2,c2,d]=SELF.children;
+  a.scale.set(w,1,1);a.position.set(x+w/2,y,z);b2.scale.set(w,1,1);b2.position.set(x+w/2,y,z+hh);c2.scale.set(hh,1,1);c2.rotation.y=Math.PI/2;c2.position.set(x,y,z+hh/2);d.scale.set(hh,1,1);d.rotation.y=Math.PI/2;d.position.set(x+w,y,z+hh/2);
+  MAT.sel.opacity=.55+.45*Math.sin(t*6);SELF.visible=true}else SELF.visible=false;
+ if(ui.tool&&ui.hover){const[x,y]=ui.hover;if(ui.tool==='hapus'){const o=OCC[y]&&OCC[y][x];if(o){const tt=T[o.type];GHOST.material=MAT.ghostNo;GHOST.scale.set(tt.w||1,4,tt.h||1);GHOST.position.set(o.x+(tt.w||1)/2,.24,o.y+(tt.h||1)/2);GHOST.visible=true}else GHOST.visible=false}
+  else{const tt=T[ui.tool];GHOST.material=canPlace(ui.tool,x,y)?MAT.ghostOk:MAT.ghostNo;GHOST.scale.set(tt.w,1,tt.h);GHOST.position.set(x+tt.w/2,.06,y+tt.h/2);GHOST.visible=x>=0&&y>=0&&x<W&&y<H}}else GHOST.visible=false;
+ // splash particles
+ for(let i=FX3.length-1;i>=0;i--){const f=FX3[i];f.life-=dt;if(f.life<=0){SC.remove(f.m);f.m.material.dispose();FX3.splice(i,1);continue}f.v.y-=4*dt;f.m.position.addScaledVector(f.v,dt);f.m.material.opacity=clamp(f.life,0,1)}
+}
+function updateOverlay(dt){
+ for(let i=FLOATS.length-1;i>=0;i--){const f=FLOATS[i];f.life-=dt;if(f.life<=0){f.el.remove();FLOATS.splice(i,1);continue}f.p.y+=dt*.45;tmpV.copy(f.p).project(CAM);f.el.style.left=((tmpV.x+1)/2*cw)+'px';f.el.style.top=((1-tmpV.y)/2*ch)+'px';f.el.style.opacity=clamp(f.life,0,1)}
+ fctx.clearRect(0,0,cw,ch);for(let i=CONF.length-1;i>=0;i--){const c=CONF[i];c.life-=dt;if(c.life<=0){CONF.splice(i,1);continue}c.vy+=520*dt;c.x+=c.vx*dt;c.y+=c.vy*dt;fctx.globalAlpha=clamp(c.life,0,1);fctx.fillStyle=c.col;fctx.fillRect(c.x,c.y,c.r,c.r*1.6)}fctx.globalAlpha=1}
+
+/* ================= LOOP ================= */
+let last=performance.now(),hudT=0;
+function frame(ts){
+ const dt=Math.min(.1,(ts-last)/1000);last=ts;
+ if(ui.speed>0&&S.started){let adv=dt*ui.speed;while(adv>0){const nextH=Math.floor(S.t)+1,step=Math.min(adv,nextH-S.t);S.t+=step;adv-=step;if(S.t>=nextH-1e-9){S.t=nextH;if(S.t>=24){S.t=0;dayTick()}hourTick()}}}
+ for(let i=VIL.length-1;i>=0;i--){const v=VIL[i];if(v.wait>0){v.wait-=dt;if(v.wait<=0&&v.ph===1){v.ph=2;v.tx=v.hx;v.ty=v.hy}continue}
+  const dx=v.tx-v.x,dy=v.ty-v.y,d=Math.hypot(dx,dy),sp=1.8*dt*Math.max(1,ui.speed/2);if(d<sp){v.x=v.tx;v.y=v.ty;if(v.ph===0){v.ph=1;v.wait=1.2}else{if(v.m)SC.remove(v.m);VIL.splice(i,1)}}else{v.x+=dx/d*sp;v.y+=dy/d*sp}}
+ syncObjects();updateCamera(dt);updateWorld(ts/1000,dt);R.render(SC,CAM);updateOverlay(dt);
+ if((hudT+=dt)>.2){hudT=0;hud()}
+ requestAnimationFrame(frame);
+}
+function hud(){
+ const h=Math.floor(S.t)%24,m=Math.floor((S.t%1)*60/15)*15;
+ $('#hMoney').textContent=rp(S.money);$('#hMoney').style.color=S.money<0?'var(--bad)':'';
+ $('#hDay').textContent=`Hari ${S.day} · ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+ const night=isNight(h);$('#hWx').innerHTML=svg(night&&S.weather!=='hujan'?'malam':S.weather);$('#hWxN').textContent=WX[S.weather].n+' · '+fmtN(tempAt(h),0)+'°C'+(S.outNow?' · padam':'');
+ $('#hPrice').textContent=rp(S.price)+'/kg';$('#hFeed').textContent=fmtN(S.feed,0)+' kg';
+ document.body.classList.toggle('sheet-open',!!ui.sheet);
+}
+
+/* ================= INPUT ================= */
+const ptrs=new Map();let drag=null,pinch=null;
+const ndc=(x,y)=>new THREE.Vector2(x/cw*2-1,-(y/ch)*2+1);
+function groundHit(x,y){RAY.setFromCamera(ndc(x,y),CAM);const v=new THREE.Vector3();return RAY.ray.intersectPlane(GROUND,v)?v:null}
+function tileAt(x,y){const v=groundHit(x,y);return v?[Math.floor(v.x),Math.floor(v.z)]:[-99,-99]}
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(ptrs.size===1)drag={sx:e.clientX,sy:e.clientY,hit:groundHit(e.clientX,e.clientY),moved:false,rot:e.button===2||e.shiftKey,az:camS.azT};
+ else if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),dist:camS.dist,ang:Math.atan2(b.y-a.y,b.x-a.x),az:camS.azT};drag=null}});
+cv.addEventListener('pointermove',e=>{
+ if(e.pointerType==='mouse'&&ui.tool)ui.hover=tileAt(e.clientX,e.clientY);
+ if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pinch&&ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);camS.dist=clamp(pinch.dist*pinch.d/d,6,48);const ang=Math.atan2(b.y-a.y,b.x-a.x);camS.azT=camS.az=pinch.az+(ang-pinch.ang);return}
+ if(drag){const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;if(Math.hypot(dx,dy)>7)drag.moved=true;if(!drag.moved)return;
+  if(drag.rot){camS.azT=camS.az=drag.az+dx*.008;return}
+  const h=groundHit(e.clientX,e.clientY);if(h&&drag.hit){camS.tx+=drag.hit.x-h.x;camS.tz+=drag.hit.z-h.z;updateCamera(0)}}});
+const up=e=>{const wasDrag=drag;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(wasDrag&&!wasDrag.moved&&ptrs.size===0)tap(e.clientX,e.clientY);if(ptrs.size===0)drag=null};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);drag=null;pinch=null});
+cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.deltaY<0?1/1.1:1.1),6,48)},{passive:false});
+function tap(sx,sy){
+ if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];if(ui.tool==='hapus'){const o=OCC[y]&&OCC[y][x];if(o)askDemolish(o)}else place(ui.tool,x,y);return}
+ RAY.setFromCamera(ndc(sx,sy),CAM);const hit=RAY.intersectObjects(PICK,false)[0];let o=hit?S.objs.find(q=>q.id===hit.object.userData.oid):null;
+ if(!o){const[x,y]=tileAt(sx,sy);o=OCC[y]&&OCC[y][x]}
+ if(o)select(o);else{select(null);closeSheet()}}
+function select(o){ui.sel=o;if(o){lastFocus=o;openSheet({type:T[o.type].pond?'pond':'obj',o})}}
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key===' '){e.preventDefault();setSpeed(ui.speed?0:ui.lastSpeed||1)}if(e.key==='Escape'){if(ui.tool)endBuild();else closeSheet()}if(e.key==='1')setSpeed(1);if(e.key==='2')setSpeed(3);if(e.key==='3')setSpeed(8);if(e.key==='q')camS.azT-=Math.PI/4;if(e.key==='e')camS.azT+=Math.PI/4});
+$('#camL').onclick=()=>camS.azT-=Math.PI/4;$('#camR').onclick=()=>camS.azT+=Math.PI/4;$('#camF').onclick=()=>{fit();camS.azT=Math.round(camS.az/(Math.PI*2))*Math.PI*2+Math.PI/4};
+function goFull(){const d=document.documentElement;try{const p=d.requestFullscreen&&d.requestFullscreen();if(p&&p.then)p.then(()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}}).catch(()=>toast('info','Layar penuh tidak tersedia di sini','Putar HP secara manual, atau buka game di browser.'))}catch(e){}}
+$('#fsBtn').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen&&document.exitFullscreen()}else goFull()};
+function checkOrient(){const port=innerHeight>innerWidth&&innerWidth<820;$('#rot').hidden=!(port&&!ui.portraitOk)}
+$('#rotOk').onclick=()=>{ui.portraitOk=true;checkOrient()};$('#rotFs').onclick=()=>{goFull();ui.portraitOk=true;checkOrient()};
+/* ================= SHEETS ================= */
+function openSheet(s){ui.sheet=s;$('#sheet').hidden=false;renderSheet()}
+function closeSheet(){ui.sheet=null;$('#sheet').hidden=true;ui.sel=null;navOn(null)}
+$('#sheetX').onclick=closeSheet;
+function navOn(k){document.querySelectorAll('#dock button').forEach(b=>b.classList.toggle('on',b.dataset.nav===k))}
+function gauge(lbl,val,unit,lvl,pct){return`<div class="g ${lvl}"><small>${lbl}</small><b>${val}</b><small>${unit}</small><i><em style="width:${clamp(pct,4,100)}%;background:var(--${lvl==='good'?'good':lvl==='warn'?'warn':'bad'})"></em></i></div>`}
+function advice(p){const h=Math.floor(S.t)%24;
+ if(p.do<3)return['bad','Oksigen rendah',p.aer?'Tambah aerator kedua, ganti air 30%, dan kurangi pakan besok.':'Pasang aerator sekarang. Kolam padat tanpa aerator bisa kehabisan oksigen menjelang subuh.'];
+ if(p.sick&&!p.sick.tr)return['bad','Ikan sakit',(p.sick.k==='strep'?'Streptococcus':'Aeromonas')+'. Tekan Obati, lalu jaga air tetap bersih.'];
+ if(p.amm>1)return['bad','Amonia tinggi ('+fmtN(p.amm,2)+' mg/L)','Ganti air 30% sekarang, tebar probiotik, dan jangan memberi pakan berlebih.'];
+ if(p.amm>.5)return['warn','Amonia mulai naik','Ganti air 30% dalam 1–2 hari ini.'];
+ if(S.day-p.sday>=10)return['warn','Sudah '+(S.day-p.sday)+' hari tanpa sampling','Jatah pakan masih memakai berat lama ('+p.ws+' g). Ikan sudah lebih besar dan kurang makan.'];
+ if((p.ws||0)>=250)return['good','Siap panen','Berat sudah ±'+p.ws+' g. Panen saat harga bagus (sekarang '+rp(S.price)+'/kg).'];
+ if(!p.aer&&p.type==='terpal'&&p.n*(p.ws||p.w)/1000/T.terpal.vol>8)return['warn','Ikan makin besar','Oksigen malam akan kurang. Pasang aerator sebelum terlambat.'];
+ if(p.meals<2&&h>=6&&h<18)return['info',p.meals?'Jatah sore belum':'Belum diberi pakan hari ini','Beri pakan '+(h<12?'pagi (07–09)':'sore (15–17)')+'.'];
+ if(p.stress>3)return['warn','Ikan stres','Jaga air: ganti air, cek aerator, jangan sortir dulu.'];
+ return['good','Kondisi baik','Lanjutkan pakan 2× sehari dan sampling tiap 7–10 hari.']}
+function pondSheet(p){
+ const t=T[p.type],stN={kering:'Kosong',persiapan:'Persiapan',siap:'Siap tebar',isi:'Berisi ikan'}[p.st];
+ let h=`<div class="ph"><div><div class="eyebrow">${t.n}${p.aer?` · ${p.aer} ${p.type==='tanah'?'kincir':'aerator'}`:''}</div><h2>${p.name}</h2></div><span class="chip ${p.st}">${stN}</span></div>`;
+ if(!p.conn)h+=`<div class="tip bad"><b>Belum ada air</b>Bangun Saluran air dari tepi sungai (sisi kiri peta) sampai menempel di kolam, atau bangun Sumur bor tepat di sebelahnya.</div>`;
+ const aerBtn=`<button class="btn" data-a="aer" ${p.aer>=2?'disabled':''}>${p.type==='tanah'?'Pasang kincir':'Pasang aerator'}<small>${rp(p.type==='tanah'?1500000:600000)}${p.aer>=2?' · maks 2':''}</small></button>`;
+ if(p.st==='kering'){const tn=p.type==='tanah';
+  h+=`<div class="tip"><b>Langkah persiapan</b>${tn?'Keringkan 2–3 hari, tabur kapur 75 g/m², pupuk kandang 375 g/m², isi air 80 cm, tunggu air hijau.':'Bersihkan terpal, isi air 80–90 cm, tabur garam 1 kg/m³, diamkan 2–3 hari agar bau terpal hilang.'}</div>
+  <div class="acts"><button class="btn pri wide" data-a="siap" ${p.conn?'':'disabled'}>Siapkan kolam<small>${rp(tn?79000:30500)} · ${tn?4:3} hari</small></button>${aerBtn}<button class="btn danger" data-a="del">Bongkar<small>uang kembali 20%</small></button></div>`}
+ else if(p.st==='persiapan'){const f=1-p.prep/t.prep;h+=`<div class="st"><small>Sisa waktu</small><b>${Math.ceil(p.prep/24)} hari</b><em> (${p.prep} jam)</em><div class="prog" style="margin-top:6px"><em style="width:${f*100}%"></em></div></div><div class="tip">${p.type==='tanah'?'Kolam dikapur dan dipupuk. Air diisi bertahap sampai berwarna hijau muda (plankton tumbuh).':'Air bergaram didiamkan. Sambil menunggu, beli pakan dan pesan benih.'}</div><div class="acts">${aerBtn}</div>`}
+ else if(p.st==='siap'){const r=t.rec,opts=[[Math.round(r*.6),'Longgar','Lebih aman, panen lebih sedikit'],[r,'Anjuran','Sesuai kolam ini'],[Math.round(r*1.6),'Padat','Untung lebih, wajib aerator & ganti air']];
+  h+=`<div class="tip"><b>Tebar pagi (06–09) atau sore</b>Benih 5–7 cm (±8 g), ${rp(BENIHP)}/ekor. Kolam ini ${p.type==='tanah'?'100 m²':'±6,4 m³ air'}.</div><div class="acts">${opts.map(([q,n,d],i)=>`<button class="btn ${i===1?'pri':''} ${i===1?'wide':''}" data-a="tebar" data-q="${q}">${n}: ${fmtN(q)} ekor<small>${rp(q*BENIHP)} · ${d}</small></button>`).join('')}${aerBtn}</div>`}
+ else{
+  const umur=S.day-p.stockDay,ws=p.ws||p.w0,bio=p.n*ws/1000,sr=p.n/p.n0*100,r=feedRation(p),ad=advice(p);
+  const doL=p.do>=5?'good':p.do>=3?'warn':'bad',amL=p.amm<.5?'good':p.amm<1?'warn':'bad',tL=p.temp>=25&&p.temp<=32?'good':'warn',phL=p.ph>=6.5&&p.ph<=8.5?'good':'warn';
+  h+=`<div class="tip ${ad[0]}"><b>${ad[1]}</b>${ad[2]}</div>
+  <div class="stats"><div class="st"><small>Ikan hidup</small><b>${fmtN(p.n)}</b><em> SR ${fmtN(sr)}%</em></div><div class="st"><small>Berat rata-rata</small><b>${ws} g</b><em> sampling hari ${p.sday}</em></div><div class="st"><small>Biomassa ±</small><b>${fmtN(bio,1)} kg</b><em> ${fmtN(bio/t.vol,1)} kg/m³</em></div><div class="st"><small>Umur tebar</small><b>${umur} hari</b><em> ${p.sick?(p.sick.tr?'sedang diobati':'SAKIT'):'sehat'}</em></div></div>
+  <div class="gs">${gauge('Oksigen',fmtN(p.do,1),'mg/L',doL,p.do/8*100)}${gauge('Amonia',fmtN(p.amm,2),'mg/L',amL,p.amm/1.5*100)}${gauge('Suhu',fmtN(p.temp,1),'°C',tL,(p.temp-20)/15*100)}${gauge('pH',fmtN(p.ph,1),'',phL,(p.ph-5)/5*100)}</div>
+  <div class="acts">
+   <button class="btn pri wide" data-a="feed">Beri pakan ${fmtN(r,2)} kg<small>Hari ini ${p.meals}/2 kali · stok ${fmtN(S.feed,0)} kg</small></button>
+   <button class="btn" data-a="samp">Sampling berat<small>tiap 7–10 hari</small></button>
+   <button class="btn" data-a="air" ${p.conn?'':'disabled'}>Ganti air 30%<small>${rp(p.type==='tanah'?25000:10000)}</small></button>
+   <button class="btn" data-a="pro">Probiotik<small>${p.probio?'aktif '+p.probio+' hari':'Rp 50 rb'}</small></button>
+   ${aerBtn}
+   ${p.sick&&!p.sick.tr?`<button class="btn pri wide" data-a="obat">Obati ikan<small>Rp 200 rb · garam + kurangi pakan</small></button>`:''}
+   ${ponds().filter(q=>q.st==='siap').map(q=>`<button class="btn" data-a="sortir" data-t="${q.id}">Sortir & pindah<small>ke ${q.name}</small></button>`).join('')}
+   <button class="btn ${ws>=250?'pri':''} wide" data-a="panen">Panen sekarang<small>±${fmtN(bio,1)} kg × ${rp(S.price)}${ws<200?' · masih kecil, harga turun':''}</small></button>
+  </div>
+  <div class="kv"><span>Pakan terpakai</span><b>${fmtN(p.feedTotal,1)} kg</b></div><div class="kv"><span>Modal kolam ini</span><b>${rpFull(p.cost)}</b></div>`}
+ return h}
+function objSheet(o){const t=T[o.type];
+ if(o.type==='pohon'||o.type==='batu')return`<div class="ph"><div><div class="eyebrow">Lahan</div><h2>${t.n}</h2></div></div><p class="tip">${o.type==='pohon'?'Pohon peneduh. Jangan terlalu dekat kolam: daun gugur membusuk dan akar merusak pematang.':'Batu besar menghalangi pembangunan.'}</p><div class="acts"><button class="btn wide" data-a="del">Bersihkan lahan<small>Rp 50 rb</small></button></div>`;
+ let extra='';if(o.type==='saluran')extra=`<div class="tip ${o.wet?'good':'warn'}">${o.wet?'Berisi air dan mengalir.':'Kering. Saluran harus tersambung ke tepi sungai atau sumur bor.'}</div>`;
+ if(o.type==='gudang')extra=`<div class="kv"><span>Kapasitas pakan total</span><b>${fmtN(feedCap())} kg</b></div>`;
+ if(o.type==='pondok')extra=`<div class="kv"><span>Pekerja</span><b>${S.workers} orang</b></div><button class="btn" data-nav2="report">Kelola pekerja di Laporan</button>`;
+ return`<div class="ph"><div><div class="eyebrow">Bangunan</div><h2>${t.n}</h2></div></div><p class="tip">${t.desc}</p>${extra}<div class="acts"><button class="btn danger wide" data-a="del">Bongkar<small>uang kembali 20%</small></button></div>`}
+function feedSheet(){const daily=ponds().filter(p=>p.st==='isi').reduce((a,p)=>a+feedRation(p)*2,0),cap=feedCap();
+ return`<div class="ph"><div><div class="eyebrow">Gudang</div><h2>Pakan pelet</h2></div></div>
+ <div class="stats"><div class="st"><small>Stok</small><b>${fmtN(S.feed,0)} kg</b><em> dari ${fmtN(cap)} kg</em></div><div class="st"><small>Kebutuhan/hari</small><b>${fmtN(daily,1)} kg</b><em> ${daily?'cukup '+Math.floor(S.feed/daily)+' hari':'belum ada ikan'}</em></div></div>
+ <div class="prog"><em style="width:${S.feed/cap*100}%"></em></div>
+ <div class="acts"><button class="btn pri" data-a="buy" data-n="1">Beli 1 karung<small>30 kg · ${rp(SACK*FEEDP)}</small></button><button class="btn" data-a="buy" data-n="3">Beli 3 karung<small>90 kg · ${rp(3*SACK*FEEDP)}</small></button>${byType('gudang').length?`<button class="btn wide" data-a="buy" data-n="10">Beli 10 karung<small>300 kg · ${rp(10*SACK*FEEDP)}</small></button>`:''}</div>
+ <div class="tip"><b>Jatah pakan dihitung otomatis</b>Jumlah ikan × berat sampling × persen pakan (6% saat benih, turun ke 2% saat ±250 g), dibagi 2 kali makan. Karena itu sampling rutin penting.</div>
+ <div class="tip">Tanpa gudang, Anda hanya bisa menyimpan 90 kg (3 karung). Bangun Gudang pakan untuk +900 kg.</div>`}
+function reportSheet(){const t=totals(),cats=Object.entries(t.cat).sort((a,b)=>a[1]-b[1]);
+ return`<div class="ph"><div><div class="eyebrow">Buku kas otomatis</div><h2>Laporan keuangan</h2></div></div>
+ <div class="stats"><div class="st"><small>Pemasukan</small><b class="pos">${rp(t.in)}</b></div><div class="st"><small>Pengeluaran</small><b class="neg">${rp(t.out)}</b></div><div class="st"><small>Laba bersih</small><b class="${t.laba>=0?'pos':'neg'}">${rp(t.laba)}</b><em> tanpa bonus misi</em></div><div class="st"><small>Uang di tangan</small><b>${rp(S.money)}</b></div></div>
+ <h3>Per kategori</h3><div>${cats.map(([k,v])=>`<div class="kv"><span>${k}</span><b class="${v>=0?'pos':'neg'}">${rpFull(v)}</b></div>`).join('')||'<p class="ref">Belum ada transaksi.</p>'}</div>
+ <h3>Riwayat panen</h3>${S.harvests.length?`<div class="tw"><table><thead><tr><th>Hari</th><th>Kolam</th><th class="r">kg</th><th class="r">g/ekor</th><th class="r">SR</th><th class="r">FCR</th><th class="r">Laba</th></tr></thead><tbody>${S.harvests.map(x=>`<tr><td>${x.day}</td><td>${x.name}</td><td class="r">${fmtN(x.kg,1)}</td><td class="r">${Math.round(x.size)}</td><td class="r">${fmtN(x.sr*100)}%</td><td class="r">${fmtN(x.fcr,2)}</td><td class="r ${x.laba>=0?'pos':'neg'}">${rp(x.laba)}</td></tr>`).join('')}</tbody></table></div><p class="ref">Target nyata: SR di atas 80%, FCR 1,2–1,5.</p>`:'<p class="ref">Belum ada panen.</p>'}
+ <h3>Pekerja</h3><div class="tip">Pekerja memberi pakan jam 08 dan 16, sampling tiap 10 hari, dan ganti air bila amonia tinggi. Gaji ${rp(1500000)}/30 hari, 1 orang untuk 4 kolam.</div>
+ <div class="acts"><button class="btn pri" data-a="hire" ${S.workers>=3?'disabled':''}>Rekrut pekerja<small>${S.workers} orang sekarang</small></button><button class="btn" data-a="fire" ${S.workers?'':'disabled'}>Berhentikan 1</button></div>
+ <h3>Transaksi terakhir</h3><div class="tw"><table><tbody>${S.ledger.slice(0,30).map(l=>`<tr><td>H${l.day}</td><td>${l.label}</td><td class="r ${l.amt>=0?'pos':'neg'}">${rp(l.amt)}</td></tr>`).join('')}</tbody></table></div>`}
+function misSheet(){const c=curMission();return`<div class="ph"><div><div class="eyebrow">${S.done.length} dari ${MIS.length} selesai</div><h2>Misi budidaya</h2></div></div>${MIS.map((m,i)=>{const d=S.done.includes(m.id),cur=m===c;return`<div class="mis ${d?'done':cur?'cur':''}"><span class="n">${d?'✓':i+1}</span><div><b>${m.t}</b>${cur||d?`<p>${cur?m.how:m.why}</p>`:''}</div></div>`}).join('')}`}
+function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main</div><h2>Tambak Nila Sim</h2></div></div>
+ <ol class="list"><li><b>Bangun</b> kolam, lalu alirkan air dari sungai (kiri) dengan saluran, atau pakai sumur bor.</li><li><b>Siapkan</b> kolam, beli pakan, lalu <b>tebar benih</b> pagi atau sore.</li><li><b>Beri pakan</b> 2× sehari, <b>sampling</b> tiap 7–10 hari, jaga oksigen dan amonia.</li><li><b>Panen</b> saat ±250 g. Tebar kolam lain bergantian agar panen tiap bulan.</li></ol>
+ <p class="tip">Geser peta dengan satu jari atau mouse. Cubit atau scroll untuk zoom. Putar kamera dengan dua jari, klik kanan + geser, atau tombol ⟲ ⟳. Tombol ◎ memusatkan peta. Ketuk kolam untuk melihat kondisi dan tombol aksi. Tombol 1×, 3×, 8× mempercepat waktu (1 jam game = 1 detik pada 1×).</p>
+ <h3>Kondisi nyata yang disimulasikan</h3>
+ <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
+ <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia; Amal & Zamri-Saad (2011) Streptococcosis in tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
+ <p class="tip">Untuk panduan langkah demi langkah, modal, dan buku kas kolam nyata, buka aplikasi <a href="https://claude.ai/artifact/SW3gvWFGq9emJNUojZEBzo" target="_blank" rel="noopener">Panen Nila</a>.</p>
+ <h3>Pengaturan</h3>
+ <div class="acts"><button class="btn" data-a="autop">Jeda otomatis saat bahaya<small>${S.autoPause===false?'Mati':'Nyala'}</small></button><button class="btn danger" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
+function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
+ b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();b.scrollTop=st}
+$('#sheetBody').addEventListener('click',e=>{const b=e.target.closest('[data-a]');const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
+ const a=b.dataset.a;
+ ({feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,autop:()=>{S.autoPause=S.autoPause===false?true:false},reset:askReset})[a]();
+ checkMissions();renderSheet();save()});
+function nav(k){if(k==='build'){const open=$('#build').hidden;closeSheet();if(open){renderBuild();$('#build').hidden=false;navOn('build')}else endBuild();return}
+ endBuild();if(ui.sheet&&ui.sheet.type===k){closeSheet();return}openSheet({type:k});navOn(k)}
+document.querySelectorAll('#dock button').forEach(b=>b.onclick=()=>nav(b.dataset.nav));
+$('#placeDone').onclick=endBuild;
+
+/* ================= MODALS ================= */
+function modal(html,bind){const m=$('#modal');m.innerHTML=`<div class="box" role="dialog" aria-modal="true">${html}</div>`;m.hidden=false;bind&&bind(m)}
+function closeModal(){$('#modal').hidden=true}
+function askPanen(p){const ws=p.ws||p.w;const est=p.n*ws/1000;
+ modal(`<h2>Panen ${p.name}?</h2><p>Perkiraan dari sampling terakhir: <b>${fmtN(p.n)} ekor × ${ws} g ≈ ${fmtN(est,1)} kg</b>, harga hari ini ${rp(S.price)}/kg${ws<250?` <br><span class="neg">Ukuran di bawah 250 g dihargai lebih murah oleh pengepul.</span>`:''}.</p><p class="ref">Berat asli baru ketahuan saat ditimbang.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Panen</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();panen(p);closeSheet();save()}})}
+function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){demolish(o);renderSheet();return}
+ modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Anda mendapat kembali ${rp(t.cost*.2)} dari ${rp(t.cost)}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet()}})}
+function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();S=newGame();computeWater();closeSheet();intro()}})}
+function intro(){setSpeed(0);modal(`<div class="logo">Tambak Nila Sim</div><p>Anda mewarisi sebidang lahan di tepi sungai dan modal <b>${rp(15e6)}</b>. Bangun kolam, alirkan air, tebar benih, dan rawat ikan sampai panen.</p>
+ <div class="tip"><b>Kondisi nyata</b>Oksigen turun di malam hari, amonia naik bila pakan berlebih, cuaca berganti, listrik bisa padam, dan ikan bisa sakit. Angka mengikuti SNI dan literatur budidaya.</div>
+ <p>Ikuti <b>misi</b> di kiri atas. Tiap misi adalah satu tahap budidaya sungguhan.</p><button class="btn pri" id="mGo" style="padding:14px">Mulai bertani</button>`,m=>{m.querySelector('#mGo').onclick=()=>{closeModal();S.started=true;setSpeed(1);save()}})}
+
+/* ================= BUILD BAR ================= */
+const PREV={};
+function makeThumbs(){
+ try{const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});r.setPixelRatio(1);r.setSize(224,120);
+  const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(0xffffff,0x6b8f3a,.85));const d=new THREE.DirectionalLight(0xffffff,.8);d.position.set(-3,6,4);sc.add(d);
+  const cm=new THREE.PerspectiveCamera(30,224/120,.1,50);
+  for(const k of BUILD){if(k==='hapus')continue;const o={id:1,type:k,x:0,y:0,v:0,st:'isi',n:400,w:100,ws:100,aer:k==='tanah'?1:1,amm:.1,do:6,conn:true,wet:true,splash:0,prep:0,meals:2};
+   const fp=k==='tanah'?2:1;const grp=new THREE.Group();mesh(BOX(fp+.3,.2,fp+.3),sideTop(MAT.dirt,MAT.grass),fp/2,-.1,fp/2,grp);
+   const b=k==='saluran'?bSaluran(o,[[1,0],[-1,0]]):BUILDERS[k](o);b.g.position.set(k==='tanah'?0:.5,0,k==='tanah'?0:.5);grp.add(b.g);
+   if(b.P.water){b.P.water.position.y=b.P.level[1];b.P.wmat.color.set(k==='tanah'?'#3f9f7a':'#2fa3a8');b.P.fish.slice(0,4).forEach((f,i)=>{f.visible=true;f.position.set(b.P.cx+Math.cos(i*1.6)*b.P.r*.6,b.P.level[1]-.02,b.P.cz+Math.sin(i*1.6)*b.P.r*.6)})}
+   (b.P.aers||[]).forEach(a=>a.position.set(a.userData.px,b.P.level[1]+.01,a.userData.pz));(b.P.wheels||[]).forEach(w=>w.position.y=b.P.level[1]+.03);
+   sc.add(grp);const tall=k==='sumur'?1.7:k==='pondok'||k==='gudang'?1.1:.6,dist=fp*2.3+tall*1.2;cm.position.set(fp/2+dist*.62,dist*.75,fp/2+dist*.62);cm.lookAt(fp/2,tall*.38,fp/2);
+   r.render(sc,cm);PREV[k]=r.domElement.toDataURL();sc.remove(grp)}
+  r.dispose();r.forceContextLoss&&r.forceContextLoss()}catch(e){}
+ PREV.hapus='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 120"><g stroke="#d4432f" stroke-width="14" stroke-linecap="round"><path d="M82 30l60 60M142 30l-60 60"/></g></svg>');
+}
+function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.innerHTML=BUILD.map(k=>{const t=T[k]||{n:'Hapus / bersihkan'};const c=t.cost;return`<button class="bcard ${ui.tool===k?'on':''} ${c&&S.money<c?'no':''}" data-b="${k}">${PREV[k]?`<img src="${PREV[k]}" alt="">`:'<img alt="">'}<b>${k==='hapus'?'Hapus':t.n}</b><small>${k==='hapus'?'Pohon Rp 50 rb':rp(c)}${k==='tanah'?' · 2×2':''}</small></button>`}).join('');
+ el.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startBuild(b.dataset.b))}
+/* ================= SPEED / SAVE ================= */
+function setSpeed(v){if(v>0)ui.lastSpeed=v;ui.speed=v;document.querySelectorAll('#speed button').forEach(b=>b.classList.toggle('on',+b.dataset.sp===v))}
+document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{if(!S.started)return;setSpeed(+b.dataset.sp)});
+const KEY='tambak-nila-sim.v1';
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const s=JSON.parse(r);if(s&&s.v===1)return s}}catch(e){}return null}
+
+/* ================= BOOT ================= */
+$('#icCoin').innerHTML=svg('coin');$('#icFish').innerHTML=svg('fish');$('#icSack').innerHTML=svg('sack');$('#spP').innerHTML=svg('pause');
+document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=svg(e.dataset.icon));
+$('#mission').addEventListener('click',e=>{if(e.target.closest('#misT')){misOpen=!misOpen;renderMission()}});
+let booted=false;
+function start(saved){
+ if(booted)return;booted=true;
+ S=saved||load()||newGame();
+ if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="modal"><div class="box"><h2>Grafis 3D tidak termuat</h2><p>Periksa koneksi internet lalu muat ulang halaman.</p></div></div>');return}
+ initScene();resize();fit();computeWater();syncObjects();renderMission();hud();
+ if(innerHeight<500||innerWidth<620)misOpen=false;renderMission();
+ if(!S.started)intro();else setSpeed(1);
+ requestAnimationFrame(frame);
+}
+addEventListener('resize',()=>{if(R)resize()});
+window.claude?.hot?.snapshot?.(()=>S);
+window.claude?.hot?.ready?window.claude.hot.ready(d=>start(d&&d.v===1?d:null)):start(window.claude?.hot?.data&&window.claude.hot.data.v===1?window.claude.hot.data:null);
+window.__T={get S(){return S},hourTick,dayTick,place,feed,tebar,siapkan,sampling,panen,computeWater,setSpeed,checkMissions,camS,select};
+</script>
+
+</body>
+</html>
