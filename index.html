@@ -1041,6 +1041,15 @@ function intro(){
   m.querySelector('#luasInfo').textContent=`${sd} × ${sd} petak ≈ ${fmtN(pil.m2)} m² (1 petak ≈ 3 × 3 m).`;
   m.querySelector('#sewaTxt').textContent=`≈ ${rp(feeOf(pil.m2))}/tahun, dibayar di muka.`;
   m.querySelector('#sisaTxt').textContent=pil.k==='sewa'?`Sisa modal setelah sewa tahun pertama: ${rp(pil.cap-fee)}.`:`Modal ${rp(pil.cap)} utuh untuk kolam, benih, dan pakan.`;
+  const avail=pil.cap-fee;
+  const aset=Math.round(avail*.6/1e5)*1e5, ops=avail-aset;
+  const warn=aset<2.5e6?'<p class="ref" style="color:var(--bad);margin-top:6px"><b>Modal kecil.</b> Mulai dari kolam terpal, luas kecil, dan jangan bangun sumur bor dulu.</p>':'';
+  m.querySelector('#rencanaBox').innerHTML=`<b>Rencana pembagian modal${fee?` (setelah sewa ${rp(fee)})`:''}</b>
+   <div class="kv"><span>Aset: kolam, saluran, pondok, sumur (±60%)</span><b>${rp(aset)}</b></div>
+   <div class="kv"><span>Biaya berjalan: benih, pakan, listrik, obat (±40%)</span><b>${rp(ops)}</b></div>
+   <div class="kv tot"><span>Total dibagi</span><b>${rp(avail)}</b></div>
+   ${warn}
+   <p class="ref" style="margin-top:6px">Harga satuan: kolam terpal Rp 2 jt · kolam tanah Rp 3,5 jt · aerator Rp 0,6 jt · kincir Rp 1,5 jt · benih Rp 350/ekor · pakan Rp 12.500/kg.</p>`;
  };
  modal(`<div class="logo">Tambak Nila Sim</div>
  <p>Atur dulu modal, luas lahan, dan status lahan. Pilihan ini berlaku untuk tambak yang Anda mulai.</p>
@@ -1065,17 +1074,7 @@ function intro(){
   <button class="btn" data-land="sewa"><b>Sewa lahan</b><small id="sewaTxt"></small></button>
  </div>
  <p class="note" id="sisaTxt"></p>
- <div class="tip"><b>Contoh pemakaian modal Rp 15 jt (lahan 1.296 m²)</b>
-  <div class="kv"><span>Kolam tanah 10×10 m</span><b>Rp 3,5 jt</b></div>
-  <div class="kv"><span>Saluran air ±10 petak</span><b>Rp 0,75 jt</b></div>
-  <div class="kv"><span>Sumur bor + tandon</span><b>Rp 3 jt</b></div>
-  <div class="kv"><span>Pondok jaga</span><b>Rp 2 jt</b></div>
-  <div class="kv"><span>Kincir air (kolam tanah)</span><b>Rp 1,5 jt</b></div>
-  <div class="kv"><span>Benih 600 ekor × Rp 350</span><b>Rp 0,21 jt</b></div>
-  <div class="kv"><span>Pakan 200 kg × Rp 12.500</span><b>Rp 2,5 jt</b></div>
-  <div class="kv"><span>Persiapan kolam</span><b>Rp 0,08 jt</b></div>
-  <div class="kv tot"><span>Sisa kas untuk listrik & obat</span><b>±Rp 1,46 jt</b></div>
- </div>
+ <div class="tip" id="rencanaBox"></div>
  <p class="note">Sisa kas dipakai untuk listrik, obat, dan modal kerja. Kas yang habis membuat tambak berhenti.</p>
  <button class="btn pri wide" id="mulai">Mulai tambak</button>`,m=>{
   refresh(m);
