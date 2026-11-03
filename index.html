@@ -234,7 +234,7 @@ body.building #mission{display:none}
 </nav>
 <div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
 <div id="modal" hidden></div>
-<div id="rot" hidden><svg class="splash" viewBox="0 0 320 200" aria-hidden="true"><defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bdeee6"/><stop offset="1" stop-color="#2b8fa0"/></linearGradient><linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fd0c0"/><stop offset="1" stop-color="#1b7b8c"/></linearGradient></defs><rect width="320" height="200" rx="22" fill="url(#skyG)"/><ellipse cx="160" cy="132" rx="136" ry="52" fill="#16515f"/><ellipse class="wv" cx="160" cy="128" rx="122" ry="44" fill="url(#waterG)"/><g class="fish f1"><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffb27a"/><path d="M28 0l8-6v12z" fill="#ffb27a"/></g><g class="fish f2"><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffffff"/><path d="M28 0l8-6v12z" fill="#ffffff"/></g><g class="fish f3"><path d="M0 0c6-6 17-6 23 0-6 6-17 6-23 0z" fill="#ff8a5c"/><path d="M21 0l6-4v8z" fill="#ff8a5c"/></g><path class="reed" d="M236 120 q-4 -20 2 -36" stroke="#2f7d3f" stroke-width="3" fill="none"/></svg><h2>Tambak Nila Sim</h2><p>Bangun kolam, alirkan air, tebar benih, beri pakan, lalu panen. Waktu game sama dengan jam HP Anda.</p><button class="btn pri" id="rotFs">Mulai bermain</button></div>
+<div id="rot" hidden><svg class="splash" viewBox="0 0 320 200" aria-hidden="true"><defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bdeee6"/><stop offset="1" stop-color="#2b8fa0"/></linearGradient><linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fd0c0"/><stop offset="1" stop-color="#1b7b8c"/></linearGradient></defs><rect width="320" height="200" rx="22" fill="url(#skyG)"/><ellipse cx="160" cy="132" rx="136" ry="52" fill="#16515f"/><ellipse cx="160" cy="128" rx="122" ry="44" fill="url(#waterG)"/><g><animateTransform attributeName="transform" type="translate" values="70 118;230 140;70 118" dur="7s" repeatCount="indefinite"/><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffb27a"/><path d="M28 0l8-6v12z" fill="#ffb27a"/></g><g><animateTransform attributeName="transform" type="translate" values="230 122;100 146;230 122" dur="9s" repeatCount="indefinite"/><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffffff"/><path d="M28 0l8-6v12z" fill="#ffffff"/></g></svg><h2>Tambak Nila Sim</h2><p>Bangun kolam, alirkan air, tebar benih, beri pakan, lalu panen. Waktu game sama dengan jam HP Anda.</p><button class="btn pri" id="rotFs">Mulai bermain</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -554,7 +554,8 @@ function buyFeed(n){const cap=feedCap();if(S.feed+n*SACK>cap){toast('warn','Guda
  S.money-=n*SACK*FEEDP;S.ledger.unshift({day:S.day,cat:'Stok pakan',amt:-n*SACK*FEEDP,label:`Beli pakan ${n} karung (${n*SACK} kg)`});
  S.feed+=n*SACK;S.flags.beli=true;toast('good',`${n*SACK} kg pakan dibeli`,'Simpan di tempat kering, pakai dalam 2–3 bulan.');checkMissions();renderSheet()}
 const feedCap=()=>90+byType('gudang').length*900;
-function hire(){if(!byType('pondok').length){toast('warn','Butuh pondok jaga','Bangun Pondok jaga dulu.');return}if(S.workers>=3)return;if(!pay('Gaji',1500000,'Gaji pekerja baru (30 hari)',true))return;S.workers++;S.payDay=S.day;toast('good','Pekerja direkrut','Memberi pakan jam 08 dan 16, sampling tiap 10 hari, ganti air bila amonia tinggi. 1 pekerja menangani 4 kolam.');renderSheet()}
+function hire(){if(!byType('pondok').length){toast('warn','Butuh pondok jaga','Bangun Pondok jaga dulu.');return}if(S.workers>=3)return;if(S.money<1500000){toast('bad','Kas tidak cukup untuk gaji','Gaji 30 hari Rp 1,5 jt harus ada di kas dulu.');return}
+if(!pay('Gaji',1500000,'Gaji pekerja baru (30 hari)',true))return;S.workers++;S.payDay=S.day;toast('good','Pekerja direkrut','Memberi pakan jam 08 dan 16, sampling tiap 10 hari, ganti air bila amonia tinggi. 1 pekerja menangani 4 kolam.');renderSheet()}
 function fire(){if(S.workers>0){S.workers--;toast('info','Pekerja diberhentikan','');renderSheet()}}
 
 /* ================= BANGUN ================= */
@@ -1206,7 +1207,7 @@ function startNow(){
  if(S.acc&&S.acc.sub===undefined)S.acc.sub={};
  initScene();resize();fit();computeWater();syncObjects();renderMission();hud();
  if(innerHeight<500||innerWidth<620)misOpen=false;renderMission();
- if(S.started)catchUp();$('#rot').hidden=false;
+ if(S.started){catchUp()}else{$('#rot').hidden=false}
  iosTip();
  requestAnimationFrame(frame);
 }
