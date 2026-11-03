@@ -172,8 +172,14 @@ a{color:var(--teal);font-weight:800}
  body.sheet-open #dock{left:50%}
  .camb{position:fixed;right:10px;bottom:calc(92px + env(safe-area-inset-bottom,0px));flex-direction:column}
  .spacer{display:none}
+ #place{left:10px;right:10px;transform:none;top:calc(100px + env(safe-area-inset-top,0px));border-radius:16px;justify-content:space-between}
+ .bcard{width:100px}.bcard img{height:48px}.bcard b{font-size:12.5px}
  .hide-sm{display:none}
 }
+.steps{margin:4px 0 0;padding-left:20px;display:grid;grid-template-columns:1fr 1fr;gap:1px 14px;font-weight:700}
+.land{display:flex;flex-direction:column;gap:8px}.land .btn{text-align:left;display:flex;flex-direction:column;gap:2px;padding:10px 14px}.land .btn small{font-weight:600;opacity:.85;white-space:normal}
+#modal .note{font-size:12.5px;color:var(--ink2)}
+body.building #mission{display:none}
 @keyframes sup{from{transform:translateY(40px);opacity:.3}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -186,7 +192,7 @@ a{color:var(--teal);font-weight:800}
  <div class="pill"><span class="ic" id="hWx"></span><div><small id="hWxN">Cerah</small><b id="hDay">-</b></div></div>
  <div class="pill hide-sm"><span class="ic" id="icFish"></span><div><small>Harga nila</small><b id="hPrice">-</b></div></div>
  <div class="pill"><span class="ic" id="icSack"></span><div><small>Pakan</small><b id="hFeed">-</b></div></div>
- <div class="speed" id="speed" role="group" aria-label="Kecepatan waktu"><button data-sp="0" aria-label="Jeda" id="spP"></button><button data-sp="1">1×</button><button data-sp="3">3×</button><button data-sp="8">8×</button></div>
+ <div class="speed" id="speed" role="group" aria-label="Kecepatan waktu"><button data-sp="0" aria-label="Jeda" id="spP"></button><button data-sp="0.0002777777777777778" title="Waktu sama dengan jam HP">Nyata</button><button data-sp="1" title="1 jam = 1 detik">Cepat</button><button data-sp="8" title="8 jam = 1 detik">Kilat</button></div>
  <span class="spacer"></span>
  <div class="camb" role="group" aria-label="Kamera"><button id="camL" aria-label="Putar kiri">⟲</button><button id="camR" aria-label="Putar kanan">⟳</button><button id="camF" aria-label="Pusatkan peta">◎</button><button id="fsBtn" aria-label="Layar penuh">⤢</button></div>
 </div>
@@ -251,8 +257,20 @@ const $=s=>document.querySelector(s);
 
 /* ================= STATE ================= */
 let S;
+const REAL=1/3600; // 1 jam game = 1 jam nyata
+function midnight(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
+function nowH(){const d=new Date();return d.getHours()+d.getMinutes()/60+d.getSeconds()/3600}
+function gameMs(){return S.date0+(S.day-1)*864e5+S.t*36e5}
+let QUIET=0,missed=[];
+function advance(h){while(h>0){const nextH=Math.floor(S.t)+1,step=Math.min(h,nextH-S.t);S.t+=step;h-=step;if(S.t>=nextH-1e-9){S.t=nextH;if(S.t>=24){S.t=0;dayTick()}hourTick()}}}
+function catchUp(){if(!S.started)return;const gap=(Date.now()-gameMs())/36e5;if(gap<=0)return;
+ if(gap<.05){advance(gap);return}
+ const h=Math.min(gap,30*24);QUIET++;missed=[];try{advance(h)}finally{QUIET--}
+ if(gap>1){const jam=gap>=48?Math.round(gap/24)+' hari':Math.round(gap)+' jam';const uniq=[...new Set(missed)].slice(0,3);
+  toast(uniq.length?'warn':'info','Selama Anda pergi ('+jam+')',uniq.length?uniq.join(' · '):'Tambak tetap berjalan sesuai jam nyata. Tidak ada kejadian besar.')}
+ save()}
 function newGame(){
- const s={v:1,money:15e6,day:1,t:6,weather:'cerah',tempBase:29.5,price:30000,outage:false,feed:0,workers:0,payDay:0,nextId:1,objs:[],ledger:[],harvests:[],flags:{},done:[],streak:0,tomorrow:'berawan',started:false};
+ const s={v:1,money:15e6,day:1,t:nowH(),date0:midnight(),land:null,weather:'cerah',tempBase:29.5,price:30000,outage:false,feed:0,workers:0,payDay:0,nextId:1,objs:[],ledger:[],harvests:[],flags:{},done:[],streak:0,tomorrow:'berawan',started:false};
  const add=(type,x,y,extra)=>{const o=Object.assign({id:s.nextId++,type,x,y},extra||{});s.objs.push(o);return o};
  add('pondok',10,10);
  [[3,1],[5,0],[8,0],[11,1],[11,4],[11,8],[2,11],[5,11],[8,11],[1,8],[2,4],[9,6],[6,9],[11,11],[1,0],[4,7]].forEach(([x,y],i)=>add('pohon',x,y,{v:i%3}));
@@ -285,8 +303,8 @@ function totals(){const t={in:0,out:0,cat:{}};for(const l of S.ledger){if(l.cat=
 
 /* ================= MISSIONS ================= */
 const MIS=[
- {id:'bangun',t:'Bangun kolam pertama',how:'Tekan Bangun, pilih Kolam terpal (murah) atau Kolam tanah, lalu ketuk lahan kosong.',why:'Pilih lahan datar dekat sumber air. Satu kolam terpal Ø3 m cukup untuk ±500 ekor.',r:300000,ok:()=>ponds().length>0},
- {id:'air',t:'Alirkan air ke kolam',how:'Bangun Saluran air dari tepi sungai sampai menempel di kolam, atau bangun Sumur bor tepat di sebelah kolam.',why:'Air harus bisa masuk dan dibuang kapan saja. Tanpa air, kolam tidak bisa disiapkan.',r:200000,ok:()=>ponds().some(p=>p.conn)},
+ {id:'bangun',t:'Bangun kolam pertama',how:'Kolam dulu, saluran sesudahnya. Tekan Bangun, pilih Kolam terpal (murah) atau Kolam tanah, lalu ketuk lahan kosong dekat sungai (sisi kiri peta).',why:'Letak kolam menentukan jalur saluran, jadi kolam ditentukan dulu. Pilih lahan datar dekat sumber air. Satu kolam terpal Ø3 m cukup untuk ±500 ekor.',r:300000,ok:()=>ponds().length>0},
+ {id:'air',t:'Alirkan air ke kolam',how:'Tekan Bangun, pilih Saluran air. Ketuk petak mulai dari tepi sungai, sambung terus sampai menempel di kolam. Atau bangun Sumur bor tepat di sebelah kolam.',why:'Sesudah kolam jadi, air disambungkan. Air harus bisa masuk dan dibuang kapan saja. Tanpa air, kolam tidak bisa disiapkan.',r:200000,ok:()=>ponds().some(p=>p.conn)},
  {id:'siap',t:'Siapkan kolam',how:'Ketuk kolam, tekan Siapkan kolam. Tunggu 3 hari (terpal) atau 4 hari (tanah).',why:'Terpal: isi air + garam, diamkan agar bau terpal hilang. Tanah: keringkan, kapur, pupuk, isi air sampai hijau (plankton).',r:200000,ok:()=>ponds().some(p=>p.st==='siap'||p.st==='isi')},
  {id:'pakan',t:'Beli pakan',how:'Tekan Pakan di bawah, beli minimal 1 karung (30 kg).',why:'Siapkan pakan sebelum benih datang. Pakai pelet apung protein 28–32%.',r:100000,ok:()=>S.flags.beli},
  {id:'tebar',t:'Tebar benih',how:'Ketuk kolam yang sudah siap, tekan Tebar benih. Lakukan pagi (06–09) atau sore.',why:'Siang hari air panas dan benih mudah stres. Di dunia nyata, apungkan kantong 15–30 menit dulu (aklimatisasi).',r:300000,ok:()=>ponds().some(p=>p.st==='isi')},
@@ -303,7 +321,7 @@ const MIS=[
 let misOpen=true;
 function curMission(){return MIS.find(m=>!S.done.includes(m.id))}
 function checkMissions(){
- for(const m of MIS){if(S.done.includes(m.id))continue;if(m.ok()){S.done.push(m.id);if(m.r)earn('Bonus misi',m.r,'Misi: '+m.t);toast('gold','Misi selesai: '+m.t,m.r?'Bonus '+rp(m.r):'Selamat, Anda pembudidaya yang untung!');burst()}}
+ for(const m of MIS){if(S.done.includes(m.id))continue;if(m.ok()){S.done.push(m.id);const nx=MIS.find(k=>!S.done.includes(k.id));toast('gold','Tahap selesai: '+m.t,nx?'Berikutnya: '+nx.t:'Selamat, Anda pembudidaya yang untung!');burst()}}
  renderMission();
 }
 function renderMission(){
@@ -312,12 +330,12 @@ function renderMission(){
  const i=MIS.indexOf(m);
  el.className=misOpen?'':'min';
  el.innerHTML=`<button class="mh" id="misT" aria-expanded="${misOpen}"><span class="flag">${svg('flag')}</span><span class="mt"><small>Misi ${i+1} dari ${MIS.length}</small><b>${m.t}</b></span><svg class="i chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button>
- <div class="mb"><p>${m.how}</p><p class="why"><b>Kenapa?</b> ${m.why}</p>${m.r?`<p class="rw">Hadiah: ${rp(m.r)}</p>`:''}</div>`;
+ <div class="mb"><p>${m.how}</p><p class="why"><b>Kenapa?</b> ${m.why}</p></div>`;
  $('#misBadge').hidden=true;
 }
 
 /* ================= TOASTS & FX ================= */
-function toast(kind,title,body){const d=document.createElement('div');d.className='toast '+kind;d.innerHTML=`<b>${title}</b>${body?`<span>${body}</span>`:''}`;const box=$('#toasts');box.prepend(d);while(box.children.length>(innerWidth<560||innerHeight<500?2:3))box.lastChild.remove();setTimeout(()=>d.remove(),kind==='bad'?9000:6000)}
+function toast(kind,title,body){if(QUIET){if(kind==='bad'||kind==='warn')missed.push(title);return}const d=document.createElement('div');d.className='toast '+kind;d.innerHTML=`<b>${title}</b>${body?`<span>${body}</span>`:''}`;const box=$('#toasts');box.prepend(d);while(box.children.length>(innerWidth<560||innerHeight<500?2:3))box.lastChild.remove();setTimeout(()=>d.remove(),kind==='bad'?9000:6000)}
 let lastFocus=null;
 function floatMoney(a){if(lastFocus)floatAt(lastFocus,(a>0?'+':'')+rp(a),a>0?'#ffd43b':'#ffffff')}
 
@@ -325,7 +343,7 @@ function floatMoney(a){if(lastFocus)floatAt(lastFocus,(a>0?'+':'')+rp(a),a>0?'#f
 /* ================= WORKERS (villagers) ================= */
 const VIL=[];
 function homeTile(){const h=byType('pondok')[0];return h?[h.x+.5,h.y+1.15]:[W-.5,H-.5]}
-function sendVillager(o,col='#e2553b'){const[hx,hy]=homeTile();const t=T[o.type];const tx=o.x+t.w+.15,ty=o.y+t.h-.3;VIL.push({x:hx,y:hy,tx,ty,hx,hy,ph:0,col,wait:0})}
+function sendVillager(o,col='#e2553b'){if(QUIET)return;const[hx,hy]=homeTile();const t=T[o.type];const tx=o.x+t.w+.15,ty=o.y+t.h-.3;VIL.push({x:hx,y:hy,tx,ty,hx,hy,ph:0,col,wait:0})}
 
 /* ================= SIM ================= */
 const daylight=h=>h>=6&&h<18?Math.sin((h-6)/12*Math.PI):0;
@@ -349,8 +367,8 @@ function hourTick(){
   let s=0;if(p.do<3)s+=(3-p.do)*.6;if(p.amm>1)s+=(p.amm-1)*.5;if(temp>32)s+=.3;if(temp<25)s+=.15;if(p.ph<6.5||p.ph>9)s+=.3;
   p.stress=p.stress*.9+s;
   if(p.do<1.5){const d=Math.max(1,Math.round(p.n*.04*(1.5-p.do)));kill(p,d)}
-  if(p.do<2.5&&p.alertDay!==S.day){p.alertDay=S.day;toast('bad',`${p.name}: oksigen rendah (${fmtN(p.do,1)} mg/L)`,'Ikan megap-megap di permukaan. Pasang/tambah aerator, ganti air, kurangi pakan.');if(S.autoPause!==false)setSpeed(0)}
-  if(!p.sick&&p.stress>4&&rnd()<.004*(p.stress-3)){p.sick={k:temp>30?'strep':'aero',d:S.day,tr:false};toast('bad',`${p.name}: ikan sakit`,p.sick.k==='strep'?'Gejala Streptococcus: berenang berputar, mata menonjol. Dipicu air panas dan stres.':'Gejala Aeromonas: luka merah di sisik/sirip. Dipicu air kotor dan stres.');if(S.autoPause!==false)setSpeed(0)}
+  if(p.do<2.5&&p.alertDay!==S.day){p.alertDay=S.day;toast('bad',`${p.name}: oksigen rendah (${fmtN(p.do,1)} mg/L)`,'Ikan megap-megap di permukaan. Pasang/tambah aerator, ganti air, kurangi pakan.');if(S.autoPause!==false&&ui.speed>=1&&!QUIET)setSpeed(0)}
+  if(!p.sick&&p.stress>4&&rnd()<.004*(p.stress-3)){p.sick={k:temp>30?'strep':'aero',d:S.day,tr:false};toast('bad',`${p.name}: ikan sakit`,p.sick.k==='strep'?'Gejala Streptococcus: berenang berputar, mata menonjol. Dipicu air panas dan stres.':'Gejala Aeromonas: luka merah di sisik/sirip. Dipicu air kotor dan stres.');if(S.autoPause!==false&&ui.speed>=1&&!QUIET)setSpeed(0)}
  }
  if(S.workers){const list=ponds().filter(p=>p.st==='isi').slice(0,S.workers*4);
   for(const p of list){
@@ -395,6 +413,7 @@ function dayTick(){
  let acc=0;S.tomorrow=['cerah','berawan','hujan','panas'].find((k,i)=>(acc+=wnext[i])>r)||'cerah';
  S.outage=rnd()<.05;
  S.day++;
+ if(S.land&&S.land.fee&&S.day>=S.land.next){S.land.next+=365;pay('Sewa lahan',S.land.fee,'Sewa lahan 1 tahun',true);toast('info','Sewa lahan tahun berikutnya dibayar',rp(S.land.fee))}
  if(S.money<0)toast('bad','Uang minus','Tagihan listrik/gaji membuat kas minus. Panen atau kurangi biaya.');
  save();
 }
@@ -477,8 +496,8 @@ function demolish(o){
  else if(T[o.type].cost){earn('Investasi',Math.round(T[o.type].cost*.2),'Jual bekas '+T[o.type].n)}
  S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();
 }
-function startBuild(type){ui.tool=type;closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang ingin dihapus':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
-function endBuild(){ui.tool=null;$('#place').hidden=true;$('#build').hidden=true;navOn(null)}
+function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang ingin dihapus':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
+function endBuild(){ui.tool=null;document.body.classList.remove('building');$('#place').hidden=true;$('#build').hidden=true;navOn(null)}
 
 /* ================= 3D WORLD ================= */
 const cv=$('#cv'),fx2=$('#fx2d'),fctx=fx2.getContext('2d');let cw=innerWidth,ch=innerHeight;
@@ -733,7 +752,7 @@ function updateOverlay(dt){
 let last=performance.now(),hudT=0;
 function frame(ts){
  const dt=Math.min(.1,(ts-last)/1000);last=ts;
- if(ui.speed>0&&S.started){let adv=dt*ui.speed;while(adv>0){const nextH=Math.floor(S.t)+1,step=Math.min(adv,nextH-S.t);S.t+=step;adv-=step;if(S.t>=nextH-1e-9){S.t=nextH;if(S.t>=24){S.t=0;dayTick()}hourTick()}}}
+ if(ui.speed>0&&S.started){if(ui.speed===REAL&&gameMs()<Date.now())catchUp();else advance(dt*ui.speed)}
  for(let i=VIL.length-1;i>=0;i--){const v=VIL[i];if(v.wait>0){v.wait-=dt;if(v.wait<=0&&v.ph===1){v.ph=2;v.tx=v.hx;v.ty=v.hy}continue}
   const dx=v.tx-v.x,dy=v.ty-v.y,d=Math.hypot(dx,dy),sp=1.8*dt*Math.max(1,ui.speed/2);if(d<sp){v.x=v.tx;v.y=v.ty;if(v.ph===0){v.ph=1;v.wait=1.2}else{if(v.m)SC.remove(v.m);VIL.splice(i,1)}}else{v.x+=dx/d*sp;v.y+=dy/d*sp}}
  syncObjects();updateCamera(dt);updateWorld(ts/1000,dt);R.render(SC,CAM);updateOverlay(dt);
@@ -741,10 +760,10 @@ function frame(ts){
  requestAnimationFrame(frame);
 }
 function hud(){
- const h=Math.floor(S.t)%24,m=Math.floor((S.t%1)*60/15)*15;
+ const h=Math.floor(S.t)%24,m=Math.floor((S.t%1)*60);
  $('#hMoney').textContent=rp(S.money);$('#hMoney').style.color=S.money<0?'var(--bad)':'';
- $('#hDay').textContent=`Hari ${S.day} · ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
- const night=isNight(h);$('#hWx').innerHTML=svg(night&&S.weather!=='hujan'?'malam':S.weather);$('#hWxN').textContent=WX[S.weather].n+' · '+fmtN(tempAt(h),0)+'°C'+(S.outNow?' · padam':'');
+ $('#hDay').textContent=new Date(gameMs()).toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'})+` · ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+ const night=isNight(h);$('#hWx').innerHTML=svg(night&&S.weather!=='hujan'?'malam':S.weather);$('#hWxN').textContent='Hari ke-'+S.day+' · '+WX[S.weather].n+' '+fmtN(tempAt(h),0)+'°C'+(S.outNow?' · padam':'');
  $('#hPrice').textContent=rp(S.price)+'/kg';$('#hFeed').textContent=fmtN(S.feed,0)+' kg';
  document.body.classList.toggle('sheet-open',!!ui.sheet);
 }
@@ -774,9 +793,10 @@ function tap(sx,sy){
  if(!o){const[x,y]=tileAt(sx,sy);o=OCC[y]&&OCC[y][x]}
  if(o)select(o);else{select(null);closeSheet()}}
 function select(o){ui.sel=o;if(o){lastFocus=o;openSheet({type:T[o.type].pond?'pond':'obj',o})}}
-addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key===' '){e.preventDefault();setSpeed(ui.speed?0:ui.lastSpeed||1)}if(e.key==='Escape'){if(ui.tool)endBuild();else closeSheet()}if(e.key==='1')setSpeed(1);if(e.key==='2')setSpeed(3);if(e.key==='3')setSpeed(8);if(e.key==='q')camS.azT-=Math.PI/4;if(e.key==='e')camS.azT+=Math.PI/4});
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key===' '){e.preventDefault();setSpeed(ui.speed?0:ui.lastSpeed||REAL)}if(e.key==='Escape'){if(ui.tool)endBuild();else closeSheet()}if(e.key==='1')setSpeed(REAL);if(e.key==='2')setSpeed(1);if(e.key==='3')setSpeed(8);if(e.key==='q')camS.azT-=Math.PI/4;if(e.key==='e')camS.azT+=Math.PI/4});
 $('#camL').onclick=()=>camS.azT-=Math.PI/4;$('#camR').onclick=()=>camS.azT+=Math.PI/4;$('#camF').onclick=()=>{fit();camS.azT=Math.round(camS.az/(Math.PI*2))*Math.PI*2+Math.PI/4};
 function isFull(){return !!(document.fullscreenElement||document.webkitFullscreenElement)}
+function iosTip(){const ios=/iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1&&/iPad/.test(navigator.userAgent));const sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches;if(!ios||sa)return;try{if(localStorage.getItem('tns.iosTip'))return;localStorage.setItem('tns.iosTip','1')}catch(e){}setTimeout(()=>toast('info','Layar penuh di iPhone','Safari tidak bisa layar penuh. Tekan Bagikan lalu "Tambah ke Layar Utama", lalu buka game dari ikon itu.'),1500)}
 function goFull(quiet){const d=document.documentElement;const rq=d.requestFullscreen||d.webkitRequestFullscreen;const lock=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};const fail=()=>{if(!quiet)toast('info','Layar penuh tidak tersedia di sini','Di iPhone: tekan Bagikan lalu "Tambah ke Layar Utama", lalu buka game dari ikon itu.')};if(!rq){fail();return}try{const p=rq.call(d,{navigationUI:'hide'});if(p&&p.then)p.then(lock).catch(fail);else lock()}catch(e){fail()}}
 const TOUCH=matchMedia('(pointer:coarse)').matches;let autoFullTried=false;
 function autoFull(e){if(e&&e.target&&e.target.closest&&e.target.closest('#fsBtn,#rotFs'))return;if(autoFullTried||!TOUCH||isFull()||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches)return;autoFullTried=true;goFull(true)}
@@ -880,9 +900,15 @@ function askPanen(p){const ws=p.ws||p.w;const est=p.n*ws/1000;
 function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){demolish(o);renderSheet();return}
  modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Anda mendapat kembali ${rp(t.cost*.2)} dari ${rp(t.cost)}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet()}})}
 function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();S=newGame();computeWater();closeSheet();intro()}})}
-function intro(){setSpeed(0);modal(`<div class="logo">Tambak Nila Sim</div><p>Anda mewarisi sebidang lahan di tepi sungai dan modal <b>${rp(15e6)}</b>. Bangun kolam, alirkan air, tebar benih, dan rawat ikan sampai panen.</p>
- <div class="tip"><b>Kondisi nyata</b>Oksigen turun di malam hari, amonia naik bila pakan berlebih, cuaca berganti, listrik bisa padam, dan ikan bisa sakit. Angka mengikuti SNI dan literatur budidaya.</div>
- <p>Ikuti <b>misi</b> di kiri atas. Tiap misi adalah satu tahap budidaya sungguhan.</p><button class="btn pri" id="mGo" style="padding:14px">Mulai</button>`,m=>{m.querySelector('#mGo').onclick=()=>{closeModal();S.started=true;setSpeed(1);save()}})}
+const LAND={milik:{n:'Lahan milik sendiri',fee:0},sewa:{n:'Sewa lahan',fee:3000000}};
+const STEPS=['Lahan','Kolam','Saluran air','Siapkan air','Pakan','Tebar benih','Rawat','Panen'];
+function intro(){setSpeed(0);modal(`<div class="logo">Tambak Nila Sim</div><p>Lahan ±1.300 m² di tepi sungai (12×12 petak, 1 petak ±3×3 m). Modal awal <b>${rp(15e6)}</b>.</p>
+ <div class="tip"><b>Urutan kerja</b><ol class="steps">${STEPS.map(t=>`<li>${t}</li>`).join('')}</ol></div>
+ <p><b>Status lahan?</b></p>
+ <div class="land"><button class="btn" data-land="milik"><b>Lahan sendiri</b><small>Tanpa biaya sewa. Modal ${rp(15e6)} utuh untuk kolam & ikan.</small></button>
+ <button class="btn" data-land="sewa"><b>Sewa lahan</b><small>Sewa ${rp(LAND.sewa.fee)}/tahun dibayar di muka. Sisa modal ${rp(15e6-LAND.sewa.fee)}.</small></button></div>
+ <p class="note">Waktu game berjalan sesuai jam HP Anda (mode <b>Nyata</b>). Pakai <b>Cepat</b> atau <b>Kilat</b> untuk latihan.</p>
+ <p class="note">Biaya sewa adalah perkiraan sewa lahan pedesaan; sesuaikan dengan daerah Anda.</p>`,m=>{m.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{const k=b.dataset.land;closeModal();S.land={k,fee:LAND[k].fee,next:S.day+365};if(LAND[k].fee)pay('Sewa lahan',LAND[k].fee,'Sewa lahan 1 tahun',true);S.started=true;S.date0=midnight();S.day=1;S.t=nowH();setSpeed(REAL);save();hud()})})}
 
 /* ================= BUILD BAR ================= */
 const PREV={};
@@ -903,8 +929,8 @@ function makeThumbs(){
 function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.innerHTML=BUILD.map(k=>{const t=T[k]||{n:'Hapus / bersihkan'};const c=t.cost;return`<button class="bcard ${ui.tool===k?'on':''} ${c&&S.money<c?'no':''}" data-b="${k}">${PREV[k]?`<img src="${PREV[k]}" alt="">`:'<img alt="">'}<b>${k==='hapus'?'Hapus':t.n}</b><small>${k==='hapus'?'Pohon Rp 50 rb':rp(c)}${k==='tanah'?' · 2×2':''}</small></button>`}).join('');
  el.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startBuild(b.dataset.b))}
 /* ================= SPEED / SAVE ================= */
-function setSpeed(v){if(v>0)ui.lastSpeed=v;ui.speed=v;document.querySelectorAll('#speed button').forEach(b=>b.classList.toggle('on',+b.dataset.sp===v))}
-document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{if(!S.started)return;setSpeed(+b.dataset.sp)});
+function setSpeed(v){if(v>0)ui.lastSpeed=v;ui.speed=v;document.querySelectorAll('#speed button').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.sp-v)<1e-9))}
+document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{if(!S.started)return;setSpeed(+b.dataset.sp===0?0:Math.abs(+b.dataset.sp-REAL)<1e-9?REAL:+b.dataset.sp)});
 const KEY='tambak-nila-sim.v1';
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const s=JSON.parse(r);if(s&&s.v===1)return s}}catch(e){}return null}
@@ -917,13 +943,17 @@ let booted=false;
 function start(saved){
  if(booted)return;booted=true;
  S=saved||load()||newGame();
+ if(!S.date0){S.date0=midnight()-(S.day-1)*864e5;S.t=nowH()}
+ if(S.started&&!S.land)S.land={k:'milik'};
  if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="modal"><div class="box"><h2>Grafis 3D tidak termuat</h2><p>Periksa koneksi internet lalu muat ulang halaman.</p></div></div>');return}
  initScene();resize();fit();computeWater();syncObjects();renderMission();hud();
  if(innerHeight<500||innerWidth<620)misOpen=false;renderMission();
- if(!S.started)intro();else setSpeed(1);
+ if(!S.started)intro();else{setSpeed(REAL);catchUp()}iosTip();
  requestAnimationFrame(frame);
 }
 addEventListener('resize',()=>{if(R)resize()});
+document.addEventListener('visibilitychange',()=>{if(!S)return;if(document.hidden)save();else if(ui.speed===REAL)catchUp()});
+addEventListener('pagehide',()=>{if(S)save()});
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(R)resize()});
 addEventListener('orientationchange',()=>setTimeout(()=>{if(R)resize()},300));
 document.addEventListener('fullscreenchange',()=>setTimeout(()=>{if(R)resize()},100));
