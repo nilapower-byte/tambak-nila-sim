@@ -577,7 +577,7 @@ function demolish(o){
  else if(T[o.type].cost){earn('Investasi',Math.round(T[o.type].cost*.2),'Jual bekas '+T[o.type].n)}
  S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();
 }
-function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang ingin dihapus':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
+function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk pohon/batu (Rp 50 rb) atau bangunan (kembali 20%)':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
 function endBuild(){ui.tool=null;document.body.classList.remove('building');$('#place').hidden=true;$('#build').hidden=true;navOn(null)}
 
 /* ================= DUNIA 3D ================= */
@@ -1165,7 +1165,7 @@ function makeThumbs(){
   r.dispose();r.forceContextLoss&&r.forceContextLoss()}catch(e){}
  PREV.hapus='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 120"><g stroke="#d4432f" stroke-width="14" stroke-linecap="round"><path d="M82 30l60 60M142 30l-60 60"/></g></svg>');
 }
-function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.innerHTML=BUILD.map(k=>{const t=T[k]||{n:'Hapus / bersihkan'};const c=t.cost;return`<button class="bcard ${ui.tool===k?'on':''} ${c&&S.money<c?'no':''}" data-b="${k}">${PREV[k]?`<img src="${PREV[k]}" alt="">`:'<img alt="">'}<b>${k==='hapus'?'Hapus':t.n}</b><small>${k==='hapus'?'Pohon Rp 50 rb':rp(c)}${k==='tanah'?' · 2×2':''}</small></button>`}).join('');
+function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.innerHTML=BUILD.map(k=>{const t=T[k]||{n:'Hapus / bersihkan'};const c=t.cost;return`<button class="bcard ${ui.tool===k?'on':''} ${c&&S.money<c?'no':''}" data-b="${k}">${PREV[k]?`<img src="${PREV[k]}" alt="">`:'<img alt="">'}<b>${k==='hapus'?'Bersihkan / bongkar':t.n}</b><small>${k==='hapus'?'Pohon/batu Rp 50 rb · bangunan kembali 20%':rp(c)}${k==='tanah'?' · 2×2':''}</small></button>`}).join('');
  el.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startBuild(b.dataset.b))}
 
 /* ================= SIMPAN ================= */
