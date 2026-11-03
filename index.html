@@ -164,6 +164,8 @@ body.building #mission{display:none}
 #rot p{margin:0;max-width:300px;line-height:1.5;color:#d8eef7}
 #rot .btn{min-width:220px}
 #rot .btn:not(.pri){background:rgba(255,255,255,.14);color:#fff;box-shadow:none}
+#rot .splash{width:min(300px,78vw);height:auto;margin-bottom:6px}
+#rot p{color:#d8eef7}
 @media (max-height:500px){
  .pill{padding:3px 10px 3px 4px}.pill b{font-size:13.5px}.pill .ic{width:22px;height:22px}.pill small{font-size:9.5px}
  .camb button{height:26px;min-width:32px;font-size:13px}
@@ -197,6 +199,10 @@ body.building #mission{display:none}
 #sheet{background:var(--panel)}
 .st,.g,.tip{box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 #pricePill{cursor:pointer}
+.stageNow{display:inline-flex;align-self:flex-start;font-weight:800;font-size:12px;color:#fff;background:var(--acc);border-radius:999px;padding:5px 12px}
+.btn.locked{opacity:.55;filter:grayscale(1);box-shadow:none}
+.btn.locked small.lk{color:var(--bad);font-weight:800}
+.mis.locked{opacity:.5;filter:grayscale(1)}
 .money .ic{background:#ffe08a;color:#7a5200}
 .fld{flex:1;font:inherit;font-weight:800;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);width:100%;min-width:0}
 .fldU{font-weight:800;color:var(--ink2);align-self:center;padding-left:6px}
@@ -228,7 +234,7 @@ body.building #mission{display:none}
 </nav>
 <div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
 <div id="modal" hidden></div>
-<div id="rot" hidden><div class="ph2"></div><h2>Putar HP Anda</h2><p>Tambak Nila Sim paling nyaman dimainkan dalam posisi mendatar.</p><button class="btn pri" id="rotFs">Layar penuh mendatar</button><button class="btn" id="rotOk">Main tegak saja</button></div>
+<div id="rot" hidden><svg class="splash" viewBox="0 0 320 200" aria-hidden="true"><defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bdeee6"/><stop offset="1" stop-color="#2b8fa0"/></linearGradient><linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fd0c0"/><stop offset="1" stop-color="#1b7b8c"/></linearGradient></defs><rect width="320" height="200" rx="22" fill="url(#skyG)"/><ellipse cx="160" cy="132" rx="136" ry="52" fill="#16515f"/><ellipse class="wv" cx="160" cy="128" rx="122" ry="44" fill="url(#waterG)"/><g class="fish f1"><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffb27a"/><path d="M28 0l8-6v12z" fill="#ffb27a"/></g><g class="fish f2"><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffffff"/><path d="M28 0l8-6v12z" fill="#ffffff"/></g><g class="fish f3"><path d="M0 0c6-6 17-6 23 0-6 6-17 6-23 0z" fill="#ff8a5c"/><path d="M21 0l6-4v8z" fill="#ff8a5c"/></g><path class="reed" d="M236 120 q-4 -20 2 -36" stroke="#2f7d3f" stroke-width="3" fill="none"/></svg><h2>Tambak Nila Sim</h2><p>Bangun kolam, alirkan air, tebar benih, beri pakan, lalu panen. Waktu game sama dengan jam HP Anda.</p><button class="btn pri" id="rotFs">Mulai bermain</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -861,8 +867,8 @@ const TOUCH=matchMedia('(pointer:coarse)').matches;let autoFullTried=false;
 function autoFull(e){if(e&&e.target&&e.target.closest&&e.target.closest('#fsBtn,#rotFs'))return;if(autoFullTried||!TOUCH||isFull()||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches)return;autoFullTried=true;goFull(true)}
 addEventListener('pointerup',autoFull,{capture:true});
 $('#fsBtn').onclick=()=>{autoFullTried=true;if(isFull()){(document.exitFullscreen||document.webkitExitFullscreen).call(document)}else goFull()};
-function checkOrient(){const port=innerHeight>innerWidth&&innerWidth<820;$('#rot').hidden=!(port&&!ui.portraitOk)}
-$('#rotOk').onclick=()=>{ui.portraitOk=true;checkOrient()};$('#rotFs').onclick=()=>{autoFullTried=true;goFull();ui.portraitOk=true;checkOrient()};
+function checkOrient(){}
+$('#rotFs').onclick=()=>{autoFullTried=true;goFull(true);$('#rot').hidden=true;if(S&&!S.started)intro()};
 
 /* ================= PANEL ================= */
 let ui={tool:null,hover:null,sel:null,sheet:null,portraitOk:false};
@@ -930,7 +936,7 @@ function reportSheet(){
  const a=S.acc,L=laba(),modal=S.capital||CAPITAL,aset=a.invest,sub=a.sub;
  const sumSub=k=>sub[k]||0;
  const siklus=S.harvests.reduce((x,h)=>x+h.rev,0);
- const rA=S.rab&&S.rab.aset!=null?S.rab.aset:Math.round(modal*.6),rO=S.rab&&S.rab.ops!=null?S.rab.ops:Math.round(modal*.4),opsReal=a.ops+a.gaji+a.sewa;
+ const rA=S.rab&&S.rab.aset!=null?S.rab.aset:(S.plan?S.plan.aset:Math.round(modal*.6)),rO=S.rab&&S.rab.ops!=null?S.rab.ops:(S.plan?S.plan.ops:Math.round(modal*.4)),opsReal=a.ops+a.gaji+a.sewa;
  return`<div class="ph"><div><div class="eyebrow">Buku kas & akuntansi otomatis</div><h2>Laporan keuangan</h2></div></div>
 
  <h3>Rencana vs realisasi</h3>
@@ -972,7 +978,8 @@ function reportSheet(){
 
  <h3>Transaksi kas terakhir</h3><div class="tw"><table><tbody>${S.ledger.slice(0,30).map(l=>`<tr><td>H${l.day}</td><td>${l.label}</td><td class="r ${l.amt>=0?'pos':'neg'}">${rp(l.amt)}</td></tr>`).join('')}</tbody></table></div>`}
 
-function misSheet(){const c=curMission();return`<div class="ph"><div><div class="eyebrow">${S.done.length} dari ${MIS.length} selesai</div><h2>Misi budidaya</h2></div></div>${MIS.map((m,i)=>{const d=S.done.includes(m.id),cur=m===c;return`<div class="mis ${d?'done':cur?'cur':''}"><span class="n">${d?'✓':i+1}</span><div><b>${m.t}</b>${cur||d?`<p>${cur?m.how:m.why}</p>`:''}</div></div>`}).join('')}`}
+function misSheet(){return stageSheet()+misList()}
+function misList(){const c=curMission();return`<div class="ph"><div><div class="eyebrow">${S.done.length} dari ${MIS.length} selesai</div><h2>Misi budidaya</h2></div></div>${MIS.map((m,i)=>{const d=S.done.includes(m.id),cur=m===c;return`<div class="mis ${d?'done':cur?'cur':''}"><span class="n">${d?'✓':i+1}</span><div><b>${m.t}</b>${cur||d?`<p>${cur?m.how:m.why}</p>`:''}</div></div>`}).join('')}`}
 const DEV=/[?&]dev=1/.test(location.search);
 function devBlock(){return`<h3>Uji siklus (developer)</h3><p class="ref">Memajukan waktu game. Semua kejadian (cuaca, pakan, sakit, sewa) tetap diproses seperti biasa.</p><div class="acts"><button class="btn" data-a="devskip" data-h="24">+1 hari</button><button class="btn" data-a="devskip" data-h="168">+7 hari</button><button class="btn" data-a="devskip" data-h="720">+30 hari</button><button class="btn pri" data-a="devskip" data-h="2880">+120 hari</button><button class="btn wide" data-a="devmoney">Tambah modal uji Rp 10 jt</button></div>`}
 function devSkip(h){S.start-=h*36e5;catchUp();save();renderSheet();hud()}
@@ -986,10 +993,10 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  ${DEV?devBlock():''}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
- b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();b.scrollTop=st}
+ b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();if(s.type==='pond'&&s.o){b.insertAdjacentHTML('afterbegin',`<div class="stageNow">${stageName()}</div>`);applyGates(s.o,b)}b.scrollTop=st}
 $('#sheetBody').addEventListener('click',e=>{
  const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}
- const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
+ const b=e.target.closest('[data-a]');if(b&&b.classList.contains('locked')){toast('warn','Belum bisa dilakukan',b.dataset.lock+' Sekarang: '+stageName()+'.');openSheet({type:'mis'});return}if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
  const a=b.dataset.a;
  ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
  checkMissions();renderSheet();save()});
@@ -999,6 +1006,38 @@ function nav(k){
  openSheet({type:k});navOn(k)}
 document.querySelectorAll('#dock button').forEach(b=>b.onclick=()=>nav(b.dataset.nav));
 $('#placeDone').onclick=endBuild;
+
+/* ================= TAHAPAN & KUNCI =================
+   Tahap dikerjakan berurutan. Tahap yang belum bisa dikerjakan tampil abu-abu, tapi tetap terbaca. */
+const STAGES=[
+ {n:'Lahan & kolam',d:'Tekan Bangun, pilih kolam, lalu ketuk lahan dekat sungai.',done:()=>ponds().length>0},
+ {n:'Alirkan air',d:'Sambungkan saluran dari sungai, atau bangun sumur bor di sebelah kolam.',done:()=>ponds().some(p=>p.conn)},
+ {n:'Siapkan kolam',d:'Tekan Siapkan kolam. Terpal 3 hari, kolam tanah 2 minggu.',done:()=>ponds().some(p=>p.st==='siap'||p.st==='isi')},
+ {n:'Beli pakan',d:'Beli pakan minimal 1 karung sebelum benih datang.',done:()=>S.feed>0||!!S.flags.beli},
+ {n:'Tebar benih',d:'Tebar pagi (06–09) atau sore, saat air belum panas.',done:()=>ponds().some(p=>p.st==='isi')},
+ {n:'Rawat ikan',d:'Beri pakan 2× sehari, sampling tiap 7–10 hari, jaga oksigen dan amonia.',done:()=>!!S.flags.sampling},
+ {n:'Panen',d:'Panen saat sekitar 250 g, lalu catat hasilnya di Laporan.',done:()=>S.harvests.length>0}
+];
+function stageIdx(){const i=STAGES.findIndex(x=>!x.done());return i<0?STAGES.length:i}
+function stageName(){const i=stageIdx();return i>=STAGES.length?'Semua tahap selesai':`Tahap ${i+1}: ${STAGES[i].n}`}
+function gate(a,p){
+ const st=p.st,needFish='Tebar benih dulu (Tahap 5).';
+ switch(a){
+  case 'air':return p.conn?null:'Sambungkan air dulu (Tahap 2).';
+  case 'siap':if(!p.conn)return 'Sambungkan air dulu (Tahap 2).';return st==='kering'?null:'Kolam sudah disiapkan.';
+  case 'tebar':if(st==='kering')return 'Siapkan kolam dulu (Tahap 3).';if(st==='persiapan')return 'Kolam masih disiapkan (Tahap 3).';if(st==='isi')return 'Kolam sudah berisi ikan.';if(S.feed<=0)return 'Beli pakan dulu (Tahap 4).';return null;
+  case 'feed':if(st!=='isi')return needFish;return S.feed<=0?'Stok pakan habis. Beli pakan dulu (Tahap 4).':null;
+  case 'samp':case 'panen':case 'sortir':case 'pro':return st==='isi'?null:needFish;
+  case 'obat':return p.sick&&!p.sick.tr?null:'Tidak ada ikan sakit.';
+  case 'del':return st==='isi'?'Panen atau pindahkan ikan dulu.':null;
+  default:return null;
+ }
+}
+function applyGates(p,root){root.querySelectorAll('[data-a]').forEach(btn=>{const r=gate(btn.dataset.a,p);if(!r)return;btn.classList.add('locked');btn.dataset.lock=r;if(!btn.querySelector('.lk'))btn.insertAdjacentHTML('beforeend',`<small class="lk">Terkunci · ${r}</small>`)})}
+function stageSheet(){const cur=stageIdx();
+ return`<div class="ph"><div><div class="eyebrow">${Math.min(cur,STAGES.length)} dari ${STAGES.length} tahap selesai</div><h2>Tahapan tambak</h2></div></div>
+ <p class="tip"><b>${stageName()}</b>Kerjakan tahap ini dulu. Tahap yang masih abu-abu belum bisa dikerjakan, tetapi tetap bisa dibaca.</p>
+ ${STAGES.map((st,i)=>{const d=i<cur,c=i===cur;return`<div class="mis ${d?'done':c?'cur':'locked'}"><span class="n">${d?'✓':i+1}</span><div><b>${st.n}</b><p>${st.d}</p></div></div>`}).join('')}`}
 
 /* ================= HARGA ================= */
 function setHarga(v){
@@ -1025,6 +1064,19 @@ function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){
 function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();localStorage.removeItem(KEY);S=null;location.reload()}})}
 
 /* Intro: pilihan lahan + penjelasan modal. Modal dijelaskan lengkap sebelum game mulai. */
+function planOf(cap,m2,status){
+ const sd=Math.max(3,Math.min(30,Math.round(Math.sqrt(m2/9))));
+ const sewa=status==='sewa'?Math.round(m2*2300/1000)*1000:0;
+ const dana=cap-sewa;
+ const dasar=2e6+sd*62500;
+ const kerjaMin=Math.round(dana*.3/1e5)*1e5;
+ let tanah=0,terpal=0;
+ const maxTanah=Math.floor(m2/250);
+ while(tanah<maxTanah&&dasar+(tanah+1)*5e6+kerjaMin<=dana)tanah++;
+ if(!tanah)while(terpal<6&&dasar+(terpal+1)*2.6e6+kerjaMin<=dana)terpal++;
+ const kolam=tanah*5e6+terpal*2.6e6,aset=dasar+kolam,ops=dana-aset;
+ return{sewa,dana,dasar,tanah,terpal,kolam,aset,ops,kerjaMin};
+}
 function intro(){
  const pil={k:'milik',m2:1296,cap:15e6};
  const sideOf=v=>Math.max(3,Math.min(30,Math.round(Math.sqrt(v/9))));
@@ -1040,15 +1092,18 @@ function intro(){
   m.querySelector('#luasInfo').textContent=`${sd} × ${sd} petak ≈ ${fmtN(pil.m2)} m² (1 petak ≈ 3 × 3 m).`;
   m.querySelector('#sewaTxt').textContent=`≈ ${rp(feeOf(pil.m2))}/tahun, dibayar di muka.`;
   m.querySelector('#sisaTxt').textContent=pil.k==='sewa'?`Sisa modal setelah sewa tahun pertama: ${rp(pil.cap-fee)}.`:`Modal ${rp(pil.cap)} utuh untuk kolam, benih, dan pakan.`;
-  const avail=pil.cap-fee;
-  const aset=Math.round(avail*.6/1e5)*1e5, ops=avail-aset;
-  const warn=aset<2.5e6?'<p class="ref" style="color:var(--bad);margin-top:6px"><b>Modal kecil.</b> Mulai dari kolam terpal, luas kecil, dan jangan bangun sumur bor dulu.</p>':'';
-  m.querySelector('#rencanaBox').innerHTML=`<b>Rencana pembagian modal${fee?` (setelah sewa ${rp(fee)})`:''}</b>
-   <div class="kv"><span>Aset: kolam, saluran, pondok, sumur (±60%)</span><b>${rp(aset)}</b></div>
-   <div class="kv"><span>Biaya berjalan: benih, pakan, listrik, obat (±40%)</span><b>${rp(ops)}</b></div>
-   <div class="kv tot"><span>Total dibagi</span><b>${rp(avail)}</b></div>
+  const pl=planOf(pil.cap,pil.m2,pil.k);
+  const warn=pl.tanah+pl.terpal===0?'<p class="ref" style="color:var(--bad);margin-top:6px"><b>Modal belum cukup</b> untuk kolam. Tambah modal atau pilih lahan lebih kecil.</p>':'';
+  m.querySelector('#rencanaBox').innerHTML=`<b>Rencana otomatis dari modal, luas, dan status lahan</b>
+   ${pl.sewa?`<div class="kv"><span>Sewa lahan tahun pertama</span><b>${rp(pl.sewa)}</b></div>`:''}
+   <div class="kv"><span>Dana untuk bangunan dan biaya berjalan</span><b>${rp(pl.dana)}</b></div>
+   <div class="kv"><span>${pl.tanah?pl.tanah+' kolam tanah (+kincir)':pl.terpal?pl.terpal+' kolam terpal (+aerator)':'Kolam belum terbiayai'}</span><b>${rp(pl.kolam)}</b></div>
+   <div class="kv"><span>Pondok, saluran, dan sumur ringan</span><b>${rp(pl.dasar)}</b></div>
+   <div class="kv tot"><span>Total aset</span><b>${rp(pl.aset)}</b></div>
+   <div class="kv"><span>Biaya berjalan (benih, pakan, listrik, obat)</span><b>${rp(pl.ops)}</b></div>
+   <div class="kv"><span>Cadangan modal kerja minimal</span><b>${rp(pl.kerjaMin)}</b></div>
    ${warn}
-   <p class="ref" style="margin-top:6px">Harga satuan: kolam terpal Rp 2 jt · kolam tanah Rp 3,5 jt · aerator Rp 0,6 jt · kincir Rp 1,5 jt · benih Rp 350/ekor · pakan Rp 12.500/kg.</p>`;
+   <p class="ref" style="margin-top:6px">Harga satuan: kolam terpal Rp 2 jt · kolam tanah Rp 3,5 jt · kincir Rp 1,5 jt · aerator Rp 0,6 jt · benih Rp 350/ekor · pakan Rp 12.500/kg.</p>`;
  };
  modal(`<div class="logo">Tambak Nila Sim</div>
  <p>Atur dulu modal, luas lahan, dan status lahan. Pilihan ini berlaku untuk tambak yang Anda mulai.</p>
@@ -1086,6 +1141,7 @@ function intro(){
    const sd=sideOf(pil.m2),fee=pil.k==='sewa'?feeOf(pil.m2):0;
    CAPITAL=pil.cap;W=sd;H=sd;S=newGame();S.W=sd;S.H=sd;S.landM2=pil.m2;S.capital=pil.cap;
    S.land={k:pil.k,fee,next:S.day+365};
+   S.plan=planOf(CAPITAL,pil.m2,pil.k);
    S.started=true;S.start=new Date().setMinutes(0,0,0);S.doneH=0;S.day=1;
    if(fee){S.money-=fee;S.acc.sewa+=fee;S.ledger.unshift({day:1,cat:'Sewa',amt:-fee,label:'Sewa lahan 1 tahun'})}
    save();location.reload();
@@ -1150,7 +1206,7 @@ function startNow(){
  if(S.acc&&S.acc.sub===undefined)S.acc.sub={};
  initScene();resize();fit();computeWater();syncObjects();renderMission();hud();
  if(innerHeight<500||innerWidth<620)misOpen=false;renderMission();
- if(!S.started)intro();else catchUp();
+ if(S.started)catchUp();$('#rot').hidden=false;
  iosTip();
  requestAnimationFrame(frame);
 }
