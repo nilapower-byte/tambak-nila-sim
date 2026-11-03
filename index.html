@@ -191,6 +191,14 @@ body.building #mission{display:none}
  .bcard{width:100px}.bcard img{height:48px}.bcard b{font-size:12.5px}
  .hide-sm{display:none}
 }
+.pill,#mission,#dock{background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 96%,#fff),var(--panel2))}
+.pill,#dock,#mission,.bcard{box-shadow:0 6px 0 rgba(120,70,20,.16),0 14px 28px rgba(50,30,5,.26)}
+.btn.pri{background:linear-gradient(180deg,#ffa547,#e9730f)}
+#sheet{background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 98%,#fff),var(--panel))}
+.st,.g,.tip{box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+#pricePill{cursor:pointer}
+.fld{flex:1;font:inherit;font-weight:800;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);width:100%;min-width:0}
+.fldU{font-weight:800;color:var(--ink2);align-self:center;padding-left:6px}
 @keyframes sup{from{transform:translateY(40px);opacity:.3}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -201,7 +209,7 @@ body.building #mission{display:none}
 <div id="hud">
  <div class="pill money"><span class="ic" id="icCoin"></span><div><small>Uang kas</small><b id="hMoney">-</b></div></div>
  <div class="pill"><span class="ic" id="hWx"></span><div><small id="hWxN">Cerah</small><b id="hDay">-</b></div></div>
- <div class="pill hide-sm"><span class="ic" id="icFish"></span><div><small>Harga nila</small><b id="hPrice">-</b></div></div>
+ <div class="pill hide-sm" id="pricePill"><span class="ic" id="icFish"></span><div><small>Harga nila</small><b id="hPrice">-</b></div></div>
  <div class="pill"><span class="ic" id="icSack"></span><div><small>Stok pakan</small><b id="hFeed">-</b></div></div>
  <span class="spacer"></span>
  <div class="camb" role="group" aria-label="Kamera"><button id="camL" aria-label="Putar kiri">⟲</button><button id="camR" aria-label="Putar kanan">⟳</button><button id="camF" aria-label="Pusatkan peta">◎</button><button id="fsBtn" aria-label="Layar penuh">⤢</button></div>
@@ -241,7 +249,7 @@ const ICO={
 const svg=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`;
 
 /* ================= DATA & KONSTANTA ================= */
-const W=12,H=12,FEEDP=12500,SACK=30,BENIHP=350;
+let W=12,H=12;const FEEDP=12500,SACK=30,BENIHP=350;
 const CAPITAL=15e6;   // modal awal. Satu sumber untuk seluruh game.
 const SIKLUS_SUSUT=9; // penyusutan aset: biaya kolam dibagi 9 siklus (±3 tahun, sekali panen tiap ±4 bulan)
 const T={
@@ -285,9 +293,9 @@ function newGame(){
   price:30000,outage:false,outNow:false,feed:0,workers:0,payDay:0,nextId:1,objs:[],ledger:[],harvests:[],flags:{},done:[],streak:0,
   acc:{jual:0,ops:0,gaji:0,sewa:0,susut:0,invest:0,sub:{}},autoPause:false};
  const add=(type,x,y,extra)=>{const o=Object.assign({id:s.nextId++,type,x,y},extra||{});s.objs.push(o);return o};
- add('pondok',10,10);
- [[3,1],[5,0],[8,0],[11,1],[11,4],[11,8],[2,11],[5,11],[8,11],[1,8],[2,4],[9,6],[6,9],[11,11],[1,0],[4,7]].forEach(([x,y],i)=>add('pohon',x,y,{v:i%3}));
- [[7,3],[9,9],[3,9]].forEach(([x,y])=>add('batu',x,y));
+ add('pondok',W-2,H-2);
+ [[3,1],[5,0],[8,0],[11,1],[11,4],[11,8],[2,11],[5,11],[8,11],[1,8],[2,4],[9,6],[6,9],[11,11],[1,0],[4,7]].filter(([x,y])=>x<W&&y<H).forEach(([x,y],i)=>add('pohon',x,y,{v:i%3}));
+ [[7,3],[9,9],[3,9]].filter(([x,y])=>x<W&&y<H).forEach(([x,y])=>add('batu',x,y));
  return s;
 }
 const ponds=()=>S.objs.filter(o=>T[o.type]&&T[o.type].pond);
@@ -434,7 +442,7 @@ function dayTick(){
  const aer=ponds().reduce((a,p)=>a+p.aer,0),elec=aer*3000+byType('sumur').length*2000;
  if(elec)pay('Operasional',elec,'Listrik aerator & pompa',true,'Listrik');
  if(S.workers&&S.day-S.payDay>=30){S.payDay=S.day;pay('Gaji',S.workers*1500000,'Gaji pekerja '+S.workers+' orang',true)}
- S.price=Math.round(clamp(S.price+(rnd()-.5)*1400+(30500-S.price)*.08,26000,35000)/100)*100;
+ if(S.priceMode!=='tetap')S.price=Math.round(clamp(S.price+(rnd()-.5)*1400+(30500-S.price)*.08,26000,35000)/100)*100;
  S.weather=S.tomorrow;S.tempBase=WX[S.weather].t+(rnd()-.5);
  const r=rnd(),wnext={cerah:[.5,.25,.18,.07],berawan:[.35,.3,.3,.05],hujan:[.3,.35,.35,0],panas:[.5,.2,.1,.2]}[S.weather];
  let acc=0;S.tomorrow=['cerah','berawan','hujan','panas'].find((k,i)=>(acc+=wnext[i])>r)||'cerah';
@@ -603,13 +611,19 @@ function buildTerrain(){
  for(let y=0;y<H;y++)for(let x=1;x<W;x++){m.makeTranslation(x+.5,-.5,y+.5);TILES.setMatrixAt(i,m);TILES.setColorAt(i,pal[Math.floor(hash(x,y)*3)]);i++}
  SC.add(TILES);
  const og=sideTop(MAT.dirt,MAT.grassOut);
- for(const[x0,x1,z0,z1]of[[-40,-2,-40,52],[1,52,-40,0],[1,52,12,52],[12,52,0,12]])mesh(BOX(x1-x0,1,z1-z0),og,(x0+x1)/2,-.5,(z0+z1)/2,SC,true);
+ for(const[x0,x1,z0,z1]of[[-40,-2,-40,52],[1,52,-40,0],[1,52,H,52],[W,52,0,H]])mesh(BOX(x1-x0,1,z1-z0),og,(x0+x1)/2,-.5,(z0+z1)/2,SC,true);
  mesh(BOX(3,.5,92),MAT.bed,-.5,-.85,6,SC,true);
  const rg=new THREE.PlaneGeometry(3,92,6,92);rg.rotateX(-Math.PI/2);RIVER=mesh(rg,MAT.river,-.5,-.2,6,SC,true);RIVER.userData.base=rg.attributes.position.array.slice();
  for(let k=0;k<14;k++){const z=-8+k*2.3+hash(k,3)*1.2;if(z>-.5&&z<12.5&&k%2)continue;const r=mesh(new THREE.DodecahedronGeometry(.18+hash(k,9)*.15,0),MAT.rock,-2.1+hash(k,5)*.3,-.05,z,SC);r.scale.y=.6}
  for(let k=0;k<16;k++){const a=k/16*Math.PI*2+.2,r=30+hash(k,1)*12,x=6+Math.cos(a)*r,z=6+Math.sin(a)*r;if(x<4&&x>-6)continue;const h=mesh(new THREE.IcosahedronGeometry(1,1),k%2?MAT.hill:MAT.hill2,x,-.6,z,SC,true);h.scale.set(6+hash(k,2)*6,2+hash(k,4)*3,6+hash(k,6)*6)}
  for(let k=0;k<9;k++){const a=k/9*Math.PI*2+.5,r=62+hash(k,8)*12;const c=mesh(new THREE.ConeGeometry(10+hash(k,1)*6,10+hash(k,2)*10,6),MAT.mount,6+Math.cos(a)*r,3,6+Math.sin(a)*r,SC,true);c.castShadow=false}
  let placed=0;for(let k=0;placed<46&&k<400;k++){const x=-16+hash(k,11)*36,z=-14+hash(k,12)*36;if(x>-0.2&&x<13.2&&z>-1.2&&z<13.2)continue;if(x>-2.8&&x<1.6)continue;if(x<-2.8&&x>-14&&z>-1.5&&z<12.5)continue;const t=bTree({v:k%3,id:k}).g;t.position.set(x,0,z);const s=.9+hash(k,13)*.6;t.scale.set(s,s,s);SC.add(t);placed++}
+ const pal2=[0xf2c230,0xf25f8a,0xffffff,0xe8743b];
+ for(let k=0;k<90;k++){const side=k%4,t=hash(k,21),o=.5+hash(k,22)*1.6;let x,z;
+  if(side===0){x=-1+t*(W+2);z=-o}else if(side===1){x=W+o-.5;z=-1+t*(H+2)}else if(side===2){x=-1+t*(W+2);z=H+o-.5}else{x=-o;z=-1+t*(H+2)}
+  if(x<1.2)continue;
+  if(k%3===0){mesh(new THREE.SphereGeometry(.05,5,4),cmat(pal2[k%4]),x+hash(k,25)*.3,.05,z,SC,true)}
+  else{const b=mesh(new THREE.IcosahedronGeometry(.16+hash(k,23)*.12,0),hash(k,24)>.5?MAT.leaf2:MAT.leaf1,x,.08,z,SC,true);b.scale.y=.6}}
  for(const[x,z,ry]of[[15.5,3.5,.3],[16.5,8,-.4],[14.5,14.5,.9],[4,-3,0]]){const g=bPondok({}).g;g.position.set(x,0,z);g.rotation.y=ry;SC.add(g)}
  const post=new THREE.InstancedMesh(BOX(.07,.36,.07),MAT.woodD,40);post.castShadow=true;let pi=0;
  for(let x=1;x<=W;x++){m.makeTranslation(x,.18,0);post.setMatrixAt(pi++,m)}for(let z=1;z<=H;z++){m.makeTranslation(W,.18,z);post.setMatrixAt(pi++,m)}for(let x=1;x<W;x++){m.makeTranslation(x,.18,H);post.setMatrixAt(pi++,m)}
@@ -725,7 +739,7 @@ const CONF=[];
 function burst(){for(let i=0;i<50;i++)CONF.push({x:cw/2,y:ch/3,vx:(Math.random()-.5)*600,vy:-200-Math.random()*320,life:1.7,col:['#f58a1f','#ffd43b','#2e9b4f','#3aa0e0','#e2553b'][i%5],r:3+Math.random()*3})}
 
 function initScene(){
- R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.75));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+ R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio||1,1.75));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.1;
  SC=new THREE.Scene();SC.fog=new THREE.Fog(0xcdeefa,40,95);
  CAM=new THREE.PerspectiveCamera(34,1,.1,400);
  HEMI=new THREE.HemisphereLight(0xe6f4ff,0x6b8f3a,.7);SC.add(HEMI);
@@ -742,8 +756,8 @@ function initScene(){
  GHOST=mesh(BOX(1,.12,1),MAT.ghostOk,0,.06,0,SC,true);GHOST.visible=false;
 }
 function resize(){cw=innerWidth;ch=innerHeight;R.setSize(cw,ch,false);CAM.aspect=cw/ch;CAM.updateProjectionMatrix();fx2.width=cw;fx2.height=ch;checkOrient()}
-function fit(){camS.tx=6.2;camS.tz=6.6;camS.dist=cw<ch?38:cw<900?18.5:19.5}
-function updateCamera(dt){camS.az+=(camS.azT-camS.az)*Math.min(1,dt*7);camS.tx=clamp(camS.tx,-2,14);camS.tz=clamp(camS.tz,-2,14);camS.dist=clamp(camS.dist,6,48);
+function fit(){const k=Math.max(1,Math.max(W,H)/12);camS.tx=W/2+.2;camS.tz=H/2+.6;camS.dist=(cw<ch?38:cw<900?18.5:19.5)*k}
+function updateCamera(dt){camS.az+=(camS.azT-camS.az)*Math.min(1,dt*7);camS.tx=clamp(camS.tx,-2,W+2);camS.tz=clamp(camS.tz,-2,H+2);camS.dist=clamp(camS.dist,6,90);
  const s=Math.sin(camS.pol),c=Math.cos(camS.pol);CAM.position.set(camS.tx+camS.dist*s*Math.cos(camS.az),camS.dist*c,camS.tz+camS.dist*s*Math.sin(camS.az));CAM.lookAt(camS.tx,0,camS.tz);SKY.position.copy(CAM.position)}
 
 const sunCol=new THREE.Color(),tmpV=new THREE.Vector3();
@@ -823,13 +837,13 @@ cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set
 cv.addEventListener('pointermove',e=>{
  if(e.pointerType==='mouse'&&ui.tool)ui.hover=tileAt(e.clientX,e.clientY);
  if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
- if(pinch&&ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);camS.dist=clamp(pinch.dist*pinch.d/d,6,48);const ang=Math.atan2(b.y-a.y,b.x-a.x);camS.azT=camS.az=pinch.az+(ang-pinch.ang);return}
+ if(pinch&&ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);camS.dist=clamp(pinch.dist*pinch.d/d,6,90);const ang=Math.atan2(b.y-a.y,b.x-a.x);camS.azT=camS.az=pinch.az+(ang-pinch.ang);return}
  if(drag){const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;if(Math.hypot(dx,dy)>7)drag.moved=true;if(!drag.moved)return;
   if(drag.rot){camS.azT=camS.az=drag.az+dx*.008;return}
   const h=groundHit(e.clientX,e.clientY);if(h&&drag.hit){camS.tx+=drag.hit.x-h.x;camS.tz+=drag.hit.z-h.z;updateCamera(0)}}});
 const up=e=>{const wasDrag=drag;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(wasDrag&&!wasDrag.moved&&ptrs.size===0)tap(e.clientX,e.clientY);if(ptrs.size===0)drag=null};
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);drag=null;pinch=null});
-cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.deltaY<0?1/1.1:1.1),6,48)},{passive:false});
+cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.deltaY<0?1/1.1:1.1),6,90)},{passive:false});
 function tap(sx,sy){
  if(!S.started)return;
  if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];if(ui.tool==='hapus'){const o=OCC[y]&&OCC[y][x];if(o)askDemolish(o)}else place(ui.tool,x,y);return}
@@ -937,8 +951,11 @@ function reportSheet(){
  <div class="kv tot"><span>Laba bersih</span><b class="${L>=0?'pos':'neg'}">${rpFull(L)}</b></div>
  <p class="ref">Biaya operasional hanya tercatat saat dipakai. Listrik dihitung untuk seluruh tambak, bukan per kolam.</p>
 
+ <h3>Harga jual</h3>
+ <div class="kv"><span>Harga nila sekarang</span><b>${rpFull(S.price)}/kg · ${S.priceMode==="tetap"?"dikunci":"ikut pasar"}</b></div>
+ <div class="acts"><button class="btn" data-a="harga-open">Atur harga jual</button></div>
  <h3>Lahan & modal</h3>
- <div class="kv"><span>Status lahan</span><b>${S.land&&S.land.k==='sewa'?'Sewa':'Milik sendiri'}</b></div>
+ <div class="kv"><span>Luas lahan</span><b>${fmtN(W*H*9)} m² (${W}×${H} petak)</b></div><div class="kv"><span>Status lahan</span><b>${S.land&&S.land.k==='sewa'?'Sewa':'Milik sendiri'}</b></div>
  ${S.land&&S.land.k==='sewa'?`<div class="kv"><span>Sewa berikutnya</span><b>hari ke-${S.land.next} · ${rpFull(S.land.fee)}</b></div>`:''}
 
  <h3>Per siklus panen</h3>${S.harvests.length?`<div class="tw"><table><thead><tr><th>Hari</th><th>Kolam</th><th class="r">kg</th><th class="r">g/ekor</th><th class="r">SR</th><th class="r">FCR</th><th class="r">Pendapatan</th><th class="r">Biaya</th><th class="r">Susut</th><th class="r">Laba</th></tr></thead><tbody>${S.harvests.map(x=>`<tr><td>${x.day}</td><td>${x.name}</td><td class="r">${fmtN(x.kg,1)}</td><td class="r">${Math.round(x.size)}</td><td class="r">${fmtN(x.sr*100)}%</td><td class="r">${fmtN(x.fcr,2)}</td><td class="r">${rp(x.rev)}</td><td class="r">${rp(x.biaya)}</td><td class="r">${rp(x.susut)}</td><td class="r ${x.laba>=0?'pos':'neg'}">${rp(x.laba)}</td></tr>`).join('')}</tbody></table></div><p class="ref">Target nyata: SR di atas 80%, FCR 1,2–1,5. Pendapatan siklus total ${rp(siklus)}.</p>`:'<p class="ref">Belum ada panen.</p>'}
@@ -959,12 +976,12 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
- b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();b.scrollTop=st}
+ b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();b.scrollTop=st}
 $('#sheetBody').addEventListener('click',e=>{
  const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}
  const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
  const a=b.dataset.a;
- ({feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,reset:askReset})[a]?.();
+ ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
  checkMissions();renderSheet();save()});
 function nav(k){
  if(k==='build'){const open=$('#build').hidden;closeSheet();if(open){renderBuild();$('#build').hidden=false;navOn('build')}else endBuild();return}
@@ -973,6 +990,21 @@ function nav(k){
 document.querySelectorAll('#dock button').forEach(b=>b.onclick=()=>nav(b.dataset.nav));
 $('#placeDone').onclick=endBuild;
 
+/* ================= HARGA ================= */
+function setHarga(v){
+ if(v){S.price=clamp(Math.round(v/100)*100,15000,60000);S.priceMode='tetap';toast('good','Harga dikunci '+rp(S.price)+'/kg','Berlaku untuk panen berikutnya.')}
+ else{S.priceMode='pasar';toast('info','Harga ikut pasar','Harga bergerak naik-turun tiap hari.')}
+ save();hud();renderSheet();
+}
+function hargaSheet(){const manual=S.priceMode==='tetap';
+ return`<div class="ph"><div><div class="eyebrow">Harga jual nila</div><h2>${rp(S.price)}/kg</h2></div><span class="chip ${manual?'siap':'isi'}">${manual?'Dikunci':'Ikut pasar'}</span></div>
+ <p class="tip">Harga pasar naik-turun tiap hari (±Rp 26–35 rb/kg). Anda bisa mengunci harga untuk menguji rencana, atau membiarkannya mengikuti pasar.</p>
+ <div class="acts">${[[26000,'Murah','Pasar lesu'],[30000,'Anjuran','Harga umum'],[35000,'Tinggi','Pasar ramai']].map(([v,n,d])=>`<button class="btn" data-a="harga" data-p="${v}">${n}: ${rp(v)}<small>${d}</small></button>`).join('')}<button class="btn wide" data-a="pasar">Ikut harga pasar<small>harga bergerak tiap hari</small></button></div>
+ <h3>Harga manual</h3>
+ <input id="hargaIn" class="fld" inputmode="numeric" aria-label="Harga per kg" value="${fmtN(S.price)}">
+ <p class="ref">Ketik harga per kg (Rp 15.000–60.000), lalu tekan Enter atau keluar dari kolom. Berlaku untuk panen berikutnya.</p>`}
+$('#sheetBody').addEventListener('change',e=>{if(e.target.id==='hargaIn'){const v=+e.target.value.replace(/\D/g,'');if(v)setHarga(v);else renderSheet()}});
+
 /* ================= MODAL ================= */
 function modal(html,bind){const m=$('#modal');m.innerHTML=`<div class="box" role="dialog" aria-modal="true">${html}</div>`;m.hidden=false;bind&&bind(m)}
 function closeModal(){$('#modal').hidden=true}
@@ -980,39 +1012,64 @@ function askPanen(p){const ws=p.ws||p.w;const est=p.n*ws/1000;
  modal(`<h2>Panen ${p.name}?</h2><p>Perkiraan dari sampling terakhir: <b>${fmtN(p.n)} ekor × ${ws} g ≈ ${fmtN(est,1)} kg</b>, harga hari ini ${rp(S.price)}/kg${ws<250?` <br><span class="neg">Ukuran di bawah 250 g dihargai lebih murah oleh pengepul.</span>`:''}.</p><p class="ref">Berat asli baru ketahuan saat ditimbang.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Panen</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();panen(p);closeSheet();save()}})}
 function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){demolish(o);renderSheet();return}
  modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Anda mendapat kembali ${rp(t.cost*.2)} dari ${rp(t.cost)}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet()}})}
-function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();localStorage.removeItem(KEY);S=newGame();computeWater();closeSheet();intro()}})}
+function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();localStorage.removeItem(KEY);location.reload()}})}
 
 /* Intro: pilihan lahan + penjelasan modal. Modal dijelaskan lengkap sebelum game mulai. */
 function intro(){
- const sewaSisa=CAPITAL-LAND.sewa.fee;
+ const pil={k:'milik',m2:1296};
+ const sideOf=v=>Math.max(3,Math.min(30,Math.round(Math.sqrt(v/9))));
+ const setLuas=v=>{const sd=sideOf(v);pil.m2=sd*sd*9};
+ const feeOf=m2=>Math.round(m2*2300/1000)*1000;
+ const refresh=m=>{const sd=sideOf(pil.m2),fee=feeOf(pil.m2);
+  m.querySelectorAll('[data-m2]').forEach(b=>b.classList.toggle('pri',+b.dataset.m2===pil.m2));
+  m.querySelectorAll('[data-land]').forEach(b=>b.classList.toggle('pri',b.dataset.land===pil.k));
+  m.querySelector('#luasIn').value=fmtN(pil.m2);
+  m.querySelector('#luasInfo').textContent=`${sd} × ${sd} petak ≈ ${fmtN(pil.m2)} m² (1 petak ≈ 3 × 3 m).`;
+  m.querySelector('#sewaTxt').textContent=`≈ ${rp(fee)}/tahun, dibayar di muka.`;
+  m.querySelector('#sisaTxt').textContent=pil.k==='sewa'?`Sisa modal setelah sewa tahun pertama: ${rp(CAPITAL-fee)}.`:`Modal ${rp(CAPITAL)} utuh untuk kolam, benih, dan pakan.`;
+ };
  modal(`<div class="logo">Tambak Nila Sim</div>
- <p>Lahan ±1.300 m² di tepi sungai (12×12 petak, 1 petak ±3×3 m). Modal awal <b>${rpFull(CAPITAL)}</b>.</p>
- <div class="tip"><b>Urutan kerja</b><ol class="steps">${STEPS.map(t=>`<li>${t}</li>`).join('')}</ol></div>
- <p><b>Status lahan?</b></p>
- <div class="land">
-  <button class="btn" data-land="milik"><b>Lahan sendiri</b><small>Tanpa biaya sewa. Modal ${rp(CAPITAL)} utuh untuk kolam, pakan, dan benih.</small></button>
-  <button class="btn" data-land="sewa"><b>Sewa lahan</b><small>Sewa ${rp(LAND.sewa.fee)}/tahun dibayar di muka. Sisa modal ${rp(sewaSisa)}, dan sewa dibayar lagi setiap tahun.</small></button>
+ <p>Modal awal <b>${rpFull(CAPITAL)}</b>. Pilih luas lahan dan status lahan, lalu mulai.</p>
+ <h3>Luas lahan</h3>
+ <div class="acts" style="grid-template-columns:1fr 1fr 1fr">
+  <button class="btn" data-m2="441">Kecil<small>441 m² · 7×7 petak</small></button>
+  <button class="btn" data-m2="1296">Sedang<small>1.296 m² · 12×12</small></button>
+  <button class="btn" data-m2="2601">Besar<small>2.601 m² · 17×17</small></button>
  </div>
- <div class="tip"><b>Contoh pemakaian modal ${rp(CAPITAL)}</b>
+ <div class="row2" style="align-items:center"><input id="luasIn" class="fld" inputmode="numeric" aria-label="Luas lahan dalam m²"><span class="fldU">m²</span></div>
+ <p class="ref" id="luasInfo"></p>
+ <h3>Status lahan</h3>
+ <div class="land">
+  <button class="btn" data-land="milik"><b>Lahan sendiri</b><small>Tanpa biaya sewa.</small></button>
+  <button class="btn" data-land="sewa"><b>Sewa lahan</b><small id="sewaTxt"></small></button>
+ </div>
+ <p class="note" id="sisaTxt"></p>
+ <div class="tip"><b>Contoh pemakaian modal (lahan 1.296 m²)</b>
   <div class="kv"><span>Kolam tanah 10×10 m</span><b>Rp 3,5 jt</b></div>
   <div class="kv"><span>Saluran air ±10 petak</span><b>Rp 0,75 jt</b></div>
   <div class="kv"><span>Sumur bor + tandon</span><b>Rp 3 jt</b></div>
   <div class="kv"><span>Pondok jaga</span><b>Rp 2 jt</b></div>
-  <div class="kv"><span>Kincir air (untuk kolam tanah)</span><b>Rp 1,5 jt</b></div>
+  <div class="kv"><span>Kincir air (kolam tanah)</span><b>Rp 1,5 jt</b></div>
   <div class="kv"><span>Benih 600 ekor × Rp 350</span><b>Rp 0,21 jt</b></div>
   <div class="kv"><span>Pakan 200 kg × Rp 12.500</span><b>Rp 2,5 jt</b></div>
   <div class="kv"><span>Persiapan kolam</span><b>Rp 0,08 jt</b></div>
   <div class="kv tot"><span>Sisa kas untuk listrik & obat</span><b>±Rp 1,46 jt</b></div>
  </div>
- <p class="note">Ini contoh, bukan keharusan. Anda bisa membangun lebih sedikit, lalu menyimpan sisanya. Kas yang habis membuat tambak berhenti.</p>
- <p class="note">Biaya sewa adalah perkiraan sewa lahan pedesaan; sesuaikan dengan daerah Anda.</p>`,m=>{
-  m.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{
-   const k=b.dataset.land;closeModal();
+ <p class="note">Sisa kas dipakai untuk listrik, obat, dan modal kerja. Kas yang habis membuat tambak berhenti.</p>
+ <button class="btn pri wide" id="mulai">Mulai tambak</button>`,m=>{
+  refresh(m);
+  m.querySelectorAll('[data-m2]').forEach(b=>b.onclick=()=>{pil.m2=+b.dataset.m2;refresh(m)});
+  m.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{pil.k=b.dataset.land;refresh(m)});
+  m.querySelector('#luasIn').onchange=e=>{setLuas(+e.target.value.replace(/\D/g,'')||1296);refresh(m)};
+  m.querySelector('#mulai').onclick=()=>{
+   const sd=sideOf(pil.m2),fee=pil.k==='sewa'?feeOf(pil.m2):0;
+   W=sd;H=sd;S=newGame();S.W=sd;S.H=sd;S.landM2=pil.m2;
+   S.land={k:pil.k,fee,next:S.day+365};
    S.started=true;S.start=new Date().setMinutes(0,0,0);S.doneH=0;S.day=1;
-   S.land={k,fee:LAND[k].fee,next:S.day+365};
-   if(LAND[k].fee)pay('Sewa',LAND[k].fee,'Sewa lahan 1 tahun',true);
-   save();hud();
-  })})}
+   if(fee){S.money-=fee;S.acc.sewa+=fee;S.ledger.unshift({day:1,cat:'Sewa',amt:-fee,label:'Sewa lahan 1 tahun'})}
+   save();location.reload();
+  }});
+}
 
 /* ================= BUILD BAR ================= */
 const PREV={};
@@ -1044,7 +1101,7 @@ document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=svg(e.dataset.ic
 $('#mission').addEventListener('click',e=>{if(e.target.closest('#misT')){misOpen=!misOpen;renderMission()}});
 function start(){
  if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="modal"><div class="box"><h2>Grafis 3D tidak termuat</h2><p>Periksa koneksi internet lalu muat ulang halaman.</p></div></div>');return}
- S=load()||newGame();
+ S=load()||newGame();if(S.W){W=S.W;H=S.H}
  if(S.acc&&S.acc.sub===undefined)S.acc.sub={};
  initScene();resize();fit();computeWater();syncObjects();renderMission();hud();
  if(innerHeight<500||innerWidth<620)misOpen=false;renderMission();
@@ -1058,6 +1115,7 @@ addEventListener('pagehide',()=>{if(S)save()});
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(R)resize()});
 addEventListener('orientationchange',()=>setTimeout(()=>{if(R)resize()},300));
 document.addEventListener('fullscreenchange',()=>setTimeout(()=>{if(R)resize()},100));
+$('#pricePill').onclick=()=>openSheet({type:'harga'});
 start();
 </script>
 </body>
