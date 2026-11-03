@@ -230,6 +230,7 @@ body.building #mission{display:none}
 <div id="rot" hidden><div class="ph2"></div><h2>Putar HP Anda</h2><p>Tambak Nila Sim paling nyaman dimainkan dalam posisi mendatar.</p><button class="btn pri" id="rotFs">Layar penuh mendatar</button><button class="btn" id="rotOk">Main tegak saja</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 /* ================= ICONS ================= */
 const ICO={
@@ -250,12 +251,12 @@ const svg=(k,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24" aria-hidden="true">
 
 /* ================= DATA & KONSTANTA ================= */
 let W=12,H=12;const FEEDP=12500,SACK=30,BENIHP=350;
-const CAPITAL=15e6;   // modal awal. Satu sumber untuk seluruh game.
+let CAPITAL=15e6;   // modal awal. Satu sumber untuk seluruh game.
 const SIKLUS_SUSUT=9; // penyusutan aset: biaya kolam dibagi 9 siklus (±3 tahun, sekali panen tiap ±4 bulan)
 const T={
  terpal:{n:'Kolam terpal',w:1,h:1,cost:2000000,pond:1,vol:6.4,area:7,rec:500,prep:72,
   desc:'Kolam bulat Ø3 m, tinggi 1 m. Murah dan cepat dipasang. Airnya sedikit, jadi oksigen dan amonia cepat berubah: perlu aerator dan ganti air rutin.'},
- tanah:{n:'Kolam tanah',w:2,h:2,cost:3500000,pond:1,vol:80,area:100,rec:600,prep:96,
+ tanah:{n:'Kolam tanah',w:2,h:2,cost:3500000,pond:1,vol:80,area:100,rec:600,prep:336,
   desc:'10 × 10 m, dalam 80 cm. Air banyak dan stabil, ada pakan alami (plankton). Butuh lahan luas dan pengeringan sebelum tebar.'},
  saluran:{n:'Saluran air',w:1,h:1,cost:75000,desc:'Mengalirkan air dari sungai atau sumur bor ke kolam. Sambung tanpa putus sampai menempel di kolam.'},
  sumur:{n:'Sumur bor + tandon',w:1,h:1,cost:3000000,desc:'Sumber air bersih di mana saja. Air dipompa ke tandon lalu dialirkan. Listrik pompa ±Rp 2.000/hari.'},
@@ -338,7 +339,7 @@ function laba(){const a=S.acc;return a.jual-a.ops-a.gaji-a.sewa-a.susut}
 const MIS=[
  {id:'bangun',t:'Bangun kolam pertama',how:'Tekan Bangun, pilih Kolam terpal (murah) atau Kolam tanah, lalu ketuk lahan kosong dekat sungai (sisi kiri peta).',why:'Letak kolam menentukan jalur saluran, jadi kolam ditentukan dulu. Satu kolam terpal Ø3 m cukup untuk ±500 ekor.',ok:()=>ponds().length>0},
  {id:'air',t:'Alirkan air ke kolam',how:'Tekan Bangun, pilih Saluran air. Ketuk petak mulai dari tepi sungai, sambung terus sampai menempel di kolam. Atau bangun Sumur bor tepat di sebelah kolam.',why:'Tanpa air, kolam tidak bisa disiapkan.',ok:()=>ponds().some(p=>p.conn)},
- {id:'siap',t:'Siapkan kolam',how:'Ketuk kolam, tekan Siapkan kolam. Tunggu 3 hari (terpal) atau 4 hari (tanah).',why:'Terpal: isi air + garam, diamkan agar bau terpal hilang. Tanah: keringkan, kapur, pupuk, isi air sampai hijau (plankton).',ok:()=>ponds().some(p=>p.st==='siap'||p.st==='isi')},
+ {id:'siap',t:'Siapkan kolam',how:'Ketuk kolam, tekan Siapkan kolam. Tunggu 3 hari (terpal) atau 2 minggu (tanah).',why:'Terpal: isi air + garam, diamkan agar bau terpal hilang. Tanah: keringkan, kapur, pupuk, isi air sampai hijau (plankton).',ok:()=>ponds().some(p=>p.st==='siap'||p.st==='isi')},
  {id:'pakan',t:'Beli pakan',how:'Tekan Pakan di bawah, beli minimal 1 karung (30 kg).',why:'Siapkan pakan sebelum benih datang. Pakai pelet apung protein 28–32%.',ok:()=>S.flags.beli},
  {id:'tebar',t:'Tebar benih',how:'Ketuk kolam yang sudah siap, tekan Tebar benih. Lakukan pagi (06–09) atau sore.',why:'Siang hari air panas dan benih mudah stres. Di dunia nyata, apungkan kantong 15–30 menit dulu (aklimatisasi).',ok:()=>ponds().some(p=>p.st==='isi')},
  {id:'feed7',t:'Beri pakan 2× sehari selama 7 hari',how:'Ketuk kolam lalu Beri pakan pagi (07–09) dan sore (15–17). Jangan malam.',why:'Jadwal tetap membuat ikan makan lahap dan pakan tidak tersisa. Pakan malam banyak terbuang jadi amonia.',ok:()=>S.flags.streak7},
@@ -509,7 +510,7 @@ function siapkan(p){
  const t=p.type==='tanah',c=t?(8*2000+38*1000+25000):(7*1500+20000);lastFocus=p;
  if(!pay('Operasional',c,(t?'Kapur, pupuk, air ':'Garam, air ')+p.name,false,'Persiapan'))return;
  p.st='persiapan';p.prep=T[p.type].prep;p.cost+=c;sendVillager(p);
- toast('info',p.name+': persiapan dimulai',t?'Dikeringkan, dikapur 8 kg, dipupuk 38 kg kotoran, lalu diisi air sampai hijau. ±4 hari.':'Diisi air + garam 7 kg, didiamkan agar bau terpal hilang. ±3 hari.');
+ toast('info',p.name+': persiapan dimulai',t?'Dikeringkan, dikapur 8 kg, dipupuk 38 kg kotoran, lalu diisi air sampai hijau. ±14 hari.':'Diisi air + garam 7 kg, didiamkan agar bau terpal hilang. ±3 hari.');
 }
 function tebar(p,q){lastFocus=p;const c=q*BENIHP;if(!pay('Operasional',c,`Benih ${fmtN(q)} ekor ${p.name}`,false,'Benih'))return;
  const h=new Date().getHours();
@@ -691,13 +692,13 @@ function bPondok(o){const g=new THREE.Group(),P={};
 function bGenset(){const g=new THREE.Group(),P={};
  mesh(BOX(.62,.06,.5),MAT.concrete,0,.03,0,g);mesh(BOX(.46,.3,.34),MAT.yellow,0,.21,0,g);mesh(BOX(.26,.14,.02),MAT.dark,-.04,.22,.175,g);mesh(new THREE.CylinderGeometry(.025,.025,.24,6),MAT.dark,.15,.46,-.08,g);
  P.smoke=[...Array(4)].map(()=>mesh(new THREE.SphereGeometry(.06,6,4),cmat(0x8a8a8a),.15,.6,-.08,g,true));return{g,P}}
-function bTree(o){const g=new THREE.Group();const v=o.v||0;
+function bTree(o){if(GLB.tree){const g=new THREE.Group();const m=GLB.tree.clone(true);m.scale.setScalar(.9/GLB.tree.userData.h);g.add(m);g.rotation.y=hash(o.id||1,7)*6;return{g,P:{}}}const g=new THREE.Group();const v=o.v||0;
  mesh(new THREE.CylinderGeometry(.04,.06,.4,5),MAT.trunk,0,.2,0,g);
  if(v===1){mesh(new THREE.ConeGeometry(.3,.55,7),MAT.leaf1,0,.55,0,g);mesh(new THREE.ConeGeometry(.22,.45,7),MAT.leaf1,0,.85,0,g)}
  else if(v===2){mesh(new THREE.IcosahedronGeometry(.3,0),MAT.leaf2,0,.55,0,g);mesh(new THREE.IcosahedronGeometry(.2,0),MAT.leaf2,.15,.72,.05,g)}
  else{mesh(new THREE.IcosahedronGeometry(.32,1),MAT.leaf0,0,.6,0,g);mesh(new THREE.IcosahedronGeometry(.2,0),MAT.leaf0,-.18,.48,.1,g);mesh(new THREE.IcosahedronGeometry(.18,0),MAT.leaf0,.16,.5,-.12,g)}
  g.rotation.y=hash(o.id||1,7)*6;return{g,P:{}}}
-function bBatu(o){const g=new THREE.Group();const a=mesh(new THREE.DodecahedronGeometry(.26,0),MAT.rock,0,.1,0,g);a.scale.set(1,.65,.9);mesh(new THREE.DodecahedronGeometry(.13,0),MAT.rock2,.25,.06,.15,g);g.rotation.y=hash(o.id,3)*6;return{g,P:{}}}
+function bBatu(o){if(GLB.rock){const g=new THREE.Group();const m=GLB.rock.clone(true);m.scale.setScalar(.45/GLB.rock.userData.h);g.add(m);g.rotation.y=hash(o.id,3)*6;return{g,P:{}}}const g=new THREE.Group();const a=mesh(new THREE.DodecahedronGeometry(.26,0),MAT.rock,0,.1,0,g);a.scale.set(1,.65,.9);mesh(new THREE.DodecahedronGeometry(.13,0),MAT.rock2,.25,.06,.15,g);g.rotation.y=hash(o.id,3)*6;return{g,P:{}}}
 function bVillager(col){const g=new THREE.Group();
  const l1=mesh(BOX(.04,.13,.045),MAT.dark,-.03,.065,0,g),l2=mesh(BOX(.04,.13,.045),MAT.dark,.03,.065,0,g);
  mesh(new THREE.CylinderGeometry(.055,.07,.15,8),cmat(col),0,.2,0,g);mesh(new THREE.SphereGeometry(.045,8,6),MAT.skin,0,.31,0,g);mesh(new THREE.ConeGeometry(.12,.06,12),MAT.hat,0,.37,0,g);
@@ -887,8 +888,8 @@ function pondSheet(p){
  if(!p.conn)h+=`<div class="tip bad"><b>Belum ada air</b>Bangun Saluran air dari tepi sungai (sisi kiri peta) sampai menempel di kolam, atau bangun Sumur bor tepat di sebelahnya.</div>`;
  const aerBtn=`<button class="btn" data-a="aer" ${p.aer>=2?'disabled':''}>${p.type==='tanah'?'Pasang kincir':'Pasang aerator'}<small>${rp(p.type==='tanah'?1500000:600000)}${p.aer>=2?' · maks 2':''}</small></button>`;
  if(p.st==='kering'){const tn=p.type==='tanah';
-  h+=`<div class="tip"><b>Langkah persiapan</b>${tn?'Keringkan 2–3 hari, tabur kapur 75 g/m², pupuk kandang 375 g/m², isi air 80 cm, tunggu air hijau.':'Bersihkan terpal, isi air 80–90 cm, tabur garam 1 kg/m³, diamkan 2–3 hari agar bau terpal hilang.'}</div>
-  <div class="acts"><button class="btn pri wide" data-a="siap" ${p.conn?'':'disabled'}>Siapkan kolam<small>${rp(tn?79000:30500)} · ${tn?4:3} hari</small></button>${aerBtn}<button class="btn danger" data-a="del">Bongkar<small>uang kembali 20%</small></button></div>`}
+  h+=`<div class="tip"><b>Langkah persiapan</b>${tn?'Keringkan 1–2 minggu, tabur kapur 75 g/m², pupuk kandang 375 g/m², isi air 80 cm, tunggu air hijau.':'Bersihkan terpal, isi air 80–90 cm, tabur garam 1 kg/m³, diamkan 2–3 hari agar bau terpal hilang.'}</div>
+  <div class="acts"><button class="btn pri wide" data-a="siap" ${p.conn?'':'disabled'}>Siapkan kolam<small>${rp(tn?79000:30500)} · ${tn?14:3} hari</small></button>${aerBtn}<button class="btn danger" data-a="del">Bongkar<small>uang kembali 20%</small></button></div>`}
  else if(p.st==='persiapan'){const f=1-p.prep/t.prep;h+=`<div class="st"><small>Sisa waktu</small><b>${Math.ceil(p.prep/24)} hari</b><em> (${p.prep} jam)</em><div class="prog" style="margin-top:6px"><em style="width:${f*100}%"></em></div></div><div class="tip">${p.type==='tanah'?'Kolam dikapur dan dipupuk. Air diisi bertahap sampai berwarna hijau muda (plankton tumbuh).':'Air bergaram didiamkan. Sambil menunggu, beli pakan dan pesan benih.'}</div><div class="acts">${aerBtn}</div>`}
  else if(p.st==='siap'){const r=t.rec,opts=[[Math.round(r*.6),'Longgar','Lebih aman, panen lebih sedikit'],[r,'Anjuran','Sesuai kolam ini'],[Math.round(r*1.6),'Padat','Untung lebih, wajib aerator & ganti air']];
   h+=`<div class="tip"><b>Tebar pagi (06–09) atau sore</b>Benih 5–7 cm (±8 g), ${rp(BENIHP)}/ekor. Kolam ini ${p.type==='tanah'?'100 m²':'±6,4 m³ air'}.</div><div class="acts">${opts.map(([q,n,d],i)=>`<button class="btn ${i===1?'pri wide':''}" data-a="tebar" data-q="${q}">${n}: ${fmtN(q)} ekor<small>${rp(q*BENIHP)} · ${d}</small></button>`).join('')}${aerBtn}</div>`}
@@ -1016,20 +1017,30 @@ function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan mi
 
 /* Intro: pilihan lahan + penjelasan modal. Modal dijelaskan lengkap sebelum game mulai. */
 function intro(){
- const pil={k:'milik',m2:1296};
+ const pil={k:'milik',m2:1296,cap:15e6};
  const sideOf=v=>Math.max(3,Math.min(30,Math.round(Math.sqrt(v/9))));
  const setLuas=v=>{const sd=sideOf(v);pil.m2=sd*sd*9};
+ const setCap=v=>{pil.cap=clamp(Math.round(v/100000)*100000,5e6,1e8)};
  const feeOf=m2=>Math.round(m2*2300/1000)*1000;
- const refresh=m=>{const sd=sideOf(pil.m2),fee=feeOf(pil.m2);
+ const refresh=m=>{const sd=sideOf(pil.m2),fee=pil.k==='sewa'?feeOf(pil.m2):0;
   m.querySelectorAll('[data-m2]').forEach(b=>b.classList.toggle('pri',+b.dataset.m2===pil.m2));
+  m.querySelectorAll('[data-cap]').forEach(b=>b.classList.toggle('pri',+b.dataset.cap===pil.cap));
   m.querySelectorAll('[data-land]').forEach(b=>b.classList.toggle('pri',b.dataset.land===pil.k));
   m.querySelector('#luasIn').value=fmtN(pil.m2);
+  m.querySelector('#capIn').value=fmtN(pil.cap);
   m.querySelector('#luasInfo').textContent=`${sd} × ${sd} petak ≈ ${fmtN(pil.m2)} m² (1 petak ≈ 3 × 3 m).`;
-  m.querySelector('#sewaTxt').textContent=`≈ ${rp(fee)}/tahun, dibayar di muka.`;
-  m.querySelector('#sisaTxt').textContent=pil.k==='sewa'?`Sisa modal setelah sewa tahun pertama: ${rp(CAPITAL-fee)}.`:`Modal ${rp(CAPITAL)} utuh untuk kolam, benih, dan pakan.`;
+  m.querySelector('#sewaTxt').textContent=`≈ ${rp(feeOf(pil.m2))}/tahun, dibayar di muka.`;
+  m.querySelector('#sisaTxt').textContent=pil.k==='sewa'?`Sisa modal setelah sewa tahun pertama: ${rp(pil.cap-fee)}.`:`Modal ${rp(pil.cap)} utuh untuk kolam, benih, dan pakan.`;
  };
  modal(`<div class="logo">Tambak Nila Sim</div>
- <p>Modal awal <b>${rpFull(CAPITAL)}</b>. Pilih luas lahan dan status lahan, lalu mulai.</p>
+ <p>Atur dulu modal, luas lahan, dan status lahan. Pilihan ini berlaku untuk tambak yang Anda mulai.</p>
+ <h3>Modal awal</h3>
+ <div class="acts" style="grid-template-columns:1fr 1fr 1fr">
+  <button class="btn" data-cap="10000000">Rp 10 jt<small>modal kecil</small></button>
+  <button class="btn" data-cap="15000000">Rp 15 jt<small>standar</small></button>
+  <button class="btn" data-cap="30000000">Rp 30 jt<small>modal besar</small></button>
+ </div>
+ <div class="row2" style="align-items:center"><span class="fldU">Rp</span><input id="capIn" class="fld" inputmode="numeric" aria-label="Modal awal dalam rupiah"></div>
  <h3>Luas lahan</h3>
  <div class="acts" style="grid-template-columns:1fr 1fr 1fr">
   <button class="btn" data-m2="441">Kecil<small>441 m² · 7×7 petak</small></button>
@@ -1044,7 +1055,7 @@ function intro(){
   <button class="btn" data-land="sewa"><b>Sewa lahan</b><small id="sewaTxt"></small></button>
  </div>
  <p class="note" id="sisaTxt"></p>
- <div class="tip"><b>Contoh pemakaian modal (lahan 1.296 m²)</b>
+ <div class="tip"><b>Contoh pemakaian modal Rp 15 jt (lahan 1.296 m²)</b>
   <div class="kv"><span>Kolam tanah 10×10 m</span><b>Rp 3,5 jt</b></div>
   <div class="kv"><span>Saluran air ±10 petak</span><b>Rp 0,75 jt</b></div>
   <div class="kv"><span>Sumur bor + tandon</span><b>Rp 3 jt</b></div>
@@ -1058,12 +1069,14 @@ function intro(){
  <p class="note">Sisa kas dipakai untuk listrik, obat, dan modal kerja. Kas yang habis membuat tambak berhenti.</p>
  <button class="btn pri wide" id="mulai">Mulai tambak</button>`,m=>{
   refresh(m);
+  m.querySelectorAll('[data-cap]').forEach(b=>b.onclick=()=>{setCap(+b.dataset.cap);refresh(m)});
+  m.querySelector('#capIn').onchange=e=>{setCap(+e.target.value.replace(/\D/g,'')||15e6);refresh(m)};
   m.querySelectorAll('[data-m2]').forEach(b=>b.onclick=()=>{pil.m2=+b.dataset.m2;refresh(m)});
-  m.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{pil.k=b.dataset.land;refresh(m)});
   m.querySelector('#luasIn').onchange=e=>{setLuas(+e.target.value.replace(/\D/g,'')||1296);refresh(m)};
+  m.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{pil.k=b.dataset.land;refresh(m)});
   m.querySelector('#mulai').onclick=()=>{
    const sd=sideOf(pil.m2),fee=pil.k==='sewa'?feeOf(pil.m2):0;
-   W=sd;H=sd;S=newGame();S.W=sd;S.H=sd;S.landM2=pil.m2;
+   CAPITAL=pil.cap;W=sd;H=sd;S=newGame();S.W=sd;S.H=sd;S.landM2=pil.m2;S.capital=pil.cap;
    S.land={k:pil.k,fee,next:S.day+365};
    S.started=true;S.start=new Date().setMinutes(0,0,0);S.doneH=0;S.day=1;
    if(fee){S.money-=fee;S.acc.sewa+=fee;S.ledger.unshift({day:1,cat:'Sewa',amt:-fee,label:'Sewa lahan 1 tahun'})}
@@ -1095,11 +1108,35 @@ const KEY='tambak-nila-sim.v2';
 function save(){if(!S)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const s=JSON.parse(r);if(s&&s.v===2)return s}}catch(e){}return null}
 
+/* ================= MODEL GLB (opsional) =================
+   Dimuat dari folder MODEL_BASE. Jika gagal atau tidak ada, game memakai bentuk bawaan. */
+const MODEL_BASE='models/';
+const GLB={};
+function loadModels(){return new Promise(res=>{
+ if(!THREE.GLTFLoader){res();return}
+ const L=new THREE.GLTFLoader();
+ const names={tree:'tree.glb',rock:'rock.glb'};
+ let left=Object.keys(names).length;
+ const done=()=>{if(--left<=0)res()};
+ for(const k in names){
+  L.load(MODEL_BASE+names[k],g=>{
+   const root=g.scene;
+   root.traverse(m=>{if(m.isMesh){m.castShadow=true;m.receiveShadow=true}});
+   const box=new THREE.Box3().setFromObject(root),sz=box.getSize(new THREE.Vector3());
+   root.position.y-=box.min.y;
+   const wrap=new THREE.Group();wrap.add(root);wrap.userData.h=Math.max(sz.x,sz.y,sz.z)||1;
+   GLB[k]=wrap;done();
+  },undefined,()=>done());
+ }
+ setTimeout(res,6000);
+})}
+
 /* ================= BOOT ================= */
 $('#icCoin').innerHTML=svg('coin');$('#icFish').innerHTML=svg('fish');$('#icSack').innerHTML=svg('sack');
 document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=svg(e.dataset.icon));
 $('#mission').addEventListener('click',e=>{if(e.target.closest('#misT')){misOpen=!misOpen;renderMission()}});
-function start(){
+function start(){loadModels().then(startNow)}
+function startNow(){
  if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="modal"><div class="box"><h2>Grafis 3D tidak termuat</h2><p>Periksa koneksi internet lalu muat ulang halaman.</p></div></div>');return}
  S=load()||newGame();if(S.W){W=S.W;H=S.H}
  if(S.acc&&S.acc.sub===undefined)S.acc.sub={};
