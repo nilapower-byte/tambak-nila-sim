@@ -16,15 +16,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
 <style>
 :root{
- --bg:#7cc6e8;--panel:#fffaf0;--panel2:#fff1d6;--ink:#3a2816;--ink2:#7b634b;--line:#ecd9b8;
- --acc:#f58a1f;--acc2:#d96c06;--teal:#138a74;--good:#2e9b4f;--warn:#d99a00;--bad:#d4432f;--goodbg:#e3f5e6;--warnbg:#fff1c9;--badbg:#fde3de;--blue:#1873a8;--bluebg:#dff1fb;
- --shadow:0 4px 0 rgba(110,70,20,.22),0 10px 22px rgba(50,30,5,.22);
+ --bg:#7cc6e8;--panel:#ffffff;--panel2:#f1f6f9;--ink:#14293a;--ink2:#5a7184;--line:#dde7ee;
+ --acc:#14a085;--acc2:#0b7a66;--teal:#0f8f7b;--good:#2e9b4f;--warn:#d99a00;--bad:#d4432f;--goodbg:#e3f5e6;--warnbg:#fff1c9;--badbg:#fde3de;--blue:#1873a8;--bluebg:#dff1fb;
+ --shadow:0 4px 0 rgba(20,50,70,.12),0 12px 26px rgba(20,50,70,.18);
  --glass:color-mix(in srgb,var(--panel) 92%,transparent);
  --display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;--body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
  --sheetW:min(380px,46vw);
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--panel:#2b2219;--panel2:#3a2e22;--ink:#f7ead6;--ink2:#c9b298;--line:#4b3c2c;--goodbg:#1f3a27;--warnbg:#41351a;--badbg:#45231d;--bluebg:#1b3346;color-scheme:dark}}
-:root[data-theme="dark"]{--panel:#2b2219;--panel2:#3a2e22;--ink:#f7ead6;--ink2:#c9b298;--line:#4b3c2c;--goodbg:#1f3a27;--warnbg:#41351a;--badbg:#45231d;--bluebg:#1b3346;color-scheme:dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--panel:#15232f;--panel2:#1d3140;--ink:#eaf3f8;--ink2:#9db3c3;--line:#2a4052;--goodbg:#1f3a27;--warnbg:#41351a;--badbg:#45231d;--bluebg:#1b3346;color-scheme:dark}}
+:root[data-theme="dark"]{--panel:#15232f;--panel2:#1d3140;--ink:#eaf3f8;--ink2:#9db3c3;--line:#2a4052;--goodbg:#1f3a27;--warnbg:#41351a;--badbg:#45231d;--bluebg:#1b3346;color-scheme:dark}
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 #cv{position:fixed;inset:0;touch-action:none;display:block;width:100%;height:100%}
@@ -83,7 +83,7 @@ body.sheet-open #dock{left:calc((100% - var(--sheetW) - 20px)/2)}
 .bcard.no{opacity:.55}
 #place{position:fixed;left:50%;transform:translateX(-50%);top:calc(56px + env(safe-area-inset-top,0px));z-index:6;background:var(--ink);color:var(--panel);border-radius:999px;padding:7px 7px 7px 16px;display:flex;gap:10px;align-items:center;font-weight:800;box-shadow:var(--shadow);font-size:13px;max-width:calc(100% - 20px)}
 #place button{background:var(--acc);color:#fff;border-radius:999px;padding:6px 14px;font-weight:800}
-#sheet{position:fixed;right:max(10px,env(safe-area-inset-right,0px));top:calc(56px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:var(--sheetW);z-index:8;background:var(--panel);border-radius:20px;box-shadow:0 8px 30px rgba(40,25,5,.3);display:flex;flex-direction:column;animation:sin .22s ease-out}
+#sheet{position:fixed;right:max(10px,env(safe-area-inset-right,0px));top:calc(56px + env(safe-area-inset-top,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));width:var(--sheetW);z-index:8;background:var(--panel);border-radius:20px;box-shadow:0 8px 30px rgba(10,30,45,.3);display:flex;flex-direction:column;animation:sin .22s ease-out}
 @keyframes sin{from{transform:translateX(40px);opacity:.3}}
 #sheet .sx{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--panel2);font-size:20px;font-weight:800;display:grid;place-items:center;z-index:2}
 #sheetBody{overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
@@ -145,7 +145,7 @@ td.r,th.r{text-align:right}
 .list{margin:0;padding-left:18px;line-height:1.55;font-size:12.5px}
 .ref{font-size:11.5px;color:var(--ink2);line-height:1.5;margin:0}
 a{color:var(--teal);font-weight:800}
-#modal{position:fixed;inset:0;z-index:20;background:rgba(30,20,8,.5);display:grid;place-items:center;padding:16px}
+#modal{position:fixed;inset:0;z-index:20;background:rgba(8,24,36,.55);display:grid;place-items:center;padding:16px}
 #modal .box{background:var(--panel);border-radius:22px;box-shadow:var(--shadow);max-width:480px;width:100%;padding:18px 20px;display:flex;flex-direction:column;gap:10px;max-height:92%;overflow:auto}
 #modal .logo{font-family:var(--display);font-size:30px;line-height:1;color:var(--acc2)}
 #modal p{margin:0;line-height:1.5}
@@ -191,12 +191,13 @@ body.building #mission{display:none}
  .bcard{width:100px}.bcard img{height:48px}.bcard b{font-size:12.5px}
  .hide-sm{display:none}
 }
-.pill,#mission,#dock{background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 96%,#fff),var(--panel2))}
-.pill,#dock,#mission,.bcard{box-shadow:0 6px 0 rgba(120,70,20,.16),0 14px 28px rgba(50,30,5,.26)}
-.btn.pri{background:linear-gradient(180deg,#ffa547,#e9730f)}
-#sheet{background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 98%,#fff),var(--panel))}
+.pill,#mission,#dock{background:var(--glass)}
+.pill,#dock,#mission,.bcard{box-shadow:0 6px 0 rgba(20,50,70,.1),0 14px 28px rgba(20,50,70,.18)}
+.btn.pri{background:linear-gradient(180deg,#1fb89d,#0f8f7b)}
+#sheet{background:var(--panel)}
 .st,.g,.tip{box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 #pricePill{cursor:pointer}
+.money .ic{background:#ffe08a;color:#7a5200}
 .fld{flex:1;font:inherit;font-weight:800;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);width:100%;min-width:0}
 .fldU{font-weight:800;color:var(--ink2);align-self:center;padding-left:6px}
 @keyframes sup{from{transform:translateY(40px);opacity:.3}}
@@ -930,13 +931,19 @@ function reportSheet(){
  const a=S.acc,L=laba(),modal=S.capital||CAPITAL,aset=a.invest,sub=a.sub;
  const sumSub=k=>sub[k]||0;
  const siklus=S.harvests.reduce((x,h)=>x+h.rev,0);
+ const rA=S.rab&&S.rab.aset!=null?S.rab.aset:Math.round(modal*.6),rO=S.rab&&S.rab.ops!=null?S.rab.ops:Math.round(modal*.4),opsReal=a.ops+a.gaji+a.sewa;
  return`<div class="ph"><div><div class="eyebrow">Buku kas & akuntansi otomatis</div><h2>Laporan keuangan</h2></div></div>
 
- <h3>Modal & kas</h3>
+ <h3>Rencana vs realisasi</h3>
  <div class="kv"><span>Modal awal</span><b>${rpFull(modal)}</b></div>
- <div class="kv"><span>Dipakai untuk bangunan & lahan (aset)</span><b>${rpFull(aset)}</b></div>
+ <div class="kv"><span>Aset (kolam, bangunan, sumur)</span><b>${rp(rA)} rencana · ${rp(aset)} terpakai</b></div>
+ <div class="prog" style="margin:4px 0 6px"><em style="width:${clamp(aset/Math.max(1,rA)*100,0,100)}%;background:${aset>rA?'var(--bad)':'var(--acc)'}"></em></div>
+ <div class="kv"><span>Biaya berjalan (pakan, benih, listrik, obat, gaji, sewa)</span><b>${rp(rO)} rencana · ${rp(opsReal)} terpakai</b></div>
+ <div class="prog" style="margin:4px 0 6px"><em style="width:${clamp(opsReal/Math.max(1,rO)*100,0,100)}%;background:${opsReal>rO?'var(--bad)':'var(--acc)'}"></em></div>
  <div class="kv"><span>Kas tersisa sekarang</span><b class="${S.money<0?'neg':''}">${rpFull(S.money)}</b></div>
- <div class="kv"><span>Stok pakan (nilai beli, belum dipakai)</span><b>${fmtN(S.feed,0)} kg</b></div>
+ <div class="kv"><span>Stok pakan (dibeli, belum dipakai)</span><b>${fmtN(S.feed,0)} kg</b></div>
+ <div class="stats" style="margin-top:6px"><label class="st"><small>Rencana aset (Rp)</small><input id="rabAset" class="fld" inputmode="numeric" value="${fmtN(rA)}"></label><label class="st"><small>Rencana biaya berjalan (Rp)</small><input id="rabOps" class="fld" inputmode="numeric" value="${fmtN(rO)}"></label></div>
+ <p class="ref">Rencana default: 60% modal untuk aset, 40% untuk biaya berjalan. Ubah sesuai rencana Anda. Merah berarti realisasi melewati rencana.</p>
 
  <h3>Laba bersih periode ini</h3>
  <div class="kv"><span>Penjualan ikan</span><b class="pos">${rpFull(a.jual)}</b></div>
@@ -967,6 +974,9 @@ function reportSheet(){
  <h3>Transaksi kas terakhir</h3><div class="tw"><table><tbody>${S.ledger.slice(0,30).map(l=>`<tr><td>H${l.day}</td><td>${l.label}</td><td class="r ${l.amt>=0?'pos':'neg'}">${rp(l.amt)}</td></tr>`).join('')}</tbody></table></div>`}
 
 function misSheet(){const c=curMission();return`<div class="ph"><div><div class="eyebrow">${S.done.length} dari ${MIS.length} selesai</div><h2>Misi budidaya</h2></div></div>${MIS.map((m,i)=>{const d=S.done.includes(m.id),cur=m===c;return`<div class="mis ${d?'done':cur?'cur':''}"><span class="n">${d?'✓':i+1}</span><div><b>${m.t}</b>${cur||d?`<p>${cur?m.how:m.why}</p>`:''}</div></div>`}).join('')}`}
+const DEV=/[?&]dev=1/.test(location.search);
+function devBlock(){return`<h3>Uji siklus (developer)</h3><p class="ref">Memajukan waktu game. Semua kejadian (cuaca, pakan, sakit, sewa) tetap diproses seperti biasa.</p><div class="acts"><button class="btn" data-a="devskip" data-h="24">+1 hari</button><button class="btn" data-a="devskip" data-h="168">+7 hari</button><button class="btn" data-a="devskip" data-h="720">+30 hari</button><button class="btn pri" data-a="devskip" data-h="2880">+120 hari</button><button class="btn wide" data-a="devmoney">Tambah modal uji Rp 10 jt</button></div>`}
+function devSkip(h){S.start-=h*36e5;catchUp();save();renderSheet();hud()}
 function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main</div><h2>Tambak Nila Sim</h2></div></div>
  <ol class="list"><li><b>Bangun</b> kolam, lalu alirkan air dari sungai (kiri) dengan saluran, atau pakai sumur bor.</li><li><b>Siapkan</b> kolam, beli pakan, lalu <b>tebar benih</b> pagi atau sore.</li><li><b>Beri pakan</b> 2× sehari, <b>sampling</b> tiap 7–10 hari, jaga oksigen dan amonia.</li><li><b>Panen</b> saat ±250 g. Tebar kolam lain bergantian agar panen tiap bulan.</li></ol>
  <p class="tip"><b>Waktu nyata</b>Waktu game sama dengan jam HP Anda. Tidak ada percepatan atau jeda. Kalau aplikasi ditutup, tambak tetap berjalan, dan saat dibuka lagi semua kejadian selama ditinggal diproses.</p>
@@ -974,7 +984,7 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <h3>Pengaturan</h3>
+ ${DEV?devBlock():''}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
  b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();b.scrollTop=st}
@@ -982,7 +992,7 @@ $('#sheetBody').addEventListener('click',e=>{
  const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}
  const b=e.target.closest('[data-a]');if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
  const a=b.dataset.a;
- ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
+ ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
  checkMissions();renderSheet();save()});
 function nav(k){
  if(k==='build'){const open=$('#build').hidden;closeSheet();if(open){renderBuild();$('#build').hidden=false;navOn('build')}else endBuild();return}
@@ -1004,7 +1014,7 @@ function hargaSheet(){const manual=S.priceMode==='tetap';
  <h3>Harga manual</h3>
  <input id="hargaIn" class="fld" inputmode="numeric" aria-label="Harga per kg" value="${fmtN(S.price)}">
  <p class="ref">Ketik harga per kg (Rp 15.000–60.000), lalu tekan Enter atau keluar dari kolom. Berlaku untuk panen berikutnya.</p>`}
-$('#sheetBody').addEventListener('change',e=>{if(e.target.id==='hargaIn'){const v=+e.target.value.replace(/\D/g,'');if(v)setHarga(v);else renderSheet()}});
+$('#sheetBody').addEventListener('change',e=>{if(e.target.id==='rabAset'||e.target.id==='rabOps'){S.rab=S.rab||{};S.rab[e.target.id==='rabAset'?'aset':'ops']=+e.target.value.replace(/\D/g,'')||0;save();renderSheet();return}if(e.target.id==='hargaIn'){const v=+e.target.value.replace(/\D/g,'');if(v)setHarga(v);else renderSheet()}});
 
 /* ================= MODAL ================= */
 function modal(html,bind){const m=$('#modal');m.innerHTML=`<div class="box" role="dialog" aria-modal="true">${html}</div>`;m.hidden=false;bind&&bind(m)}
@@ -1013,7 +1023,7 @@ function askPanen(p){const ws=p.ws||p.w;const est=p.n*ws/1000;
  modal(`<h2>Panen ${p.name}?</h2><p>Perkiraan dari sampling terakhir: <b>${fmtN(p.n)} ekor × ${ws} g ≈ ${fmtN(est,1)} kg</b>, harga hari ini ${rp(S.price)}/kg${ws<250?` <br><span class="neg">Ukuran di bawah 250 g dihargai lebih murah oleh pengepul.</span>`:''}.</p><p class="ref">Berat asli baru ketahuan saat ditimbang.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Panen</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();panen(p);closeSheet();save()}})}
 function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){demolish(o);renderSheet();return}
  modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Anda mendapat kembali ${rp(t.cost*.2)} dari ${rp(t.cost)}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet()}})}
-function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();localStorage.removeItem(KEY);location.reload()}})}
+function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();localStorage.removeItem(KEY);S=null;location.reload()}})}
 
 /* Intro: pilihan lahan + penjelasan modal. Modal dijelaskan lengkap sebelum game mulai. */
 function intro(){
