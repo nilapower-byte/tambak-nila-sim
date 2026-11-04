@@ -597,7 +597,7 @@ function place(type,x,y){
  checkMissions();save();
 }
 function demolish(o){
- if(T[o.type].pond&&o.st==='isi'){toast('warn','Kolam masih berisi ikan','Panen atau pindahkan ikan dulu.');return}
+ if(T[o.type].pond&&o.st==='isi'){panen(o);if(o.st==='isi')return}
  if(o.type==='pohon'||o.type==='batu'){lastFocus=o;if(!pay('Investasi',50000,'Bersihkan lahan'))return}
  else if(T[o.type].cost){earn('Investasi',Math.round(T[o.type].cost*.2),'Jual bekas '+T[o.type].n)}
  S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();toast('good',(o.type==='pohon'||o.type==='batu')?'Lahan dibersihkan':'Bangunan dibongkar',(o.type==='pohon'||o.type==='batu')?'Lahan kosong, siap dibangun.':'Sebagian biaya kembali sesuai aturan.');
@@ -1041,7 +1041,7 @@ function misList(){const c=curMission();return`<div class="ph"><div><div class="
 const DEV=/[?&]dev=1/.test(location.search);
 function bongkarSheet(){
  const nm=o=>(T[o.type]&&T[o.type].n)||o.type;
- const rows=S.objs.filter(o=>o.type!=='saluran').map(o=>`<div class="mis"><span class="n">•</span><div style="flex:1"><b>${nm(o)}</b><p>Petak ${o.x}, ${o.y}</p></div><button class="btn ${o.type==='pohon'||o.type==='batu'?'':'danger'}" style="min-width:110px" data-a="bongkarId" data-id="${o.id}">${o.type==='pohon'||o.type==='batu'?'Bersihkan':'Bongkar'}</button></div>`).join('');
+ const rows=S.objs.map(o=>`<div class="mis"><span class="n">•</span><div style="flex:1"><b>${nm(o)}</b><p>Petak ${o.x}, ${o.y}${T[o.type]&&T[o.type].pond?' · '+({kering:'kosong',persiapan:'persiapan',siap:'siap tebar',isi:'berisi ikan'}[o.st]||''):''}</p></div><button class="btn ${o.type==='pohon'||o.type==='batu'?'':'danger'}" style="min-width:110px" data-a="bongkarId" data-id="${o.id}">${o.type==='pohon'||o.type==='batu'?'Bersihkan':'Bongkar'}</button></div>`).join('');
  return`<div class="ph"><div><div class="eyebrow">Mode bongkar</div><h2>Daftar benda</h2></div></div>
  <p class="tip">Pilih benda yang mau dibongkar. Pohon dan batu dibersihkan dengan biaya Rp 50 rb. Bangunan dibongkar dengan pengembalian 20%.</p>
  ${rows||'<p class="ref">Belum ada benda yang bisa dibongkar.</p>'}`;
@@ -1055,7 +1055,7 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <p class="ref">Versi game: v21.</p>
+ <p class="ref">Versi game: v22.</p>
  ${DEV?devBlock():''}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
@@ -1127,6 +1127,7 @@ function closeModal(){$('#modal').hidden=true}
 function askPanen(p){const ws=p.ws||p.w;const est=p.n*ws/1000;
  modal(`<h2>Panen ${p.name}?</h2><p>Perkiraan dari sampling terakhir: <b>${fmtN(p.n)} ekor × ${ws} g ≈ ${fmtN(est,1)} kg</b>, harga hari ini ${rp(S.price)}/kg${ws<250?` <br><span class="neg">Ukuran di bawah 250 g dihargai lebih murah oleh pengepul.</span>`:''}.</p><p class="ref">Berat asli baru ketahuan saat ditimbang.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Panen</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();panen(p);closeSheet();save()}})}
 function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){demolish(o);renderSheet();return}
+ if(T[o.type].pond&&o.st==='isi'){modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Kolam ini masih berisi ikan. Ikan akan <b>dipanen dan dijual</b> dulu sesuai harga hari ini, lalu kolam dibongkar.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Panen & bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet();renderSheet()}});return}
  modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Anda mendapat kembali ${rp(t.cost*.2)} dari ${rp(t.cost)}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet()}})}
 function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();localStorage.removeItem(KEY);S=null;location.reload()}})}
 
