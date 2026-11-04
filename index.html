@@ -206,6 +206,26 @@ body.building #mission{display:none}
 .money .ic{background:#ffe08a;color:#7a5200}
 .fld{flex:1;font:inherit;font-weight:800;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);width:100%;min-width:0}
 .fldU{font-weight:800;color:var(--ink2);align-self:center;padding-left:6px}
+.rvHead{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:4px 0}
+.rvHead>div{background:var(--panel2);border-radius:14px;padding:9px 10px}
+.rvHead small{display:block;font-size:10.5px;font-weight:800;color:var(--ink2)}
+.rvHead b{font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums}
+.rvc{background:linear-gradient(180deg,var(--panel),var(--panel2));border-radius:16px;padding:12px;box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:8px}
+.rvt{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.rvt b{font-family:var(--display);font-size:15px;display:block}
+.rvt small{font-size:11px;color:var(--ink2);font-weight:700}
+.rvp{font-family:var(--display);font-weight:800;font-size:15px;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.rvp.ok{background:var(--goodbg);color:var(--good)}
+.rvp.over{background:var(--badbg);color:var(--bad)}
+.rvn{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.rvn small{display:block;font-size:10px;font-weight:800;color:var(--ink2)}
+.rvn b{font-family:var(--display);font-size:14px;font-variant-numeric:tabular-nums}
+.rvbar{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.rvbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--teal),#44c3a3)}
+.rvs{margin:0;font-size:11.5px;font-weight:700;color:var(--ink2)}
+.rvIn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rvIn label{display:flex;flex-direction:column;gap:4px}
+.rvIn small{font-size:10.5px;font-weight:800;color:var(--ink2)}
 @keyframes sup{from{transform:translateY(40px);opacity:.3}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -224,7 +244,7 @@ body.building #mission{display:none}
 <div id="mission"></div>
 <div id="toasts" aria-live="polite"></div>
 <div id="build" hidden></div>
-<div id="place" hidden><span id="placeTxt"></span><button id="placeDone">Selesai</button></div>
+<div id="place" hidden><span id="placeTxt"></span><button id="placeDone">Keluar</button></div>
 <nav id="dock">
  <button data-nav="build"><span class="ic" data-icon="build"></span>Bangun</button>
  <button data-nav="feed"><span class="ic" data-icon="sack"></span>Pakan</button>
@@ -575,9 +595,9 @@ function demolish(o){
  if(T[o.type].pond&&o.st==='isi'){toast('warn','Kolam masih berisi ikan','Panen atau pindahkan ikan dulu.');return}
  if(o.type==='pohon'||o.type==='batu'){lastFocus=o;if(!pay('Investasi',50000,'Bersihkan lahan'))return}
  else if(T[o.type].cost){earn('Investasi',Math.round(T[o.type].cost*.2),'Jual bekas '+T[o.type].n)}
- S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();
+ S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();toast('good',(o.type==='pohon'||o.type==='batu')?'Lahan dibersihkan':'Bangunan dibongkar',(o.type==='pohon'||o.type==='batu')?'Lahan kosong, siap dibangun.':'Sebagian biaya kembali sesuai aturan.');
 }
-function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk pohon/batu (Rp 50 rb) atau bangunan (kembali 20%)':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
+function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang mau dibongkar':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
 function endBuild(){ui.tool=null;document.body.classList.remove('building');$('#place').hidden=true;$('#build').hidden=true;navOn(null)}
 
 /* ================= DUNIA 3D ================= */
@@ -854,7 +874,7 @@ cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{ptrs
 cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.deltaY<0?1/1.1:1.1),6,90)},{passive:false});
 function tap(sx,sy){
  if(!S.started)return;
- if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];if(ui.tool==='hapus'){const o=OCC[y]&&OCC[y][x];if(o)askDemolish(o)}else place(ui.tool,x,y);return}
+ if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];if(ui.tool==='hapus'){const o=OCC[y]&&OCC[y][x];if(o)askDemolish(o);else toast('info','Tidak ada benda di petak ini','Ketuk tepat di atas pohon, batu, atau bangunan.')}else place(ui.tool,x,y);return}
  RAY.setFromCamera(ndc(sx,sy),CAM);const hit=RAY.intersectObjects(PICK,false)[0];let o=hit?S.objs.find(q=>q.id===hit.object.userData.oid):null;
  if(!o){const[x,y]=tileAt(sx,sy);o=OCC[y]&&OCC[y][x]}
  if(o)select(o);else{select(null);closeSheet()}}
@@ -933,6 +953,12 @@ function feedSheet(){const daily=ponds().filter(p=>p.st==='isi').reduce((a,p)=>a
  <div class="tip"><b>Jatah pakan dihitung otomatis</b>Jumlah ikan × berat sampling × persen pakan (6% saat benih, turun ke 2% saat ±250 g), dibagi 2 kali makan. Karena itu sampling rutin penting.</div>
  <div class="tip">Tanpa gudang, Anda hanya bisa menyimpan 90 kg (3 karung). Bangun Gudang pakan untuk +900 kg.</div>`}
 
+function rvCard(t,sub,plan,real){
+ const pct=plan>0?real/plan*100:0,over=real>plan,w=clamp(pct,0,100);
+ return`<div class="rvc"><div class="rvt"><div><b>${t}</b><small>${sub}</small></div><span class="rvp ${over?'over':'ok'}">${fmtN(pct)}%</span></div>
+ <div class="rvn"><div><small>Rencana</small><b>${rp(plan)}</b></div><div><small>Terpakai</small><b>${rp(real)}</b></div><div><small>Sisa</small><b class="${plan-real<0?'neg':'pos'}">${rp(plan-real)}</b></div></div>
+ <div class="rvbar"><i style="width:${w}%;${over?'background:var(--bad)':''}"></i></div>
+ <p class="rvs">${over?'Melewati rencana '+rp(real-plan):'Masih dalam rencana'}</p></div>`}
 function reportSheet(){
  const a=S.acc,L=laba(),modal=S.capital||CAPITAL,aset=a.invest,sub=a.sub;
  const sumSub=k=>sub[k]||0;
@@ -941,17 +967,20 @@ function reportSheet(){
  return`<div class="ph"><div><div class="eyebrow">Buku kas & akuntansi otomatis</div><h2>Laporan keuangan</h2></div></div>
 
  <h3>Rencana vs realisasi</h3>
- <div class="kv"><span>Modal awal</span><b>${rpFull(modal)}</b></div>
- <div class="kv"><span>Aset (kolam, bangunan, sumur)</span><b>${rp(rA)} rencana · ${rp(aset)} terpakai</b></div>
- <div class="prog" style="margin:4px 0 6px"><em style="width:${clamp(aset/Math.max(1,rA)*100,0,100)}%;background:${aset>rA?'var(--bad)':'var(--acc)'}"></em></div>
- <div class="kv"><span>Biaya berjalan (pakan, benih, listrik, obat, gaji, sewa)</span><b>${rp(rO)} rencana · ${rp(opsReal)} terpakai</b></div>
- <div class="prog" style="margin:4px 0 6px"><em style="width:${clamp(opsReal/Math.max(1,rO)*100,0,100)}%;background:${opsReal>rO?'var(--bad)':'var(--acc)'}"></em></div>
- <div class="kv"><span>Kas tersisa sekarang</span><b class="${S.money<0?'neg':''}">${rpFull(S.money)}</b></div>
- <div class="kv"><span>Stok pakan (dibeli, belum dipakai)</span><b>${fmtN(S.feed,0)} kg</b></div>
- <div class="stats" style="margin-top:6px"><label class="st"><small>Rencana aset (Rp)</small><input id="rabAset" class="fld" inputmode="numeric" value="${fmtN(rA)}"></label><label class="st"><small>Rencana biaya berjalan (Rp)</small><input id="rabOps" class="fld" inputmode="numeric" value="${fmtN(rO)}"></label></div>
- <p class="ref">Rencana default: 60% modal untuk aset, 40% untuk biaya berjalan. Ubah sesuai rencana Anda. Merah berarti realisasi melewati rencana.</p>
+ <div class="rvHead">
+  <div><small>Modal awal</small><b>${rpFull(modal)}</b></div>
+  <div><small>Kas sekarang</small><b class="${S.money<0?'neg':''}">${rpFull(S.money)}</b></div>
+  <div><small>Stok pakan</small><b>${fmtN(S.feed,0)} kg</b></div>
+ </div>
+ ${rvCard('Aset','Kolam, pondok, saluran, sumur',rA,aset)}
+ ${rvCard('Biaya berjalan','Benih, pakan, listrik, obat, gaji, sewa',rO,opsReal)}
+ <div class="rvIn">
+  <label><small>Rencana aset (Rp)</small><input id="rabAset" class="fld" inputmode="numeric" value="${fmtN(rA)}"></label>
+  <label><small>Rencana biaya berjalan (Rp)</small><input id="rabOps" class="fld" inputmode="numeric" value="${fmtN(rO)}"></label>
+ </div>
+ <p class="ref">Rencana awal dihitung dari modal, luas, dan status lahan. Anda bisa mengubahnya di sini.</p>
 
- <h3>Laba bersih periode ini</h3>
+<h3>Laba bersih periode ini</h3>
  <div class="kv"><span>Penjualan ikan</span><b class="pos">${rpFull(a.jual)}</b></div>
  <div class="kv sub"><span>Benih</span><b>${rpFull(sumSub('Benih'))}</b></div>
  <div class="kv sub"><span>Pakan (yang sudah diberikan)</span><b>${rpFull(sumSub('Pakan'))}</b></div>
@@ -1165,7 +1194,7 @@ function makeThumbs(){
   r.dispose();r.forceContextLoss&&r.forceContextLoss()}catch(e){}
  PREV.hapus='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 120"><g stroke="#d4432f" stroke-width="14" stroke-linecap="round"><path d="M82 30l60 60M142 30l-60 60"/></g></svg>');
 }
-function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.innerHTML=BUILD.map(k=>{const t=T[k]||{n:'Hapus / bersihkan'};const c=t.cost;return`<button class="bcard ${ui.tool===k?'on':''} ${c&&S.money<c?'no':''}" data-b="${k}">${PREV[k]?`<img src="${PREV[k]}" alt="">`:'<img alt="">'}<b>${k==='hapus'?'Bersihkan / bongkar':t.n}</b><small>${k==='hapus'?'Pohon/batu Rp 50 rb · bangunan kembali 20%':rp(c)}${k==='tanah'?' · 2×2':''}</small></button>`}).join('');
+function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.innerHTML=BUILD.map(k=>{const t=T[k]||{n:'Hapus / bersihkan'};const c=t.cost;return`<button class="bcard ${ui.tool===k?'on':''} ${c&&S.money<c?'no':''}" data-b="${k}">${PREV[k]?`<img src="${PREV[k]}" alt="">`:'<img alt="">'}<b>${k==='hapus'?'Bongkar':t.n}</b><small>${k==='hapus'?'Pohon/batu Rp 50 rb':rp(c)}${k==='tanah'?' · 2×2':''}</small></button>`}).join('');
  el.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startBuild(b.dataset.b))}
 
 /* ================= SIMPAN ================= */
