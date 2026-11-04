@@ -199,6 +199,7 @@ body.building #mission{display:none}
 #sheet{background:var(--panel)}
 .st,.g,.tip{box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 #pricePill{cursor:pointer}
+#ver{position:fixed;left:8px;bottom:calc(2px + env(safe-area-inset-bottom,0px));font-size:10px;font-weight:800;color:#fff;opacity:.7;z-index:2;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .stageNow{display:inline-flex;align-self:flex-start;font-weight:800;font-size:12px;color:#fff;background:var(--acc);border-radius:999px;padding:5px 12px}
 .btn.locked{opacity:.55;filter:grayscale(1);box-shadow:none}
 .btn.locked small.lk{color:var(--bad);font-weight:800}
@@ -258,6 +259,7 @@ body.building #mission{display:none}
  <button data-nav="help"><span class="ic" data-icon="help"></span>Bantuan</button>
 </nav>
 <div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
+<div id="ver">v25</div>
 <div id="modal" hidden></div>
 <div id="rot" hidden><svg class="splash" viewBox="0 0 320 200" aria-hidden="true"><defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bdeee6"/><stop offset="1" stop-color="#2b8fa0"/></linearGradient><linearGradient id="waterG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fd0c0"/><stop offset="1" stop-color="#1b7b8c"/></linearGradient></defs><rect width="320" height="200" rx="22" fill="url(#skyG)"/><ellipse cx="160" cy="132" rx="136" ry="52" fill="#16515f"/><ellipse cx="160" cy="128" rx="122" ry="44" fill="url(#waterG)"/><g><animateTransform attributeName="transform" type="translate" values="70 118;230 140;70 118" dur="7s" repeatCount="indefinite"/><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffb27a"/><path d="M28 0l8-6v12z" fill="#ffb27a"/></g><g><animateTransform attributeName="transform" type="translate" values="230 122;100 146;230 122" dur="9s" repeatCount="indefinite"/><path d="M0 0c8-8 22-8 30 0-8 8-22 8-30 0z" fill="#ffffff"/><path d="M28 0l8-6v12z" fill="#ffffff"/></g></svg><h2>Tambak Nila Sim</h2><p>Bangun kolam, alirkan air, tebar benih, beri pakan, lalu panen. Waktu game sama dengan jam HP Anda.</p><button class="btn pri" id="rotFs">Mulai bermain</button></div>
 
@@ -638,6 +640,7 @@ const colMat={};const cmat=c=>colMat[c]||(colMat[c]=M_(c));
 const BOX=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
 const sideTop=(side,top)=>[side,side,top,side,side,side];
 
+const DECOR=[];
 function buildTerrain(){
  const n=(W-1)*H;TILES=new THREE.InstancedMesh(BOX(1,1,1),MAT.tile,n);TILES.receiveShadow=true;
  const pal=[0x86c152,0x7fba4c,0x8cc75a].map(c=>new THREE.Color(c));const m=new THREE.Matrix4();let i=0;
@@ -647,17 +650,17 @@ function buildTerrain(){
  for(const[x0,x1,z0,z1]of[[-40,-2,-40,52],[1,52,-40,0],[1,52,H,52],[W,52,0,H]])mesh(BOX(x1-x0,1,z1-z0),og,(x0+x1)/2,-.5,(z0+z1)/2,SC,true);
  mesh(BOX(3,.5,92),MAT.bed,-.5,-.85,6,SC,true);
  const rg=new THREE.PlaneGeometry(3,92,6,92);rg.rotateX(-Math.PI/2);RIVER=mesh(rg,MAT.river,-.5,-.2,6,SC,true);RIVER.userData.base=rg.attributes.position.array.slice();
- for(let k=0;k<14;k++){const z=-8+k*2.3+hash(k,3)*1.2;if(z>-.5&&z<12.5&&k%2)continue;const r=mesh(new THREE.DodecahedronGeometry(.18+hash(k,9)*.15,0),MAT.rock,-2.1+hash(k,5)*.3,-.05,z,SC);r.scale.y=.6}
+ for(let k=0;k<14;k++){const z=-8+k*2.3+hash(k,3)*1.2;if(z>-.5&&z<12.5&&k%2)continue;const r=mesh(new THREE.DodecahedronGeometry(.18+hash(k,9)*.15,0),MAT.rock,-2.1+hash(k,5)*.3,-.05,z,SC);r.scale.y=.6;DECOR.push({x:r.position.x,z:r.position.z,kind:'batu',h:.3})}
  for(let k=0;k<16;k++){const a=k/16*Math.PI*2+.2,r=30+hash(k,1)*12,x=6+Math.cos(a)*r,z=6+Math.sin(a)*r;if(x<4&&x>-6)continue;const h=mesh(new THREE.IcosahedronGeometry(1,1),k%2?MAT.hill:MAT.hill2,x,-.6,z,SC,true);h.scale.set(6+hash(k,2)*6,2+hash(k,4)*3,6+hash(k,6)*6)}
  for(let k=0;k<9;k++){const a=k/9*Math.PI*2+.5,r=62+hash(k,8)*12;const c=mesh(new THREE.ConeGeometry(10+hash(k,1)*6,10+hash(k,2)*10,6),MAT.mount,6+Math.cos(a)*r,3,6+Math.sin(a)*r,SC,true);c.castShadow=false}
- let placed=0;for(let k=0;placed<46&&k<400;k++){const x=-16+hash(k,11)*36,z=-14+hash(k,12)*36;if(x>-0.2&&x<13.2&&z>-1.2&&z<13.2)continue;if(x>-2.8&&x<1.6)continue;if(x<-2.8&&x>-14&&z>-1.5&&z<12.5)continue;const t=bTree({v:k%3,id:k}).g;t.position.set(x,0,z);const s=.9+hash(k,13)*.6;t.scale.set(s,s,s);SC.add(t);placed++}
+ let placed=0;for(let k=0;placed<46&&k<400;k++){const x=-16+hash(k,11)*36,z=-14+hash(k,12)*36;if(x>-1&&x<W+2&&z>-2&&z<H+2)continue;if(x>-2.8&&x<1.6)continue;if(x<-2.8&&x>-14&&z>-1.5&&z<12.5)continue;const t=bTree({v:k%3,id:k}).g;t.position.set(x,0,z);const s=.9+hash(k,13)*.6;t.scale.set(s,s,s);SC.add(t);DECOR.push({x,z,kind:'pohon',h:1.1*s});placed++}
  const pal2=[0xf2c230,0xf25f8a,0xffffff,0xe8743b];
  for(let k=0;k<90;k++){const side=k%4,t=hash(k,21),o=.5+hash(k,22)*1.6;let x,z;
   if(side===0){x=-1+t*(W+2);z=-o}else if(side===1){x=W+o-.5;z=-1+t*(H+2)}else if(side===2){x=-1+t*(W+2);z=H+o-.5}else{x=-o;z=-1+t*(H+2)}
   if(x<1.2)continue;
   if(k%3===0){mesh(new THREE.SphereGeometry(.05,5,4),cmat(pal2[k%4]),x+hash(k,25)*.3,.05,z,SC,true)}
   else{const b=mesh(new THREE.IcosahedronGeometry(.16+hash(k,23)*.12,0),hash(k,24)>.5?MAT.leaf2:MAT.leaf1,x,.08,z,SC,true);b.scale.y=.6}}
- for(const[x,z,ry]of[[15.5,3.5,.3],[16.5,8,-.4],[14.5,14.5,.9],[4,-3,0]]){const g=bPondok({}).g;g.position.set(x,0,z);g.rotation.y=ry;SC.add(g)}
+ 
  const post=new THREE.InstancedMesh(BOX(.07,.36,.07),MAT.woodD,40);post.castShadow=true;let pi=0;
  for(let x=1;x<=W;x++){m.makeTranslation(x,.18,0);post.setMatrixAt(pi++,m)}for(let z=1;z<=H;z++){m.makeTranslation(W,.18,z);post.setMatrixAt(pi++,m)}for(let x=1;x<W;x++){m.makeTranslation(x,.18,H);post.setMatrixAt(pi++,m)}
  post.count=pi;SC.add(post);
@@ -898,13 +901,26 @@ function pickAt(sx,sy){
  }
  return best;
 }
+function pickDecor(sx,sy){
+ let best=null,ba=Infinity;
+ for(const d of DECOR){
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  for(const dx of[-.3,.3])for(const dz of[-.3,.3])for(const yy of[0,d.h]){
+   tmpV.set(d.x+dx,yy,d.z+dz).project(CAM);
+   const px=(tmpV.x+1)/2*cw,py=(1-tmpV.y)/2*ch;
+   x0=Math.min(x0,px);x1=Math.max(x1,px);y0=Math.min(y0,py);y1=Math.max(y1,py);
+  }
+  const pad=14;
+  if(sx>=x0-pad&&sx<=x1+pad&&sy>=y0-pad&&sy<=y1+pad){const a=(x1-x0)*(y1-y0);if(a<ba){ba=a;best=d}}
+ }
+ return best}
 function tap(sx,sy){
  if(!S.started)return;
  if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];
   if(ui.tool==='hapus'){
    let o=pickAt(sx,sy);
    if(!o)o=OCC[y]&&OCC[y][x];
-   if(o)askDemolish(o);else toast('info','Tidak ada benda di sini','Ketuk langsung pada pohon, batu, atau bangunan.');
+   if(o)askDemolish(o);else{const d=pickDecor(sx,sy);if(d)toast('info',d.kind==='batu'?'Batu sungai: bukan milik Anda':'Pohon di luar lahan: bukan milik Anda','Hanya pemandangan, tidak bisa dibongkar. Semua benda di dalam pagar lahan bisa dibongkar.');else toast('info','Tidak ada benda di sini','Ketuk benda di dalam pagar lahan Anda, atau tekan Daftar.')}
   }else place(ui.tool,x,y);
   return}
  let o=pickAt(sx,sy);
@@ -1065,7 +1081,7 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <p class="ref">Versi game: v24.</p>
+ <p class="ref">Versi game: v25.</p>
  ${DEV?devBlock():''}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
