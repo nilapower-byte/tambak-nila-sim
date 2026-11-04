@@ -244,7 +244,7 @@ body.building #mission{display:none}
 <div id="mission"></div>
 <div id="toasts" aria-live="polite"></div>
 <div id="build" hidden></div>
-<div id="place" hidden><span id="placeTxt"></span><button id="placeDone">Keluar</button></div>
+<div id="place" hidden><span id="placeTxt"></span><button id="placeList" hidden style="background:var(--panel2);color:var(--ink)">Daftar</button><button id="placeDone">Keluar</button></div>
 <nav id="dock">
  <button data-nav="build"><span class="ic" data-icon="build"></span>Bangun</button>
  <button data-nav="feed"><span class="ic" data-icon="sack"></span>Pakan</button>
@@ -597,7 +597,7 @@ function demolish(o){
  else if(T[o.type].cost){earn('Investasi',Math.round(T[o.type].cost*.2),'Jual bekas '+T[o.type].n)}
  S.objs=S.objs.filter(x=>x!==o);computeWater();if(ui.sel===o)select(null);save();toast('good',(o.type==='pohon'||o.type==='batu')?'Lahan dibersihkan':'Bangunan dibongkar',(o.type==='pohon'||o.type==='batu')?'Lahan kosong, siap dibangun.':'Sebagian biaya kembali sesuai aturan.');
 }
-function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang mau dibongkar':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
+function startBuild(type){ui.tool=type;document.body.classList.add('building');closeSheet();$('#place').hidden=false;$('#placeList').hidden=type!=='hapus';$('#placeTxt').textContent=type==='hapus'?'Ketuk benda yang mau dibongkar':type==='saluran'?'Ketuk lahan satu per satu, mulai dari tepi sungai':'Ketuk lahan kosong untuk '+T[type].n.toLowerCase();renderBuild()}
 function endBuild(){ui.tool=null;document.body.classList.remove('building');$('#place').hidden=true;$('#build').hidden=true;navOn(null)}
 
 /* ================= DUNIA 3D ================= */
@@ -872,17 +872,33 @@ cv.addEventListener('pointermove',e=>{
 const up=e=>{const wasDrag=drag;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(wasDrag&&!wasDrag.moved&&ptrs.size===0)tap(e.clientX,e.clientY);if(ptrs.size===0)drag=null};
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);drag=null;pinch=null});
 cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.deltaY<0?1/1.1:1.1),6,90)},{passive:false});
+/* Pemilihan benda: setiap benda diproyeksikan ke layar (bawah, tengah, atas),
+   lalu benda dengan titik terdekat dari jari dipilih. Tidak bergantung pada raycast. */
+function pickAt(sx,sy){
+ let best=null,bd=Infinity;
+ for(const o of S.objs){
+  const t=T[o.type]||{},w=t.w||1,h=t.h||1;
+  const tall=o.type==='pohon'?1.1:o.type==='batu'?.4:(o.type==='pondok'||o.type==='gudang'||o.type==='genset'||o.type==='sumur')?1.1:o.type==='tanah'||o.type==='terpal'?.6:.3;
+  for(const f of [0,tall/2,tall]){
+   tmpV.set(o.x+w/2,f,o.y+h/2).project(CAM);
+   const px=(tmpV.x+1)/2*cw,py=(1-tmpV.y)/2*ch;
+   const d=Math.hypot(px-sx,py-sy);
+   if(d<bd){bd=d;best=o}
+  }
+ }
+ const lim=Math.max(36,Math.min(72,cw*.12));
+ return bd<=lim?best:null;
+}
 function tap(sx,sy){
  if(!S.started)return;
  if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];
   if(ui.tool==='hapus'){
-   RAY.setFromCamera(ndc(sx,sy),CAM);const hit=RAY.intersectObjects(PICK,false)[0];
-   let o=hit?S.objs.find(q=>q.id===hit.object.userData.oid):null;
+   let o=pickAt(sx,sy);
    if(!o)o=OCC[y]&&OCC[y][x];
    if(o)askDemolish(o);else toast('info','Tidak ada benda di sini','Ketuk langsung pada pohon, batu, atau bangunan.');
   }else place(ui.tool,x,y);
   return}
- RAY.setFromCamera(ndc(sx,sy),CAM);const hit=RAY.intersectObjects(PICK,false)[0];let o=hit?S.objs.find(q=>q.id===hit.object.userData.oid):null;
+ let o=pickAt(sx,sy);
  if(!o){const[x,y]=tileAt(sx,sy);o=OCC[y]&&OCC[y][x]}
  if(o)select(o);else{select(null);closeSheet()}}
 function select(o){ui.sel=o;if(o){lastFocus=o;openSheet({type:T[o.type].pond?'pond':'obj',o})}}
@@ -1018,6 +1034,13 @@ function reportSheet(){
 function misSheet(){return stageSheet()+misList()}
 function misList(){const c=curMission();return`<div class="ph"><div><div class="eyebrow">${S.done.length} dari ${MIS.length} selesai</div><h2>Misi budidaya</h2></div></div>${MIS.map((m,i)=>{const d=S.done.includes(m.id),cur=m===c;return`<div class="mis ${d?'done':cur?'cur':''}"><span class="n">${d?'✓':i+1}</span><div><b>${m.t}</b>${cur||d?`<p>${cur?m.how:m.why}</p>`:''}</div></div>`}).join('')}`}
 const DEV=/[?&]dev=1/.test(location.search);
+function bongkarSheet(){
+ const nm=o=>(T[o.type]&&T[o.type].n)||o.type;
+ const rows=S.objs.filter(o=>o.type!=='saluran').map(o=>`<div class="mis"><span class="n">•</span><div style="flex:1"><b>${nm(o)}</b><p>Petak ${o.x}, ${o.y}</p></div><button class="btn ${o.type==='pohon'||o.type==='batu'?'':'danger'}" style="min-width:110px" data-a="bongkarId" data-id="${o.id}">${o.type==='pohon'||o.type==='batu'?'Bersihkan':'Bongkar'}</button></div>`).join('');
+ return`<div class="ph"><div><div class="eyebrow">Mode bongkar</div><h2>Daftar benda</h2></div></div>
+ <p class="tip">Pilih benda yang mau dibongkar. Pohon dan batu dibersihkan dengan biaya Rp 50 rb. Bangunan dibongkar dengan pengembalian 20%.</p>
+ ${rows||'<p class="ref">Belum ada benda yang bisa dibongkar.</p>'}`;
+}
 function devBlock(){return`<h3>Uji siklus (developer)</h3><p class="ref">Memajukan waktu game. Semua kejadian (cuaca, pakan, sakit, sewa) tetap diproses seperti biasa.</p><div class="acts"><button class="btn" data-a="devskip" data-h="24">+1 hari</button><button class="btn" data-a="devskip" data-h="168">+7 hari</button><button class="btn" data-a="devskip" data-h="720">+30 hari</button><button class="btn pri" data-a="devskip" data-h="2880">+120 hari</button><button class="btn wide" data-a="devmoney">Tambah modal uji Rp 10 jt</button></div>`}
 function devSkip(h){S.start-=h*36e5;catchUp();save();renderSheet();hud()}
 function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main</div><h2>Tambak Nila Sim</h2></div></div>
@@ -1030,12 +1053,12 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  ${DEV?devBlock():''}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
- b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();if(s.type==='pond'&&s.o){b.insertAdjacentHTML('afterbegin',`<div class="stageNow">${stageName()}</div>`);applyGates(s.o,b)}b.scrollTop=st}
+ b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='bongkar'?bongkarSheet():s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();if(s.type==='pond'&&s.o){b.insertAdjacentHTML('afterbegin',`<div class="stageNow">${stageName()}</div>`);applyGates(s.o,b)}b.scrollTop=st}
 $('#sheetBody').addEventListener('click',e=>{
  const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}
  const b=e.target.closest('[data-a]');if(b&&b.classList.contains('locked')){toast('warn','Belum bisa dilakukan',b.dataset.lock+' Sekarang: '+stageName()+'.');openSheet({type:'mis'});return}if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
  const a=b.dataset.a;
- ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
+ ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},bongkarId:()=>{const q=S.objs.find(x=>x.id===+b.dataset.id);if(q)askDemolish(q)},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
  checkMissions();renderSheet();save()});
 function nav(k){
  if(k==='build'){const open=$('#build').hidden;closeSheet();if(open){renderBuild();$('#build').hidden=false;navOn('build')}else endBuild();return}
@@ -1043,6 +1066,7 @@ function nav(k){
  openSheet({type:k});navOn(k)}
 document.querySelectorAll('#dock button').forEach(b=>b.onclick=()=>nav(b.dataset.nav));
 $('#placeDone').onclick=endBuild;
+$('#placeList').onclick=()=>openSheet({type:'bongkar'});
 
 /* ================= TAHAPAN & KUNCI =================
    Tahap dikerjakan berurutan. Tahap yang belum bisa dikerjakan tampil abu-abu, tapi tetap terbaca. */
