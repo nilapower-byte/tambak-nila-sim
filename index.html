@@ -866,7 +866,7 @@ cv.addEventListener('pointermove',e=>{
  if(e.pointerType==='mouse'&&ui.tool)ui.hover=tileAt(e.clientX,e.clientY);
  if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
  if(pinch&&ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);camS.dist=clamp(pinch.dist*pinch.d/d,6,90);const ang=Math.atan2(b.y-a.y,b.x-a.x);camS.azT=camS.az=pinch.az+(ang-pinch.ang);return}
- if(drag){const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;if(Math.hypot(dx,dy)>7)drag.moved=true;if(!drag.moved)return;
+ if(drag){const dx=e.clientX-drag.sx,dy=e.clientY-drag.sy;if(Math.hypot(dx,dy)>12)drag.moved=true;if(!drag.moved)return;
   if(drag.rot){camS.azT=camS.az=drag.az+dx*.008;return}
   const h=groundHit(e.clientX,e.clientY);if(h&&drag.hit){camS.tx+=drag.hit.x-h.x;camS.tz+=drag.hit.z-h.z;updateCamera(0)}}});
 const up=e=>{const wasDrag=drag;ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(wasDrag&&!wasDrag.moved&&ptrs.size===0)tap(e.clientX,e.clientY);if(ptrs.size===0)drag=null};
@@ -874,7 +874,14 @@ cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{ptrs
 cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.deltaY<0?1/1.1:1.1),6,90)},{passive:false});
 function tap(sx,sy){
  if(!S.started)return;
- if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];if(ui.tool==='hapus'){const o=OCC[y]&&OCC[y][x];if(o)askDemolish(o);else toast('info','Tidak ada benda di petak ini','Ketuk tepat di atas pohon, batu, atau bangunan.')}else place(ui.tool,x,y);return}
+ if(ui.tool){const[x,y]=tileAt(sx,sy);ui.hover=[x,y];
+  if(ui.tool==='hapus'){
+   RAY.setFromCamera(ndc(sx,sy),CAM);const hit=RAY.intersectObjects(PICK,false)[0];
+   let o=hit?S.objs.find(q=>q.id===hit.object.userData.oid):null;
+   if(!o)o=OCC[y]&&OCC[y][x];
+   if(o)askDemolish(o);else toast('info','Tidak ada benda di sini','Ketuk langsung pada pohon, batu, atau bangunan.');
+  }else place(ui.tool,x,y);
+  return}
  RAY.setFromCamera(ndc(sx,sy),CAM);const hit=RAY.intersectObjects(PICK,false)[0];let o=hit?S.objs.find(q=>q.id===hit.object.userData.oid):null;
  if(!o){const[x,y]=tileAt(sx,sy);o=OCC[y]&&OCC[y][x]}
  if(o)select(o);else{select(null);closeSheet()}}
