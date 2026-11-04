@@ -880,19 +880,23 @@ cv.addEventListener('wheel',e=>{e.preventDefault();camS.dist=clamp(camS.dist*(e.
 /* Pemilihan benda: setiap benda diproyeksikan ke layar (bawah, tengah, atas),
    lalu benda dengan titik terdekat dari jari dipilih. Tidak bergantung pada raycast. */
 function pickAt(sx,sy){
- let best=null,bd=Infinity;
+ let best=null,ba=Infinity;
  for(const o of S.objs){
   const t=T[o.type]||{},w=t.w||1,h=t.h||1;
-  const tall=o.type==='pohon'?1.1:o.type==='batu'?.4:(o.type==='pondok'||o.type==='gudang'||o.type==='genset'||o.type==='sumur')?1.1:o.type==='tanah'||o.type==='terpal'?.6:.3;
-  for(const f of [0,tall/2,tall]){
-   tmpV.set(o.x+w/2,f,o.y+h/2).project(CAM);
+  const hh=o.type==='pohon'?1.1:o.type==='batu'?.4:(o.type==='pondok'||o.type==='gudang'||o.type==='genset'||o.type==='sumur')?1.2:(o.type==='tanah'||o.type==='terpal')?.7:.4;
+  let x0=Infinity,x1=-Infinity,y0=Infinity,y1=-Infinity;
+  for(const fx of [0,.5,1])for(const fy of [0,.5,1])for(const fz of [0,.5,1]){
+   tmpV.set(o.x+w*fx,hh*fz,o.y+h*fy).project(CAM);
    const px=(tmpV.x+1)/2*cw,py=(1-tmpV.y)/2*ch;
-   const d=Math.hypot(px-sx,py-sy);
-   if(d<bd){bd=d;best=o}
+   x0=Math.min(x0,px);x1=Math.max(x1,px);y0=Math.min(y0,py);y1=Math.max(y1,py);
+  }
+  const pad=14;
+  if(sx>=x0-pad&&sx<=x1+pad&&sy>=y0-pad&&sy<=y1+pad){
+   const area=(x1-x0+2*pad)*(y1-y0+2*pad);
+   if(area<ba){ba=area;best=o}
   }
  }
- const lim=Math.max(36,Math.min(72,cw*.12));
- return bd<=lim?best:null;
+ return best;
 }
 function tap(sx,sy){
  if(!S.started)return;
@@ -1061,7 +1065,7 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <p class="ref">Versi game: v23.</p>
+ <p class="ref">Versi game: v24.</p>
  ${DEV?devBlock():''}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
