@@ -225,14 +225,16 @@ body.building #mission{display:none}
 #toasts,.toast{pointer-events:none}
 
 /* ===== halaman depan ===== */
-#land{position:fixed;inset:0;z-index:15;overflow:hidden;--wl:46%;background:linear-gradient(180deg,var(--sk1,#6fc0ec),var(--sk2,#d3f0fb));color:#fff;transition:opacity .5s ease,transform .5s ease}
+#land{position:fixed;inset:0;z-index:15;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;background:#07324d;color:#fff;transition:opacity .5s ease,transform .5s ease}
+.ld-hero{position:relative;height:100vh;height:100dvh;min-height:560px;overflow:hidden;--wl:46%;background:linear-gradient(180deg,var(--sk1,#6fc0ec),var(--sk2,#d3f0fb))}
+#land.auth .ld-hero{min-height:720px}
 #land.out{opacity:0;transform:scale(1.05);pointer-events:none}
 .ld-sky{position:absolute;inset:0;pointer-events:none}
 .ld-stars{position:absolute;left:0;top:0;width:2px;height:2px;border-radius:50%;opacity:var(--night,0);transition:opacity 1s}
 .ld-par{position:absolute;inset:0;transition:transform .25s ease-out;will-change:transform}
-.p1{transform:translate3d(calc(var(--px,0)*-8px),calc(var(--py,0)*-5px),0)}
-.p2{transform:translate3d(calc(var(--px,0)*-16px),calc(var(--py,0)*-8px),0)}
-.p3{transform:translate3d(calc(var(--px,0)*5px),calc(var(--py,0)*3px),0)}
+.p1{transform:translate3d(calc(var(--px,0)*-8px),calc(var(--py,0)*-5px - var(--sy,0)*.05px),0)}
+.p2{transform:translate3d(calc(var(--px,0)*-16px),calc(var(--py,0)*-8px - var(--sy,0)*.1px),0)}
+.p3{transform:translate3d(calc(var(--px,0)*5px),calc(var(--py,0)*3px - var(--sy,0)*.14px),0);opacity:calc(1 - var(--sy,0)/460)}
 .ld-orb{position:absolute;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%}
 .ld-orb.sun{background:radial-gradient(circle at 40% 38%,#fffbe0 0,#ffe27a 45%,#ffb320 100%);box-shadow:0 0 0 14px rgba(255,226,122,.22),0 0 60px 30px rgba(255,214,90,.45)}
 .ld-orb.moon{background:radial-gradient(circle at 38% 36%,#fffef2,#e6e8f2 60%,#c7cce0);box-shadow:0 0 50px 18px rgba(200,215,255,.35)}
@@ -292,7 +294,11 @@ body.building #mission{display:none}
 .ld-pill.sm{font-size:12px}
 .ld-link{font-weight:800;font-size:13px;color:#fff;opacity:.85;text-decoration:underline;text-underline-offset:3px;padding:6px 10px}
 @media (max-height:520px) and (orientation:landscape){
- #land{--wl:62%}
+ .ld-hero{--wl:62%;min-height:0}
+ #land.auth .ld-hero{min-height:0}
+ .ld-auth{width:min(46vw,340px);gap:7px;padding:12px}
+ .ld-f input{height:42px}
+ .ld-tabs button{height:32px}
  .ld-content{flex-direction:row;justify-content:space-between;align-items:flex-start;padding:calc(3vh + env(safe-area-inset-top,0px)) max(5vw,env(safe-area-inset-right,0px)) 4vh max(5vw,env(safe-area-inset-left,0px))}
  .ld-top{align-items:flex-start;text-align:left}
  .ld-badge{width:46px;height:46px;border-radius:14px}
@@ -302,9 +308,79 @@ body.building #mission{display:none}
  .ld-chips{display:none}
  .ld-go{height:50px;font-size:19px;width:min(40vw,300px)}
 }
-@media (prefers-reduced-motion:reduce){.fish{left:var(--x,10%)}}
+
+.ld-auth{width:min(88vw,360px);display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.35);box-shadow:0 20px 50px rgba(2,30,50,.4),inset 0 1px 0 rgba(255,255,255,.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.ld-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:999px;background:rgba(3,40,62,.35)}
+.ld-tabs button{height:36px;border-radius:999px;font-family:var(--display);font-weight:800;font-size:16px;color:rgba(255,255,255,.85);transition:background .25s,color .25s}
+.ld-tabs button.on{background:#fff;color:#0b6a5a;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.ld-f{position:relative;display:flex;align-items:center}
+.ld-f>svg.i{position:absolute;left:14px;width:20px;height:20px;opacity:.75;pointer-events:none}
+.ld-f input{width:100%;height:50px;padding:0 46px 0 44px;border-radius:16px;border:1px solid rgba(255,255,255,.35);background:rgba(3,40,62,.38);color:#fff;font:inherit;font-weight:700;font-size:16px;outline:none;-webkit-user-select:text;user-select:text}
+.ld-f input::placeholder{color:rgba(255,255,255,.6)}
+.ld-f input:focus{border-color:#7cf0d8;box-shadow:0 0 0 3px rgba(124,240,216,.3)}
+#auEye{position:absolute;right:6px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;opacity:.85}
+#auEye svg{width:20px;height:20px}
+.au-err{margin:0;min-height:18px;font-size:13px;font-weight:800;color:#ffd0c8;text-align:left;line-height:1.3}
+.ld-go.sm{width:100%;height:52px;font-size:19px}
+.ld-go:disabled{opacity:.6;animation:none}
+.ld-links{display:flex;gap:2px;flex-wrap:wrap;justify-content:center}
+#land.auth .ld-chips,#land.auth .ld-meta{display:none}
+.ld-more{position:absolute;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center;animation:nudge 2s ease-in-out infinite;z-index:3}
+.ld-more svg{width:22px;height:22px}
+@keyframes nudge{50%{transform:translateY(5px)}}
+/* bagian gulir */
+.ld-sec{position:relative;min-height:92vh;padding:96px 22px 84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;text-align:center;background:linear-gradient(180deg,var(--wd,#07324d),#041c30);overflow:hidden}
+.ld-sec+.ld-sec{background:linear-gradient(180deg,#041c30,#06283f)}
+.ld-sec>*{position:relative;z-index:1}
+.ld-sec:before{content:"";position:absolute;inset:0;background:radial-gradient(60% 40% at 20% 10%,rgba(53,224,192,.17),transparent),radial-gradient(50% 35% at 85% 72%,rgba(255,216,107,.11),transparent);animation:glowdrift 14s ease-in-out infinite alternate;pointer-events:none}
+.ld-sec .bb{position:absolute;bottom:-24px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(255,255,255,.08));animation:bub linear infinite;pointer-events:none;z-index:0}
+@keyframes glowdrift{to{transform:translate3d(3%,2%,0) scale(1.08)}}
+@keyframes bub{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.8}100%{transform:translate3d(var(--dx,0),-110vh,0);opacity:0}}
+.ld-h{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(34px,9vw,54px);line-height:1.02;text-shadow:0 6px 28px rgba(0,0,0,.35)}
+.ld-h span{background:linear-gradient(180deg,#fff,#7cf0d8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.rv{opacity:0;transform:translateY(26px) scale(.98);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i,0)*90ms)}
+.in .rv{opacity:1;transform:none}
+.ld-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:min(100%,520px)}
+.ld-steps li{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 10px 18px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.ld-steps em{position:absolute;top:10px;left:14px;font-style:normal;font-family:var(--display);font-weight:800;font-size:13px;color:#7cf0d8}
+.ld-steps svg{width:36px;height:36px;fill:none;stroke:#7cf0d8;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ld-steps svg.f{fill:#ffb27a;stroke:none}
+.ld-steps b{font-family:var(--display);font-size:18px}
+.in .ld-steps li svg{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both;animation-delay:calc(var(--i)*140ms + .3s)}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+.ld-gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(100%,560px)}
+.ld-g{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px 12px;border-radius:22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18)}
+.ld-g .rg{position:relative;width:min(100%,104px)}
+.ld-g svg{display:block;width:100%;transform:rotate(-90deg)}
+.ld-g .trk{fill:none;stroke:rgba(255,255,255,.14);stroke-width:9}
+.ld-g .val{fill:none;stroke:var(--c,#35e0c0);stroke-width:9;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.8s cubic-bezier(.2,.8,.2,1) .4s}
+.in .ld-g .val{stroke-dashoffset:calc(1 - var(--p,0))}
+.ld-g .gv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.ld-g b{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.ld-g small{font-size:10.5px;opacity:.75;font-weight:800}
+.ld-g>span{font-weight:800;font-size:13px}
+.ld-chart{width:min(100%,560px);padding:16px 16px 10px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);text-align:left}
+.ld-chart .cap{display:flex;justify-content:space-between;font-weight:800;font-size:13px;margin-bottom:8px}
+.ld-chart .cap i{font-style:normal;color:#ffd86b;font-variant-numeric:tabular-nums}
+.ld-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.ld-chart .ax{display:flex;justify-content:space-between;font-size:11px;opacity:.7;font-weight:700;margin-top:4px}
+.dl{fill:none;stroke:url(#ldLine);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.2s cubic-bezier(.3,.7,.2,1) .5s}
+.in .dl{stroke-dashoffset:0}
+.da{fill:url(#ldArea);opacity:0;transition:opacity 1.2s ease 1.4s}
+.in .da{opacity:1}
+.nowdot{fill:#ffd86b;filter:drop-shadow(0 0 6px #ffd86b)}
+.nowring{fill:none;stroke:#ffd86b;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ring 1.8s ease-out infinite}
+@keyframes ring{from{transform:scale(1);opacity:.9}to{transform:scale(3.2);opacity:0}}
+.fk{opacity:0;transform-box:fill-box;transform-origin:50% 100%;transform:scale(.3);transition:opacity .5s ease,transform .6s cubic-bezier(.2,1.6,.4,1);transition-delay:calc(var(--i)*.4s + .8s)}
+.in .fk{opacity:1;transform:scale(1)}
+.ld-badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.ld-badges span{padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);font-weight:800;font-size:14px}
+.ld-badges b{font-family:var(--display);font-size:20px;color:#7cf0d8;margin-right:5px}
+.ld-end{min-height:70vh;justify-content:center}
+.ld-foot{margin:0;opacity:.6;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+@media (min-width:760px){.ld-steps{grid-template-columns:repeat(6,1fr);width:min(100%,980px)}}
 @keyframes sup{from{transform:translateY(40px);opacity:.3}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*:not(#land):not(#land *){animation:none!important;transition:none!important}}
 </style>
 
 <canvas id="cv" aria-label="Peta tambak 3D"></canvas>
@@ -330,45 +406,90 @@ body.building #mission{display:none}
  <button data-nav="help"><span class="ic" data-icon="help"></span>Bantuan</button>
 </nav>
 <div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
-<div id="ver">v26</div>
+<div id="ver">v27</div>
 <div id="modal" hidden></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="ldFishA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9b8"/><stop offset=".55" stop-color="#ff9a62"/><stop offset="1" stop-color="#ffeadb"/></linearGradient>
 <linearGradient id="ldFishB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff8a55"/><stop offset="1" stop-color="#ffc9a0"/></linearGradient>
+<linearGradient id="ldArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35e0c0" stop-opacity=".5"/><stop offset="1" stop-color="#35e0c0" stop-opacity="0"/></linearGradient>
+<linearGradient id="ldLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7cf0d8"/><stop offset="1" stop-color="#ffd86b"/></linearGradient>
 </defs></svg>
 <div id="land" hidden>
- <div class="ld-sky"><div class="ld-stars" id="ldStars"></div></div>
- <div class="ld-par p1">
-  <div class="ld-orb sun" id="ldOrb"></div>
-  <div class="ld-cloud c1"></div><div class="ld-cloud c2"></div><div class="ld-cloud c3"></div>
- </div>
- <div class="ld-water">
-  <div class="ld-rays"></div>
-  <canvas id="ldFx"></canvas>
-  <div class="ld-par p2">
-   <div class="fish r" style="--y:6%;--w:92px;--d:22s;--dl:-6s;--x:12%"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
-   <div class="fish l sil" style="--y:20%;--w:70px;--d:27s;--dl:-15s;--x:62%"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
-   <div class="fish r" style="--y:30%;--w:58px;--d:31s;--dl:-22s;--x:38%"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
-   <div class="fish l" style="--y:12%;--w:50px;--d:36s;--dl:-3s;--x:80%"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
+ <div class="ld-hero">
+  <div class="ld-sky"><div class="ld-stars" id="ldStars"></div></div>
+  <div class="ld-par p1">
+   <div class="ld-orb sun" id="ldOrb"></div>
+   <div class="ld-cloud c1"></div><div class="ld-cloud c2"></div><div class="ld-cloud c3"></div>
   </div>
-  <div class="ld-bed"></div><div class="ld-weeds" id="ldWeeds"></div>
- </div>
- <svg class="ld-wave w1" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 Q25 0 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20 V40 H0 Z"/></svg>
- <svg class="ld-wave w2" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 Q25 0 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20 V40 H0 Z"/></svg>
- <div class="ld-content ld-par p3">
-  <div class="ld-top">
-   <div class="ld-badge"><svg viewBox="0 0 120 60" width="42" height="21" aria-hidden="true"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="#fff"/><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="#fff"/><circle cx="27" cy="27" r="3.6" fill="#0f8f7b"/></svg></div>
-   <h1 class="ld-title">Tambak<br><span>Nila</span></h1>
-   <p class="ld-tag">Budidaya nila, sesuai jam nyata.</p>
+  <div class="ld-water">
+   <div class="ld-rays"></div>
+   <canvas id="ldFx"></canvas>
+   <div class="ld-par p2">
+    <div class="fish r" style="--y:6%;--w:92px;--d:22s;--dl:-6s"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
+    <div class="fish l sil" style="--y:20%;--w:70px;--d:27s;--dl:-15s"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
+    <div class="fish r" style="--y:30%;--w:58px;--d:31s;--dl:-22s"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
+    <div class="fish l" style="--y:12%;--w:50px;--d:36s;--dl:-3s"><i><svg viewBox="0 0 120 60" aria-hidden="true"><g class="tail"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="url(#ldFishB)"/></g><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="url(#ldFishA)"/><path d="M40 15 C52 3 70 5 80 17 C66 14 52 14 40 15 Z" fill="#ff7a40" opacity=".85"/><path d="M50 43 C56 55 68 54 72 43 Z" fill="#ff8a55" opacity=".8"/><path d="M44 21 C49 29 49 37 44 43" stroke="#fff" stroke-opacity=".45" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="27" cy="27" r="3.4" fill="#10283a"/><circle cx="28.2" cy="25.8" r="1.1" fill="#fff"/></svg></i></div>
+   </div>
+   <div class="ld-bed"></div><div class="ld-weeds" id="ldWeeds"></div>
   </div>
-  <div class="ld-bottom">
-   <div class="ld-chips"><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20V10l7-5 7 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Bangun</span><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z" fill="currentColor"/></svg>Rawat</span><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Panen</span></div>
-   <button id="ldGo" class="ld-go" type="button"><span id="ldGoT">Mulai</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-   <div class="ld-meta" id="ldMeta"></div>
-   <button id="ldNew" class="ld-link" type="button" hidden>Mulai baru</button>
+  <svg class="ld-wave w1" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 Q25 0 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20 V40 H0 Z"/></svg>
+  <svg class="ld-wave w2" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 Q25 0 50 20 T100 20 T150 20 T200 20 T250 20 T300 20 T350 20 T400 20 V40 H0 Z"/></svg>
+  <div class="ld-content ld-par p3">
+   <div class="ld-top">
+    <div class="ld-badge"><svg viewBox="0 0 120 60" width="42" height="21" aria-hidden="true"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="#fff"/><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="#fff"/><circle cx="27" cy="27" r="3.6" fill="#0f8f7b"/></svg></div>
+    <h1 class="ld-title">Tambak<br><span>Nila</span></h1>
+    <p class="ld-tag">Budidaya nila, sesuai jam nyata.</p>
+   </div>
+   <div class="ld-bottom">
+    <div class="ld-chips" id="ldChips"><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20V10l7-5 7 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Bangun</span><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z" fill="currentColor"/></svg>Rawat</span><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Panen</span></div>
+    <button id="ldGo" class="ld-go" type="button"><span id="ldGoT">Mulai</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <form class="ld-auth" id="ldAuth" hidden novalidate>
+     <div class="ld-tabs"><button type="button" class="on" data-t="in">Masuk</button><button type="button" data-t="up">Daftar</button></div>
+     <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="auEmail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Email" maxlength="120" aria-label="Email"></div>
+     <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 018 0v2" fill="none" stroke="currentColor" stroke-width="2"/></svg><input id="auPass" name="password" type="password" autocomplete="current-password" placeholder="Kata sandi" maxlength="200" aria-label="Kata sandi"><button type="button" id="auEye" aria-label="Tampilkan kata sandi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
+     <p class="au-err" id="auErr" role="alert"></p>
+     <button type="submit" id="auGo" class="ld-go sm"><span>Masuk</span></button>
+     <button type="button" id="auGuest" class="ld-link">Main sebagai tamu</button>
+    </form>
+    <div class="ld-meta" id="ldMeta"></div>
+    <div class="ld-links"><button id="ldNew" class="ld-link" type="button" hidden>Mulai baru</button><button id="ldAcc" class="ld-link" type="button" hidden>Masuk / Daftar</button><button id="ldOut" class="ld-link" type="button" hidden>Keluar</button></div>
+   </div>
   </div>
+  <button class="ld-more" id="ldMore" type="button" aria-label="Lihat selengkapnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
  </div>
+
+ <section class="ld-sec" id="ldFlow">
+  <h2 class="ld-h rv">Dari kolam<br><span>sampai panen</span></h2>
+  <ol class="ld-steps">
+   <li class="rv" style="--i:1"><em>1</em><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="14" rx="9" ry="5"/><path d="M6 12c2-2 4-2 6 0s4 2 6 0"/></svg><b>Kolam</b></li>
+   <li class="rv" style="--i:2"><em>2</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4 5 6 8 6 11a6 6 0 01-12 0c0-3 2-6 6-11z"/></svg><b>Air</b></li>
+   <li class="rv" style="--i:3"><em>3</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg><b>Siapkan</b></li>
+   <li class="rv" style="--i:4"><em>4</em><svg class="f" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z"/></svg><b>Tebar</b></li>
+   <li class="rv" style="--i:5"><em>5</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h10l-1.5 3c3 2 4.5 5 4.5 8 0 3-2 4-8 4s-8-1-8-4c0-3 1.5-6 4.5-8z"/></svg><b>Rawat</b></li>
+   <li class="rv" style="--i:6"><em>6</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Panen</b></li>
+  </ol>
+ </section>
+
+ <section class="ld-sec" id="ldLive">
+  <h2 class="ld-h rv">Mengikuti<br><span>jam HP</span></h2>
+  <div class="ld-gauges"><div class="ld-g rv" style="--i:1;--c:#35e0c0" id="gDO"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>mg/L</small></div></div><span>Oksigen</span></div><div class="ld-g rv" style="--i:2;--c:#ffd86b" id="gT"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>°C</small></div></div><span>Suhu</span></div><div class="ld-g rv" style="--i:3;--c:#7cf0d8" id="gA"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>mg/L</small></div></div><span>Amonia</span></div></div>
+  <div class="ld-chart rv" style="--i:4"><div class="cap"><span>Oksigen 24 jam</span><i id="ldNowT"></i></div><svg viewBox="0 0 300 120" id="ldDOsvg" aria-hidden="true"></svg><div class="ax"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
+ </section>
+
+ <section class="ld-sec" id="ldGrow">
+  <h2 class="ld-h rv">Dari <span>8 g</span><br>ke <span>250 g</span></h2>
+  <div class="ld-chart rv" style="--i:1"><svg viewBox="0 0 300 172" id="ldGsvg" aria-hidden="true"></svg></div>
+  <div class="ld-badges rv" style="--i:2"><span><b>±4</b>bulan</span><span><b>1,2</b>FCR</span><span><b>85%</b>SR</span></div>
+ </section>
+
+ <section class="ld-sec ld-end" id="ldEnd">
+  <h2 class="ld-h rv">Mulai<br><span>tambakmu</span></h2>
+  <button id="ldEndGo" class="ld-go rv" style="--i:1" type="button"><span id="ldEndT">Mulai</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <p class="ld-foot rv" style="--i:2">Tambak Nila Sim</p>
+ </section>
 </div>
+
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -950,6 +1071,7 @@ function updateOverlay(dt){
 /* ================= LOOP ================= */
 let last=performance.now(),hudT=0,saveT=0;
 function frame(ts){
+ if(!S){requestAnimationFrame(frame);return}
  const dt=Math.min(.1,(ts-last)/1000);last=ts;
  if(S&&S.started){catchUp();saveT+=dt;if(saveT>5){saveT=0;save()}}
  for(let i=VIL.length-1;i>=0;i--){const v=VIL[i];if(v.wait>0){v.wait-=dt;if(v.wait<=0&&v.ph===1){v.ph=2;v.tx=v.hx;v.ty=v.hy}continue}
@@ -1189,8 +1311,8 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <p class="ref">Versi game: v26.</p>
- ${DEV?devBlock():''}<h3>Pengaturan</h3>
+ <p class="ref">Versi game: v27.</p>
+ ${DEV?devBlock():''}${accountBlock()}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn wide" data-a="beranda">Kembali ke beranda<small>tampilan awal</small></button><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
  b.innerHTML=s.type==='pond'?pondSheet(s.o):s.type==='obj'?objSheet(s.o):s.type==='bongkar'?bongkarSheet():s.type==='harga'?hargaSheet():s.type==='feed'?feedSheet():s.type==='report'?reportSheet():s.type==='mis'?misSheet():helpSheet();if(s.type==='pond'&&s.o){b.insertAdjacentHTML('afterbegin',`<div class="stageNow">${stageName()}</div>`);applyGates(s.o,b)}b.scrollTop=st}
@@ -1198,7 +1320,7 @@ $('#sheetBody').addEventListener('click',e=>{
  const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}
  const b=e.target.closest('[data-a]');if(b&&b.classList.contains('locked')){toast('warn','Belum bisa dilakukan',b.dataset.lock+' Sekarang: '+stageName()+'.');openSheet({type:'mis'});return}if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
  const a=b.dataset.a;
- ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},bongkarId:()=>{const q=S.objs.find(x=>x.id===+b.dataset.id);if(q)askDemolish(q)},beranda:()=>{try{sessionStorage.removeItem('tns.entered')}catch(e){}save();location.reload()},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
+ ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},bongkarId:()=>{const q=S.objs.find(x=>x.id===+b.dataset.id);if(q)askDemolish(q)},beranda:()=>{try{sessionStorage.removeItem('tns.entered')}catch(e){}save();location.reload()},keluar:()=>doLogout(),masuk:()=>{try{sessionStorage.removeItem('tns.entered');localStorage.removeItem('tns.guest')}catch(e){}location.reload()},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
  checkMissions();renderSheet();save()});
 function nav(k){
  if(k==='build'){const open=$('#build').hidden;closeSheet();if(open){renderBuild();$('#build').hidden=false;navOn('build')}else endBuild();return}
@@ -1263,7 +1385,11 @@ function askPanen(p){const ws=p.ws||p.w;const est=p.n*ws/1000;
 function askDemolish(o){const t=T[o.type];if(o.type==='pohon'||o.type==='batu'){demolish(o);renderSheet();return}
  if(T[o.type].pond&&o.st==='isi'){modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Kolam ini masih berisi ikan. Ikan akan <b>dipanen dan dijual</b> dulu sesuai harga hari ini, lalu kolam dibongkar.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Panen & bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet();renderSheet()}});return}
  modal(`<h2>Bongkar ${o.name||t.n}?</h2><p>Anda mendapat kembali ${rp(t.cost*.2)} dari ${rp(t.cost)}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Bongkar</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();demolish(o);closeSheet()}})}
-function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=()=>{closeModal();try{sessionStorage.removeItem('tns.entered')}catch(e){}localStorage.removeItem(KEY);S=null;location.reload()}})}
+function askReset(){modal(`<h2>Mulai dari awal?</h2><p>Semua kolam, uang, dan misi akan dihapus${AUTH.mode==='user'?' dari akun ini':''}.</p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Mulai baru</button></div>`,m=>{m.querySelector('#mNo').onclick=closeModal;m.querySelector('#mYes').onclick=async()=>{
+ m.querySelector('#mYes').disabled=true;
+ if(AUTH.mode==='user'){const r=await api('DELETE','save');if(!r.ok){closeModal();toast('bad','Data akun belum terhapus','Periksa koneksi lalu coba lagi.');return}}
+ try{sessionStorage.removeItem('tns.entered');localStorage.removeItem(KEY);if(AUTH.user)localStorage.removeItem('tns.rev.u'+AUTH.user.id)}catch(e){}
+ S=null;location.reload()}})}
 
 /* Intro: pilihan lahan + penjelasan modal. Modal dijelaskan lengkap sebelum game mulai. */
 function planOf(cap,m2,status){
@@ -1340,15 +1466,16 @@ function intro(){
   m.querySelectorAll('[data-m2]').forEach(b=>b.onclick=()=>{pil.m2=+b.dataset.m2;refresh(m)});
   m.querySelector('#luasIn').onchange=e=>{setLuas(+e.target.value.replace(/\D/g,'')||1296);refresh(m)};
   m.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{pil.k=b.dataset.land;refresh(m)});
-  m.querySelector('#mulai').onclick=()=>{
+  m.querySelector('#mulai').onclick=async()=>{
    if(planOf(pil.cap,pil.m2,pil.k).dana<3e6)return;
+   m.querySelector('#mulai').disabled=true;
    const sd=sideOf(pil.m2),fee=pil.k==='sewa'?feeOf(pil.m2):0;
    CAPITAL=pil.cap;W=sd;H=sd;S=newGame();S.W=sd;S.H=sd;S.landM2=pil.m2;S.capital=pil.cap;
    S.land={k:pil.k,fee,next:S.day+365};
    S.plan=planOf(CAPITAL,pil.m2,pil.k);
    S.started=true;S.start=new Date().setMinutes(0,0,0);S.doneH=0;S.day=1;
    if(fee){S.money-=fee;S.acc.sewa+=fee;S.ledger.unshift({day:1,cat:'Sewa',amt:-fee,label:'Sewa lahan 1 tahun'})}
-   try{sessionStorage.setItem('tns.entered','1')}catch(e){}save();location.reload();
+   try{sessionStorage.setItem('tns.entered','1')}catch(e){}save();await flushSave();location.reload();
   }});
 }
 
@@ -1372,8 +1499,14 @@ function renderBuild(){if(!PREV.terpal)makeThumbs();const el=$('#build');el.inne
  el.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>startBuild(b.dataset.b))}
 
 /* ================= SIMPAN ================= */
-const KEY='tambak-nila-sim.v2';
-function save(){if(!S)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const KEY0='tambak-nila-sim.v2';let KEY=KEY0;
+function save(){
+ if(!S||AUTH.mode==='anon')return;
+ let str;try{str=JSON.stringify(S)}catch(e){return}
+ if(str===AUTH.lastStr)return;AUTH.lastStr=str;
+ try{localStorage.setItem(KEY,str)}catch(e){}
+ if(AUTH.mode==='user')syncSoon();
+}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const s=JSON.parse(r);if(s&&s.v===2)return s}}catch(e){}return null}
 
 /* ================= MODEL GLB (opsional) =================
@@ -1403,9 +1536,85 @@ function loadModels(){return new Promise((res,rej)=>{
 $('#icCoin').innerHTML=svg('coin');$('#icFish').innerHTML=svg('fish');$('#icSack').innerHTML=svg('sack');
 document.querySelectorAll('[data-icon]').forEach(e=>e.innerHTML=svg(e.dataset.icon));
 $('#mission').addEventListener('click',e=>{if(e.target.closest('#misT')){misOpen=!misOpen;renderMission()}});
-function start(){loadModels().catch(()=>{}).then(startNow)}
+function start(){loadModels().catch(()=>{}).then(startNow).catch(e=>console.error(e))}
+/* ================= AKUN & DATA PER PENGGUNA ================= */
+const AUTH={mode:'anon',backend:false,user:null,save:null,rev:0,offer:null,offline:false,busy:false,last:0,timer:0,expired:false,stopped:false,lastStr:'',netWarned:false};
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(method,path,body,opt){
+ opt=opt||{};const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),opt.timeout||8000);
+ try{
+  const r=await fetch('/api/'+path,{method,headers:{'Content-Type':'application/json','X-Requested-With':'tns'},body:(body===undefined||body===null)?undefined:JSON.stringify(body),signal:ctl.signal,keepalive:!!opt.keepalive,credentials:'same-origin'});
+  let j=null;try{j=await r.json()}catch(e){}
+  return{status:r.status,ok:r.ok,json:j,net:false};
+ }catch(e){return{status:0,ok:false,json:null,net:true}}
+ finally{clearTimeout(to)}
+}
+async function authInit(){
+ let guest=false;try{guest=localStorage.getItem('tns.guest')==='1'}catch(e){}
+ const me=await api('GET','me',null,{timeout:4500});
+ if(me.ok&&me.json&&me.json.user){
+  AUTH.mode='user';AUTH.backend=true;AUTH.user=me.json.user;
+  try{localStorage.setItem('tns.last',JSON.stringify(me.json.user))}catch(e){}
+  const sv=await api('GET','save',null,{timeout:6000});
+  if(sv.ok&&sv.json){AUTH.rev=sv.json.rev||0;AUTH.save=(sv.json.data&&sv.json.data.v===2)?sv.json.data:null}
+  else{AUTH.offline=true}
+  try{const g=JSON.parse(localStorage.getItem(KEY0)||'null');if(!AUTH.save&&!AUTH.offline&&g&&g.v===2&&g.started)AUTH.offer=g}catch(e){}
+  return;
+ }
+ if(me.status===401&&me.json&&me.json.error==='unauth'){AUTH.backend=true;AUTH.mode=guest?'guest':'anon';return}
+ let last=null;try{last=JSON.parse(localStorage.getItem('tns.last')||'null')}catch(e){}
+ if(me.net&&last&&last.id){AUTH.mode='user';AUTH.user=last;AUTH.offline=true;AUTH.backend=true;return}
+ AUTH.backend=false;AUTH.mode='guest';
+}
+function syncSoon(){
+ if(AUTH.mode!=='user'||AUTH.expired||AUTH.stopped||AUTH.timer)return;
+ const wait=Math.max(3000,15000-(Date.now()-AUTH.last));
+ AUTH.timer=setTimeout(()=>{AUTH.timer=0;syncNow()},wait);
+}
+async function syncNow(keepalive){
+ if(AUTH.mode!=='user'||!S||!S.started||AUTH.busy||AUTH.expired||AUTH.stopped)return false;
+ AUTH.busy=true;
+ const r=await api('PUT','save',{data:S,rev:AUTH.rev},{timeout:9000,keepalive:!!keepalive});
+ AUTH.busy=false;AUTH.last=Date.now();
+ if(r.ok&&r.json&&r.json.ok){AUTH.rev=r.json.rev;AUTH.offline=false;AUTH.netWarned=false;try{localStorage.setItem('tns.rev.u'+AUTH.user.id,String(AUTH.rev))}catch(e){}return true}
+ if(r.status===409){resolveConflict();return false}
+ if(r.status===401){AUTH.expired=true;toast('bad','Sesi berakhir','Masuk lagi dari Beranda. Progres terakhir tetap ada di HP ini.');return false}
+ AUTH.lastStr='';
+ if(!AUTH.netWarned&&!keepalive){AUTH.netWarned=true;toast('warn','Belum tersambung ke server','Progres disimpan di HP dulu dan dikirim saat tersambung.')}
+ return false;
+}
+function resolveConflict(){
+ AUTH.stopped=true;
+ modal(`<h2>Data akun lebih baru</h2><p>Akun ini dipakai di perangkat lain. Muat data terbaru agar progres tidak bertabrakan.</p><button class="btn pri wide" id="mLoad">Muat data terbaru</button>`,m=>{m.querySelector('#mLoad').onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}location.reload()}});
+}
+async function flushSave(){
+ if(AUTH.mode!=='user')return true;
+ AUTH.lastStr='';save();
+ for(let i=0;i<3;i++){if(await syncNow())return true;await new Promise(r=>setTimeout(r,600))}
+ return false;
+}
+async function doLogout(){
+ await syncNow();
+ await api('POST','logout',{});
+ try{localStorage.removeItem('tns.last');localStorage.removeItem('tns.guest');sessionStorage.removeItem('tns.entered')}catch(e){}
+ S=null;location.reload();
+}
+function accountBlock(){
+ if(AUTH.mode==='user')return`<h3>Akun</h3><div class="kv"><span>Masuk sebagai</span><b>${esc(AUTH.user.email)}</b></div><div class="kv"><span>Penyimpanan</span><b>${AUTH.offline||AUTH.expired?'belum tersambung':'tersimpan di akun'}</b></div><div class="acts"><button class="btn wide" data-a="keluar">Keluar<small>data tetap aman di akun</small></button></div>`;
+ if(AUTH.mode==='guest'&&AUTH.backend)return`<h3>Akun</h3><p class="tip">Mode tamu: data hanya ada di HP ini.</p><div class="acts"><button class="btn pri wide" data-a="masuk">Masuk / Daftar<small>simpan data di akun</small></button></div>`;
+ return'';
+}
+function ldOffer(){
+ if(!AUTH.offer)return;const g=AUTH.offer;
+ modal(`<h2>Pindahkan progres tamu?</h2><p>Ada tambak yang dimainkan tanpa akun di HP ini (hari ke-${+g.day||1}). Pindahkan ke akun <b>${esc(AUTH.user.email)}</b>?</p><div class="row2"><button class="btn" id="mNo">Mulai baru</button><button class="btn pri" id="mYes">Pindahkan</button></div>`,m=>{
+  m.querySelector('#mNo').onclick=()=>{AUTH.offer=null;closeModal()};
+  m.querySelector('#mYes').onclick=async()=>{m.querySelector('#mYes').disabled=true;AUTH.offer=null;S=g;AUTH.lastStr='';save();const ok=await flushSave();if(ok){try{localStorage.removeItem(KEY0)}catch(e){}}location.reload()}});
+}
+
 /* ================= HALAMAN DEPAN ================= */
-const LD={raf:0,t:0,bubbles:[],stars:false,weeds:false,last:0};
+const LD={raf:0,t:0,bubbles:[],stars:false,weeds:false,grow:false,io:null,bub:false,sr:0,last:0};
+const pad2=n=>String(n).padStart(2,'0');
+function doAt(h){return 6.1+2.3*Math.sin((h-11)/24*2*Math.PI)}
 function ldPaint(){
  const L=$('#land'),h=nowHour(),sk=skyColors(h),night=clamp(darkness(h)/.5,0,1);
  L.style.setProperty('--sk1',sk[0]);L.style.setProperty('--sk2',sk[1]);L.style.setProperty('--night',night.toFixed(2));
@@ -1413,52 +1622,130 @@ function ldPaint(){
  L.style.setProperty('--wa',nm('#35c4c8','#0d4a6a'));L.style.setProperty('--wb',nm('#1d8fa8','#082b47'));L.style.setProperty('--wc',nm('#0e5576','#051c33'));L.style.setProperty('--wd',nm('#07324d','#031020'));
  const day=h>=6&&h<18,t=day?(h-6)/12:((h>=18?h-18:h+6)/12),orb=$('#ldOrb');
  orb.className='ld-orb '+(day?'sun':'moon');orb.style.left=(10+80*t)+'%';orb.style.top=(40-32*Math.sin(Math.PI*t))+'%';
- const d=new Date(),clock=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+ const d=new Date(),clock=pad2(d.getHours())+':'+pad2(d.getMinutes());
  const ic=isNight(h)&&S.weather!=='hujan'?'malam':S.weather;
- $('#ldMeta').innerHTML=`<span class="ld-pill">${svg(ic)}<b>${fmtN(tempAt(h),0)}°C</b><i>${clock}</i></span>`+(S.started?`<span class="ld-pill sm">Hari ke-${S.day} · ${rp(S.money)}</span>`:'');
+ let meta=`<span class="ld-pill">${svg(ic)}<b>${fmtN(tempAt(h),0)}°C</b><i>${clock}</i></span>`;
+ if(AUTH.mode==='user')meta+=`<span class="ld-pill sm">${esc(AUTH.user.email)}</span>`;
+ if(AUTH.mode==='guest')meta+=`<span class="ld-pill sm">${AUTH.backend?'Mode tamu':'Akun belum aktif · mode tamu'}</span>`;
+ if(S.started&&AUTH.mode!=='anon')meta+=`<span class="ld-pill sm">Hari ke-${S.day} · ${rp(S.money)}</span>`;
+ $('#ldMeta').innerHTML=meta;
 }
 function ldStars(){if(LD.stars)return;LD.stars=true;const a=[];for(let i=0;i<46;i++)a.push(`${(Math.random()*100).toFixed(1)}vw ${(Math.random()*40).toFixed(1)}vh 0 ${Math.random()<.2?1:0}px rgba(255,255,255,${(.5+Math.random()*.5).toFixed(2)})`);$('#ldStars').style.boxShadow=a.join(',')}
 function ldWeeds(){if(LD.weeds)return;LD.weeds=true;const cols=['#1f8a63','#2fa376','#27966c'];let h='';for(let i=0;i<16;i++){const x=(i*6.4+Math.random()*4).toFixed(1),hh=(7+Math.random()*9).toFixed(1);h+=`<svg class="bl" viewBox="0 0 24 100" style="left:${x}%;--h:${hh}vh;--dl:-${(Math.random()*4).toFixed(1)}s" aria-hidden="true"><path d="M12 100 C2 72 22 52 12 4" fill="none" stroke="${cols[i%3]}" stroke-width="${(4+Math.random()*3).toFixed(1)}" stroke-linecap="round"/></svg>`}$('#ldWeeds').innerHTML=h}
+function ldLive(){
+ const h=nowHour(),v=doAt(h),t=tempAt(h);
+ const set=(id,val,max,dec)=>{const g=$(id);g.style.setProperty('--p',clamp(val/max,.04,1).toFixed(3));g.dataset.v=val;g.dataset.d=dec;if(g.closest('.in'))g.querySelector('b').textContent=fmtN(val,dec)};
+ set('#gDO',v,10,1);set('#gT',t,40,0);set('#gA',.2,2,1);
+ let d='';for(let i=0;i<=48;i++){const hh=i/2,x=hh/24*300,y=108-(doAt(hh)/10)*96;d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}
+ const nx=(h/24*300).toFixed(1),ny=(108-(v/10)*96).toFixed(1),ly=(108-.3*96).toFixed(1);
+ $('#ldDOsvg').innerHTML=`<line x1="0" x2="300" y1="${ly}" y2="${ly}" stroke="rgba(255,150,130,.55)" stroke-dasharray="4 4"/><text x="4" y="${(ly-4).toFixed(1)}" fill="rgba(255,170,150,.95)" font-size="9" font-weight="800">3 mg/L</text><path class="da" d="${d} L300 112 L0 112 Z"/><path class="dl" pathLength="1" d="${d}"/><line x1="${nx}" x2="${nx}" y1="6" y2="112" stroke="rgba(255,216,107,.45)" stroke-dasharray="3 4"/><circle class="nowdot" cx="${nx}" cy="${ny}" r="5"/><circle class="nowring" cx="${nx}" cy="${ny}" r="5"/>`;
+ const dn=new Date();$('#ldNowT').textContent='Sekarang '+pad2(dn.getHours())+':'+pad2(dn.getMinutes());
+}
+function ldCount(){
+ document.querySelectorAll('#ldLive .ld-g').forEach(g=>{const b=g.querySelector('b'),v=+g.dataset.v,d=+g.dataset.d,t0=performance.now();
+  const step=t=>{const f=Math.min(1,(t-t0)/1600),e=1-Math.pow(1-f,3);b.textContent=fmtN(v*e,d);if(f<1)requestAnimationFrame(step)};requestAnimationFrame(step)});
+}
+function ldGrow(){
+ if(LD.grow)return;LD.grow=true;
+ const pts=[[0,8],[30,24],[60,57],[90,117],[130,250]],gx=d=>16+d/130*256,gy=g=>150-g/260*112;
+ const gAt=d=>{for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1];if(d<=b[0]){const f=(d-a[0])/(b[0]-a[0]);return Math.exp(Math.log(a[1])+(Math.log(b[1])-Math.log(a[1]))*f)}}return 250};
+ let d='';for(let k=0;k<=65;k++){const dd=k*2;d+=(k?'L':'M')+gx(dd).toFixed(1)+' '+gy(gAt(dd)).toFixed(1)}
+ let fish='';pts.forEach(([dd,g],i)=>{const x=gx(dd),y=gy(g),sc=.55+g/250*1.25;fish+=`<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><g class="fk" style="--i:${i}"><g transform="scale(${sc.toFixed(2)})"><path d="M-9 0C-5-6 4-7 9-3L14-6V6L9 3C4 7-5 6-9 0Z" fill="#ffb27a"/><circle cx="-5" cy="-1.2" r="1.1" fill="#10283a"/></g><text y="${-(14*sc+4).toFixed(0)}" text-anchor="middle" fill="#fff" font-size="10" font-weight="800">${g} g</text></g></g>`});
+ $('#ldGsvg').innerHTML=`<line x1="16" x2="272" y1="150" y2="150" stroke="rgba(255,255,255,.2)"/><path class="da" d="${d} L${gx(130).toFixed(1)} 150 L16 150 Z"/><path class="dl" pathLength="1" d="${d}"/>${fish}<text x="16" y="167" fill="rgba(255,255,255,.7)" font-size="10" font-weight="700">Hari 0</text><text x="272" y="167" text-anchor="end" fill="rgba(255,255,255,.7)" font-size="10" font-weight="700">Hari 130</text>`;
+}
+function ldObserve(){
+ if(LD.io||LD.bub)return;const L=$('#land'),secs=L.querySelectorAll('.ld-sec');
+ LD.bub=true;secs.forEach(x=>{let h='';for(let i=0;i<10;i++){const z=4+Math.random()*10;h+=`<i class="bb" style="left:${(Math.random()*96).toFixed(1)}%;width:${z.toFixed(1)}px;height:${z.toFixed(1)}px;--dx:${((Math.random()-.5)*40).toFixed(0)}px;animation-duration:${(10+Math.random()*12).toFixed(1)}s;animation-delay:-${(Math.random()*18).toFixed(1)}s"></i>`}x.insertAdjacentHTML('beforeend',h)});
+ if(!('IntersectionObserver' in window)){secs.forEach(x=>x.classList.add('in'));ldCount();return}
+ LD.io=new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting&&!e.target.classList.contains('in')){e.target.classList.add('in');if(e.target.id==='ldLive')ldCount()}},{root:L,threshold:.25});
+ secs.forEach(x=>LD.io.observe(x));
+}
 function ldLoop(ts){
- const c=$('#ldFx');if(!ui.landing||!c){LD.raf=0;return}
+ const c=$('#ldFx'),L=$('#land');if(!ui.landing||!c){LD.raf=0;return}
+ if(L.scrollTop>innerHeight*1.05){LD.raf=requestAnimationFrame(ldLoop);return}
  const w=c.clientWidth,h=c.clientHeight;if(c.width!==w||c.height!==h){c.width=w;c.height=h}
  const x=c.getContext('2d'),dt=Math.min(.05,((ts||0)-LD.last)/1000||.016);LD.last=ts||0;x.clearRect(0,0,w,h);
  while(LD.bubbles.length<26)LD.bubbles.push({x:Math.random()*w,y:h*(.3+Math.random()*.9),r:1.5+Math.random()*4.5,v:14+Math.random()*34,ph:Math.random()*6.28,a:.25+Math.random()*.4});
  for(const b of LD.bubbles){b.y-=b.v*dt;b.ph+=dt*2;const bx=b.x+Math.sin(b.ph)*6;if(b.y<-10){b.y=h+10;b.x=Math.random()*w}
   x.beginPath();x.arc(bx,b.y,b.r,0,6.283);x.fillStyle=`rgba(255,255,255,${b.a*.3})`;x.fill();x.lineWidth=1;x.strokeStyle=`rgba(255,255,255,${b.a})`;x.stroke();
   x.beginPath();x.arc(bx-b.r*.3,b.y-b.r*.3,b.r*.25,0,6.283);x.fillStyle='rgba(255,255,255,.8)';x.fill()}
- if(matchMedia('(prefers-reduced-motion: reduce)').matches){LD.raf=0;return}
  LD.raf=requestAnimationFrame(ldLoop);
 }
 function landing(){
  let entered=false;try{entered=sessionStorage.getItem('tns.entered')==='1'}catch(e){}
- const L=$('#land');
- if(S.started&&entered){ui.landing=false;L.hidden=true;return}
- ui.landing=true;ldStars();ldWeeds();ldPaint();
- $('#ldGoT').textContent=S.started?'Lanjutkan':'Mulai';$('#ldNew').hidden=!S.started;
+ const L=$('#land'),anon=AUTH.mode==='anon';
+ if(!anon&&S.started&&entered){ui.landing=false;L.hidden=true;return}
+ ui.landing=true;ldStars();ldWeeds();ldGrow();ldLive();ldPaint();ldObserve();
+ L.classList.toggle('auth',anon);
+ $('#ldAuth').hidden=!anon;$('#ldGo').hidden=anon;
+ $('#ldGoT').textContent=S.started?'Lanjutkan':'Mulai';$('#ldEndT').textContent=anon?'Masuk':(S.started?'Lanjutkan':'Mulai');
+ $('#ldNew').hidden=anon||!S.started;
+ $('#ldAcc').hidden=!(AUTH.mode==='guest'&&AUTH.backend);
+ $('#ldOut').hidden=AUTH.mode!=='user';
+ L.style.scrollBehavior='auto';L.scrollTop=0;L.style.scrollBehavior='';
  L.classList.remove('out');L.hidden=false;
- clearInterval(LD.t);LD.t=setInterval(()=>{if(ui.landing)ldPaint();else clearInterval(LD.t)},20000);
+ clearInterval(LD.t);LD.t=setInterval(()=>{if(ui.landing&&S){ldPaint();ldLive()}else if(!ui.landing)clearInterval(LD.t)},20000);
  if(!LD.raf)LD.raf=requestAnimationFrame(ldLoop);
+ ldOffer();
 }
 function ldExit(next){ui.landing=false;clearInterval(LD.t);const L=$('#land');L.classList.add('out');setTimeout(()=>{L.hidden=true;if(next)next()},520)}
+function ldEnter(){
+ if(AUTH.mode==='anon'){$('#land').scrollTo({top:0,behavior:'smooth'});setTimeout(()=>$('#auEmail').focus(),600);return}
+ if(S&&S.started){try{sessionStorage.setItem('tns.entered','1')}catch(e){}ldExit()}else ldExit(()=>intro());
+}
 $('#land').addEventListener('pointermove',e=>{const L=$('#land');L.style.setProperty('--px',((e.clientX/innerWidth-.5)*2).toFixed(3));L.style.setProperty('--py',((e.clientY/innerHeight-.5)*2).toFixed(3))});
-$('#ldGo').onclick=()=>{if(S&&S.started){try{sessionStorage.setItem('tns.entered','1')}catch(e){}ldExit()}else ldExit(()=>intro())};
+$('#land').addEventListener('scroll',()=>{if(LD.sr)return;LD.sr=requestAnimationFrame(()=>{LD.sr=0;const L=$('#land');L.style.setProperty('--sy',Math.min(L.scrollTop,900))})},{passive:true});
+$('#ldGo').onclick=ldEnter;$('#ldEndGo').onclick=ldEnter;
+$('#ldMore').onclick=()=>$('#ldFlow').scrollIntoView({behavior:'smooth'});
 $('#ldNew').onclick=()=>askReset();
+$('#ldOut').onclick=()=>doLogout();
+$('#ldAcc').onclick=()=>{try{sessionStorage.removeItem('tns.entered');localStorage.removeItem('tns.guest')}catch(e){}location.reload()};
+let auTab='in';
+function auSet(t){auTab=t;document.querySelectorAll('.ld-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#auGo span').textContent=t==='in'?'Masuk':'Daftar';$('#auPass').autocomplete=t==='in'?'current-password':'new-password';$('#auErr').textContent=''}
+document.querySelectorAll('.ld-tabs button').forEach(b=>b.onclick=()=>auSet(b.dataset.t));
+$('#auEye').onclick=()=>{const p=$('#auPass');p.type=p.type==='password'?'text':'password'};
+$('#auGuest').onclick=()=>{try{localStorage.setItem('tns.guest','1')}catch(e){}location.reload()};
+$('#ldAuth').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const email=$('#auEmail').value.trim(),pw=$('#auPass').value,err=$('#auErr'),go=$('#auGo');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err.textContent='Email tidak valid.';return}
+ if(pw.length<8){err.textContent='Kata sandi minimal 8 karakter.';return}
+ go.disabled=true;err.textContent='';
+ const r=await api('POST',auTab==='in'?'login':'register',{email,password:pw},{timeout:15000});
+ if(r.ok){try{sessionStorage.removeItem('tns.entered');localStorage.removeItem('tns.guest')}catch(x){}location.reload();return}
+ go.disabled=false;err.textContent=(r.json&&r.json.message)||(r.net?'Tidak bisa terhubung ke server.':'Gagal. Coba lagi.');
+});
 
-function startNow(){
+async function startNow(){
  if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="modal"><div class="box"><h2>Grafis 3D tidak termuat</h2><p>Periksa koneksi internet lalu muat ulang halaman.</p></div></div>');return}
- S=load()||newGame();if(S.W){W=S.W;H=S.H}
+ await authInit();
+ if(AUTH.mode==='user'){
+  KEY=KEY0+'.u'+AUTH.user.id;
+  const uid=AUTH.user.id,locRev=+(localStorage.getItem('tns.rev.u'+uid)||0);
+  let loc=null;try{loc=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+  if(loc&&loc.v!==2)loc=null;
+  if(AUTH.save)S=AUTH.save;
+  else if(AUTH.offline){S=loc||newGame();AUTH.rev=locRev}
+  else if(loc&&loc.started&&locRev===0)S=loc;
+  else S=newGame();
+  AUTH.lastStr=AUTH.save?JSON.stringify(S):'';
+  if(AUTH.save){try{localStorage.setItem(KEY,AUTH.lastStr)}catch(e){}}
+ }else if(AUTH.mode==='guest'){S=load()||newGame()}
+ else{S=newGame()}
+ if(S.W){W=S.W;H=S.H}
  if(S.acc&&S.acc.sub===undefined)S.acc.sub={};
  initScene();resize();fit();computeWater();syncObjects();renderMission();hud();
  if(innerHeight<500||innerWidth<620)misOpen=false;renderMission();
  if(S.started)catchUp();
+ if(AUTH.mode==='user')save();
  landing();
  iosTip();
  requestAnimationFrame(frame);
+ window.__ready=true;
 }
 addEventListener('resize',()=>{if(R)resize()});
-document.addEventListener('visibilitychange',()=>{if(!S)return;if(document.hidden)save();else catchUp()});
-addEventListener('pagehide',()=>{if(S)save()});
+document.addEventListener('visibilitychange',()=>{if(!S)return;if(document.hidden){save();syncNow(true)}else catchUp()});
+addEventListener('pagehide',()=>{if(S){save();syncNow(true)}});
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(R)resize()});
 addEventListener('orientationchange',()=>setTimeout(()=>{if(R)resize()},300));
 document.addEventListener('fullscreenchange',()=>setTimeout(()=>{if(R)resize()},100));
