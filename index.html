@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Tambak Nila Sim</title>
+<title>wanderIQ Nila</title>
 <meta name="theme-color" content="#7cc6e8">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Tambak Nila">
+<meta name="apple-mobile-web-app-title" content="wanderIQ Nila">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <style>[hidden]{display:none!important}html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}</style>
 </head>
@@ -227,7 +227,6 @@ body.building #mission{display:none}
 /* ===== halaman depan ===== */
 #land{position:fixed;inset:0;z-index:15;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;background:#07324d;color:#fff;transition:opacity .5s ease,transform .5s ease}
 .ld-hero{position:relative;height:100vh;height:100dvh;min-height:560px;overflow:hidden;--wl:46%;background:linear-gradient(180deg,var(--sk1,#6fc0ec),var(--sk2,#d3f0fb))}
-#land.auth .ld-hero{min-height:720px}
 #land.out{opacity:0;transform:scale(1.05);pointer-events:none}
 .ld-sky{position:absolute;inset:0;pointer-events:none}
 .ld-stars{position:absolute;left:0;top:0;width:2px;height:2px;border-radius:50%;opacity:var(--night,0);transition:opacity 1s}
@@ -295,8 +294,7 @@ body.building #mission{display:none}
 .ld-link{font-weight:800;font-size:13px;color:#fff;opacity:.85;text-decoration:underline;text-underline-offset:3px;padding:6px 10px}
 @media (max-height:520px) and (orientation:landscape){
  .ld-hero{--wl:62%;min-height:0}
- #land.auth .ld-hero{min-height:0}
- .ld-auth{width:min(46vw,340px);gap:7px;padding:12px}
+ #authBox .ld-auth{gap:7px;padding:14px}
  .ld-f input{height:42px}
  .ld-tabs button{height:32px}
  .ld-content{flex-direction:row;justify-content:space-between;align-items:flex-start;padding:calc(3vh + env(safe-area-inset-top,0px)) max(5vw,env(safe-area-inset-right,0px)) 4vh max(5vw,env(safe-area-inset-left,0px))}
@@ -309,7 +307,7 @@ body.building #mission{display:none}
  .ld-go{height:50px;font-size:19px;width:min(40vw,300px)}
 }
 
-.ld-auth{width:min(88vw,360px);display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:26px;background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.35);box-shadow:0 20px 50px rgba(2,30,50,.4),inset 0 1px 0 rgba(255,255,255,.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.ld-auth{display:flex;flex-direction:column;gap:10px;border-radius:26px;color:#fff}
 .ld-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:999px;background:rgba(3,40,62,.35)}
 .ld-tabs button{height:36px;border-radius:999px;font-family:var(--display);font-weight:800;font-size:16px;color:rgba(255,255,255,.85);transition:background .25s,color .25s}
 .ld-tabs button.on{background:#fff;color:#0b6a5a;box-shadow:0 4px 12px rgba(0,0,0,.18)}
@@ -318,23 +316,17 @@ body.building #mission{display:none}
 .ld-f input{width:100%;height:50px;padding:0 46px 0 44px;border-radius:16px;border:1px solid rgba(255,255,255,.35);background:rgba(3,40,62,.38);color:#fff;font:inherit;font-weight:700;font-size:16px;outline:none;-webkit-user-select:text;user-select:text}
 .ld-f input::placeholder{color:rgba(255,255,255,.6)}
 .ld-f input:focus{border-color:#7cf0d8;box-shadow:0 0 0 3px rgba(124,240,216,.3)}
-#auEye{position:absolute;right:6px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;opacity:.85}
-#auEye svg{width:20px;height:20px}
 .au-err{margin:0;min-height:18px;font-size:13px;font-weight:800;color:#ffd0c8;text-align:left;line-height:1.3}
 .ld-go.sm{width:100%;height:52px;font-size:19px}
 .ld-go:disabled{opacity:.6;animation:none}
 .ld-links{display:flex;gap:2px;flex-wrap:wrap;justify-content:center}
-#land.auth .ld-chips,#land.auth .ld-meta{display:none}
 .ld-more{position:absolute;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center;animation:nudge 2s ease-in-out infinite;z-index:3}
 .ld-more svg{width:22px;height:22px}
 @keyframes nudge{50%{transform:translateY(5px)}}
 /* bagian gulir */
-.ld-sec{position:relative;min-height:92vh;padding:96px 22px 84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;text-align:center;background:linear-gradient(180deg,var(--wd,#07324d),#041c30);overflow:hidden}
-.ld-sec+.ld-sec{background:linear-gradient(180deg,#041c30,#06283f)}
+.ld-sec{position:relative;min-height:92vh;padding:96px 22px 84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;text-align:center}
 .ld-sec>*{position:relative;z-index:1}
-.ld-sec:before{content:"";position:absolute;inset:0;background:radial-gradient(60% 40% at 20% 10%,rgba(53,224,192,.17),transparent),radial-gradient(50% 35% at 85% 72%,rgba(255,216,107,.11),transparent);animation:glowdrift 14s ease-in-out infinite alternate;pointer-events:none}
 .ld-sec .bb{position:absolute;bottom:-24px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(255,255,255,.08));animation:bub linear infinite;pointer-events:none;z-index:0}
-@keyframes glowdrift{to{transform:translate3d(3%,2%,0) scale(1.08)}}
 @keyframes bub{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.8}100%{transform:translate3d(var(--dx,0),-110vh,0);opacity:0}}
 .ld-h{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(34px,9vw,54px);line-height:1.02;text-shadow:0 6px 28px rgba(0,0,0,.35)}
 .ld-h span{background:linear-gradient(180deg,#fff,#7cf0d8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
@@ -377,7 +369,46 @@ body.building #mission{display:none}
 .ld-badges span{padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);font-weight:800;font-size:14px}
 .ld-badges b{font-family:var(--display);font-size:20px;color:#7cf0d8;margin-right:5px}
 .ld-end{min-height:70vh;justify-content:center}
-.ld-foot{margin:0;opacity:.6;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.ld-foot{margin:0;opacity:.65;font-weight:700;font-size:13px;letter-spacing:.02em}
+/* kartu masuk/daftar sebagai jendela */
+.ld-cta{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.ld-ghost{width:min(86vw,340px);height:52px;border-radius:999px;font-family:var(--display);font-weight:800;font-size:19px;color:#fff;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .2s,transform .15s}
+.ld-ghost:active{transform:scale(.99);background:rgba(255,255,255,.24)}
+.ld-ghost.sm2{width:100%;height:44px;font-size:16px}
+#authBox{position:fixed;inset:0;z-index:25;display:grid;place-items:center;padding:16px}
+.au-back{position:absolute;inset:0;background:rgba(3,25,40,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadein .25s ease}
+#authBox .ld-auth{position:relative;width:min(92vw,380px);max-height:94vh;overflow-y:auto;gap:12px;padding:20px 18px 18px;background:linear-gradient(160deg,#154c6b,#0a3652);border:1px solid rgba(255,255,255,.3);box-shadow:0 30px 70px rgba(0,15,30,.6),inset 0 1px 0 rgba(255,255,255,.35);animation:popin .34s cubic-bezier(.2,1.2,.3,1)}
+@keyframes popin{from{opacity:0;transform:translateY(18px) scale(.94)}}
+@keyframes fadein{from{opacity:0}}
+.au-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;font-size:22px;line-height:1;background:rgba(255,255,255,.14);z-index:2}
+#authBox .ld-tabs{margin-right:44px}
+.au-view{display:flex;flex-direction:column;gap:10px}
+.au-h{margin:0;font-family:var(--display);font-size:22px;text-align:center;padding:0 34px}
+.au-p{margin:0;font-size:13px;line-height:1.45;opacity:.9;text-align:center}
+.au-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:800}
+.au-chk{display:flex;align-items:center;gap:8px;cursor:pointer}
+.au-chk.c{justify-content:center}
+.au-chk input{appearance:none;-webkit-appearance:none;width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(255,255,255,.65);background:rgba(3,40,62,.4);display:grid;place-items:center;margin:0;cursor:pointer;flex:none}
+.au-chk input:checked{background:#2de0b8;border-color:#2de0b8}
+.au-chk input:checked:after{content:"";width:6px;height:11px;border:solid #06433a;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.au-link{font-weight:800;font-size:13px;color:#9ff3e0;text-decoration:underline;text-underline-offset:3px;padding:4px 2px}
+.au-link.c{align-self:center}
+.au-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:24px;font-weight:800;letter-spacing:.08em;text-align:center;padding:16px 8px;border-radius:16px;background:rgba(3,40,62,.5);border:1.5px dashed rgba(124,240,216,.65);-webkit-user-select:text;user-select:text;word-break:break-all}
+.eye{position:absolute;right:6px;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;opacity:.9}
+.eye svg{width:21px;height:21px}
+.eye .sl{opacity:0;transition:opacity .15s}
+.eye.hid .sl{opacity:1}
+#authBox,#authBox *,#authBox *:before,#authBox *:after{box-sizing:border-box}
+/* keterangan kartu */
+.cd{margin:0;font-size:12.5px;line-height:1.35;font-weight:700;color:rgba(255,255,255,.72)}
+.ld-g .cd{font-size:11.5px;padding:0 2px}
+.ld-chart .cd{margin-top:10px}
+.rcCode{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:24px;font-weight:800;letter-spacing:.08em;text-align:center;padding:14px 8px;border-radius:14px;background:var(--panel2);border:1.5px dashed var(--teal);-webkit-user-select:text;user-select:text;word-break:break-all}
+/* satu latar menyatu: tanpa garis antar bagian */
+.ld-body{position:relative;overflow:hidden;margin-top:-1px;background:radial-gradient(70% 12% at 15% 10%,rgba(53,224,192,.15),transparent),radial-gradient(60% 12% at 88% 36%,rgba(255,216,107,.09),transparent),radial-gradient(70% 12% at 18% 64%,rgba(53,224,192,.12),transparent),radial-gradient(60% 12% at 85% 90%,rgba(255,216,107,.08),transparent),linear-gradient(180deg,var(--wd,#07324d) 0%,#041c30 45%,#06283f 100%)}
+.ld-hero{isolation:isolate}
+.ld-hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:14vh;background:linear-gradient(180deg,transparent,var(--wd,#07324d));pointer-events:none;z-index:1}
+.ld-hero .ld-content{z-index:3}
 @media (min-width:760px){.ld-steps{grid-template-columns:repeat(6,1fr);width:min(100%,980px)}}
 @keyframes sup{from{transform:translateY(40px);opacity:.3}}
 @media (prefers-reduced-motion:reduce){*:not(#land):not(#land *){animation:none!important;transition:none!important}}
@@ -406,7 +437,7 @@ body.building #mission{display:none}
  <button data-nav="help"><span class="ic" data-icon="help"></span>Bantuan</button>
 </nav>
 <div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
-<div id="ver">v27</div>
+<div id="ver">v28</div>
 <div id="modal" hidden></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="ldFishA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9b8"/><stop offset=".55" stop-color="#ff9a62"/><stop offset="1" stop-color="#ffeadb"/></linearGradient>
@@ -437,60 +468,86 @@ body.building #mission{display:none}
   <div class="ld-content ld-par p3">
    <div class="ld-top">
     <div class="ld-badge"><svg viewBox="0 0 120 60" width="42" height="21" aria-hidden="true"><path d="M88 29 L116 9 C111 23 111 35 116 51 Z" fill="#fff"/><path d="M14 30 C26 8 64 4 90 25 C64 54 26 52 14 30 Z" fill="#fff"/><circle cx="27" cy="27" r="3.6" fill="#0f8f7b"/></svg></div>
-    <h1 class="ld-title">Tambak<br><span>Nila</span></h1>
+    <h1 class="ld-title">wanderIQ<br><span>Nila</span></h1>
     <p class="ld-tag">Budidaya nila, sesuai jam nyata.</p>
    </div>
    <div class="ld-bottom">
     <div class="ld-chips" id="ldChips"><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20V10l7-5 7 5v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Bangun</span><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z" fill="currentColor"/></svg>Rawat</span><span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Panen</span></div>
     <button id="ldGo" class="ld-go" type="button"><span id="ldGoT">Mulai</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <form class="ld-auth" id="ldAuth" hidden novalidate>
-     <div class="ld-tabs"><button type="button" class="on" data-t="in">Masuk</button><button type="button" data-t="up">Daftar</button></div>
-     <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="auEmail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Email" maxlength="120" aria-label="Email"></div>
-     <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 018 0v2" fill="none" stroke="currentColor" stroke-width="2"/></svg><input id="auPass" name="password" type="password" autocomplete="current-password" placeholder="Kata sandi" maxlength="200" aria-label="Kata sandi"><button type="button" id="auEye" aria-label="Tampilkan kata sandi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
-     <p class="au-err" id="auErr" role="alert"></p>
-     <button type="submit" id="auGo" class="ld-go sm"><span>Masuk</span></button>
-     <button type="button" id="auGuest" class="ld-link">Main sebagai tamu</button>
-    </form>
+    <div class="ld-cta" id="ldCta" hidden><button id="ldLogin" class="ld-go" type="button"><span>Masuk</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button id="ldSignup" class="ld-ghost" type="button">Daftar</button></div>
     <div class="ld-meta" id="ldMeta"></div>
-    <div class="ld-links"><button id="ldNew" class="ld-link" type="button" hidden>Mulai baru</button><button id="ldAcc" class="ld-link" type="button" hidden>Masuk / Daftar</button><button id="ldOut" class="ld-link" type="button" hidden>Keluar</button></div>
+    <div class="ld-links"><button id="ldNew" class="ld-link" type="button" hidden>Mulai baru</button><button id="ldOut" class="ld-link" type="button" hidden>Keluar</button></div>
    </div>
   </div>
   <button class="ld-more" id="ldMore" type="button" aria-label="Lihat selengkapnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
  </div>
 
+ <div class="ld-body">
  <section class="ld-sec" id="ldFlow">
   <h2 class="ld-h rv">Dari kolam<br><span>sampai panen</span></h2>
   <ol class="ld-steps">
-   <li class="rv" style="--i:1"><em>1</em><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="14" rx="9" ry="5"/><path d="M6 12c2-2 4-2 6 0s4 2 6 0"/></svg><b>Kolam</b></li>
-   <li class="rv" style="--i:2"><em>2</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4 5 6 8 6 11a6 6 0 01-12 0c0-3 2-6 6-11z"/></svg><b>Air</b></li>
-   <li class="rv" style="--i:3"><em>3</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg><b>Siapkan</b></li>
-   <li class="rv" style="--i:4"><em>4</em><svg class="f" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z"/></svg><b>Tebar</b></li>
-   <li class="rv" style="--i:5"><em>5</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h10l-1.5 3c3 2 4.5 5 4.5 8 0 3-2 4-8 4s-8-1-8-4c0-3 1.5-6 4.5-8z"/></svg><b>Rawat</b></li>
-   <li class="rv" style="--i:6"><em>6</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Panen</b></li>
+   <li class="rv" style="--i:1"><em>1</em><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="14" rx="9" ry="5"/><path d="M6 12c2-2 4-2 6 0s4 2 6 0"/></svg><b>Kolam</b><p class="cd">Terpal atau tanah, sesuai modal.</p></li>
+   <li class="rv" style="--i:2"><em>2</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4 5 6 8 6 11a6 6 0 01-12 0c0-3 2-6 6-11z"/></svg><b>Air</b><p class="cd">Alirkan dari sungai atau sumur.</p></li>
+   <li class="rv" style="--i:3"><em>3</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg><b>Siapkan</b><p class="cd">Terpal 3 hari, tanah 2 minggu.</p></li>
+   <li class="rv" style="--i:4"><em>4</em><svg class="f" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12c3-5 9-6 13-2l4-3v10l-4-3c-4 4-10 3-13-2z"/></svg><b>Tebar</b><p class="cd">Pagi atau sore, bukan siang.</p></li>
+   <li class="rv" style="--i:5"><em>5</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h10l-1.5 3c3 2 4.5 5 4.5 8 0 3-2 4-8 4s-8-1-8-4c0-3 1.5-6 4.5-8z"/></svg><b>Rawat</b><p class="cd">Pakan 2× sehari, jaga air.</p></li>
+   <li class="rv" style="--i:6"><em>6</em><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><b>Panen</b><p class="cd">Sekitar 250 g, hasil tercatat.</p></li>
   </ol>
  </section>
 
  <section class="ld-sec" id="ldLive">
-  <h2 class="ld-h rv">Mengikuti<br><span>jam HP</span></h2>
-  <div class="ld-gauges"><div class="ld-g rv" style="--i:1;--c:#35e0c0" id="gDO"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>mg/L</small></div></div><span>Oksigen</span></div><div class="ld-g rv" style="--i:2;--c:#ffd86b" id="gT"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>°C</small></div></div><span>Suhu</span></div><div class="ld-g rv" style="--i:3;--c:#7cf0d8" id="gA"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>mg/L</small></div></div><span>Amonia</span></div></div>
-  <div class="ld-chart rv" style="--i:4"><div class="cap"><span>Oksigen 24 jam</span><i id="ldNowT"></i></div><svg viewBox="0 0 300 120" id="ldDOsvg" aria-hidden="true"></svg><div class="ax"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
+    <div class="ld-gauges"><div class="ld-g rv" style="--i:1;--c:#35e0c0" id="gDO"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>mg/L</small></div></div><span>Oksigen</span><p class="cd">Terendah menjelang subuh.</p></div><div class="ld-g rv" style="--i:2;--c:#ffd86b" id="gT"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>°C</small></div></div><span>Suhu</span><p class="cd">Di atas 32°C ikan stres.</p></div><div class="ld-g rv" style="--i:3;--c:#7cf0d8" id="gA"><div class="rg"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="val" cx="50" cy="50" r="42" pathLength="1"/></svg><div class="gv"><b>0</b><small>mg/L</small></div></div><span>Amonia</span><p class="cd">Di atas 0,5 ganti air.</p></div></div>
+  <div class="ld-chart rv" style="--i:4"><div class="cap"><span>Oksigen 24 jam</span><i id="ldNowT"></i></div><svg viewBox="0 0 300 120" id="ldDOsvg" aria-hidden="true"></svg><div class="ax"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div><p class="cd">Naik siang, turun malam. Aerator menolong.</p></div>
  </section>
 
  <section class="ld-sec" id="ldGrow">
   <h2 class="ld-h rv">Dari <span>8 g</span><br>ke <span>250 g</span></h2>
-  <div class="ld-chart rv" style="--i:1"><svg viewBox="0 0 300 172" id="ldGsvg" aria-hidden="true"></svg></div>
+  <div class="ld-chart rv" style="--i:1"><svg viewBox="0 0 300 172" id="ldGsvg" aria-hidden="true"></svg><p class="cd">Sampling tiap 7–10 hari. FCR dan SR dihitung otomatis.</p></div>
   <div class="ld-badges rv" style="--i:2"><span><b>±4</b>bulan</span><span><b>1,2</b>FCR</span><span><b>85%</b>SR</span></div>
  </section>
 
  <section class="ld-sec ld-end" id="ldEnd">
   <h2 class="ld-h rv">Mulai<br><span>tambakmu</span></h2>
   <button id="ldEndGo" class="ld-go rv" style="--i:1" type="button"><span id="ldEndT">Mulai</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-  <p class="ld-foot rv" style="--i:2">Tambak Nila Sim</p>
+  <p class="ld-foot rv" style="--i:2">Copyright © Nov 2026 wanderIQ Nila</p>
  </section>
+ </div>
 </div>
 
 
 
+<div id="authBox" hidden>
+<div class="au-back"></div>
+<form class="ld-auth" id="ldAuth" novalidate role="dialog" aria-modal="true" aria-label="Masuk atau daftar">
+ <button type="button" class="au-x" id="auX" aria-label="Tutup">×</button>
+ <div class="ld-tabs" id="auTabs"><button type="button" class="on" data-t="in">Masuk</button><button type="button" data-t="up">Daftar</button></div>
+ <div class="au-view" data-v="main">
+  <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="auEmail" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Email" maxlength="120" aria-label="Email"></div>
+  <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 018 0v2" fill="none" stroke="currentColor" stroke-width="2"/></svg><input id="auPass" name="password" type="password" autocomplete="current-password" placeholder="Kata sandi" maxlength="200" aria-label="Kata sandi"><button type="button" class="eye hid" aria-label="Tampilkan kata sandi" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path class="sl" d="M4 4l16 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
+  <div class="au-row"><label class="au-chk"><input type="checkbox" id="auRem" checked><span>Simpan akun</span></label><button type="button" class="au-link" id="auForgot">Lupa kata sandi?</button></div>
+  <p class="au-err" id="auErr" role="alert"></p>
+  <button type="submit" id="auGo" class="ld-go sm"><span>Masuk</span></button>
+ </div>
+ <div class="au-view" data-v="forgot" hidden>
+  <h3 class="au-h">Atur ulang kata sandi</h3>
+  <p class="au-p">Isi email dan kode pemulihan yang Anda dapat saat daftar.</p>
+  <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 8l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="fgEmail" type="email" inputmode="email" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Email" maxlength="120" aria-label="Email"></div>
+  <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="14" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 12l9-8M16 7l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="fgCode" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Kode pemulihan" maxlength="20" aria-label="Kode pemulihan"></div>
+  <div class="ld-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V8a4 4 0 018 0v2" fill="none" stroke="currentColor" stroke-width="2"/></svg><input id="fgPass" type="password" autocomplete="new-password" placeholder="Kata sandi baru" maxlength="200" aria-label="Kata sandi baru"><button type="button" class="eye hid" aria-label="Tampilkan kata sandi" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path class="sl" d="M4 4l16 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
+  <p class="au-err" id="fgErr" role="alert"></p>
+  <button type="submit" id="fgGo" class="ld-go sm"><span>Atur ulang</span></button>
+  <button type="button" class="au-link c" id="fgBack">Kembali</button>
+ </div>
+ <div class="au-view" data-v="code" hidden>
+  <h3 class="au-h">Simpan kode pemulihan</h3>
+  <p class="au-p">Dipakai jika Anda lupa kata sandi. Kode ini hanya tampil sekali.</p>
+  <div class="au-code" id="auCode"></div>
+  <button type="button" class="ld-ghost sm2" id="auCopy"><span id="auCopyT">Salin kode</span></button>
+  <label class="au-chk c"><input type="checkbox" id="auSaved"><span>Sudah saya simpan</span></label>
+  <button type="button" id="auDone" class="ld-go sm" disabled><span>Lanjut</span></button>
+ </div>
+</form>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 /* ================= ICONS ================= */
@@ -1311,7 +1368,7 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <p class="ref">Versi game: v27.</p>
+ <p class="ref">Versi game: v28.</p>
  ${DEV?devBlock():''}${accountBlock()}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn wide" data-a="beranda">Kembali ke beranda<small>tampilan awal</small></button><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
@@ -1320,7 +1377,7 @@ $('#sheetBody').addEventListener('click',e=>{
  const n2=e.target.closest('[data-nav2]');if(n2){nav(n2.dataset.nav2);return}
  const b=e.target.closest('[data-a]');if(b&&b.classList.contains('locked')){toast('warn','Belum bisa dilakukan',b.dataset.lock+' Sekarang: '+stageName()+'.');openSheet({type:'mis'});return}if(!b||b.disabled)return;const s=ui.sheet,p=s&&s.o;
  const a=b.dataset.a;
- ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},bongkarId:()=>{const q=S.objs.find(x=>x.id===+b.dataset.id);if(q)askDemolish(q)},beranda:()=>{try{sessionStorage.removeItem('tns.entered')}catch(e){}save();location.reload()},keluar:()=>doLogout(),masuk:()=>{try{sessionStorage.removeItem('tns.entered');localStorage.removeItem('tns.guest')}catch(e){}location.reload()},reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
+ ({'harga-open':()=>openSheet({type:'harga'}),feed:()=>feed(p),samp:()=>sampling(p),air:()=>gantiAir(p),pro:()=>probio(p),obat:()=>obati(p),aer:()=>addAer(p),siap:()=>siapkan(p),tebar:()=>tebar(p,+b.dataset.q),sortir:()=>sortir(p,+b.dataset.t),panen:()=>askPanen(p),del:()=>askDemolish(p),buy:()=>buyFeed(+b.dataset.n),hire,fire,devskip:()=>devSkip(+b.dataset.h),devmoney:()=>{S.money+=10e6;S.ledger.unshift({day:S.day,cat:'Modal',amt:10e6,label:'Modal uji (developer)'});save();renderSheet()},bongkarId:()=>{const q=S.objs.find(x=>x.id===+b.dataset.id);if(q)askDemolish(q)},beranda:()=>{try{sessionStorage.removeItem('tns.entered')}catch(e){}save();location.reload()},keluar:()=>doLogout(),pemulihan:()=>askRecovery(),reset:askReset,harga:()=>setHarga(+b.dataset.p),pasar:()=>setHarga(null)})[a]?.();
  checkMissions();renderSheet();save()});
 function nav(k){
  if(k==='build'){const open=$('#build').hidden;closeSheet();if(open){renderBuild();$('#build').hidden=false;navOn('build')}else endBuild();return}
@@ -1550,8 +1607,7 @@ async function api(method,path,body,opt){
  finally{clearTimeout(to)}
 }
 async function authInit(){
- let guest=false;try{guest=localStorage.getItem('tns.guest')==='1'}catch(e){}
- const me=await api('GET','me',null,{timeout:4500});
+  const me=await api('GET','me',null,{timeout:4500});
  if(me.ok&&me.json&&me.json.user){
   AUTH.mode='user';AUTH.backend=true;AUTH.user=me.json.user;
   try{localStorage.setItem('tns.last',JSON.stringify(me.json.user))}catch(e){}
@@ -1561,7 +1617,7 @@ async function authInit(){
   try{const g=JSON.parse(localStorage.getItem(KEY0)||'null');if(!AUTH.save&&!AUTH.offline&&g&&g.v===2&&g.started)AUTH.offer=g}catch(e){}
   return;
  }
- if(me.status===401&&me.json&&me.json.error==='unauth'){AUTH.backend=true;AUTH.mode=guest?'guest':'anon';return}
+ if(me.status===401&&me.json&&me.json.error==='unauth'){AUTH.backend=true;AUTH.mode='anon';return}
  let last=null;try{last=JSON.parse(localStorage.getItem('tns.last')||'null')}catch(e){}
  if(me.net&&last&&last.id){AUTH.mode='user';AUTH.user=last;AUTH.offline=true;AUTH.backend=true;return}
  AUTH.backend=false;AUTH.mode='guest';
@@ -1600,8 +1656,7 @@ async function doLogout(){
  S=null;location.reload();
 }
 function accountBlock(){
- if(AUTH.mode==='user')return`<h3>Akun</h3><div class="kv"><span>Masuk sebagai</span><b>${esc(AUTH.user.email)}</b></div><div class="kv"><span>Penyimpanan</span><b>${AUTH.offline||AUTH.expired?'belum tersambung':'tersimpan di akun'}</b></div><div class="acts"><button class="btn wide" data-a="keluar">Keluar<small>data tetap aman di akun</small></button></div>`;
- if(AUTH.mode==='guest'&&AUTH.backend)return`<h3>Akun</h3><p class="tip">Mode tamu: data hanya ada di HP ini.</p><div class="acts"><button class="btn pri wide" data-a="masuk">Masuk / Daftar<small>simpan data di akun</small></button></div>`;
+ if(AUTH.mode==='user')return`<h3>Akun</h3><div class="kv"><span>Masuk sebagai</span><b>${esc(AUTH.user.email)}</b></div><div class="kv"><span>Penyimpanan</span><b>${AUTH.offline||AUTH.expired?'belum tersambung':'tersimpan di akun'}</b></div><div class="acts"><button class="btn wide" data-a="pemulihan">Kode pemulihan<small>untuk lupa kata sandi</small></button><button class="btn wide" data-a="keluar">Keluar<small>data tetap aman di akun</small></button></div>`;
  return'';
 }
 function ldOffer(){
@@ -1626,7 +1681,7 @@ function ldPaint(){
  const ic=isNight(h)&&S.weather!=='hujan'?'malam':S.weather;
  let meta=`<span class="ld-pill">${svg(ic)}<b>${fmtN(tempAt(h),0)}°C</b><i>${clock}</i></span>`;
  if(AUTH.mode==='user')meta+=`<span class="ld-pill sm">${esc(AUTH.user.email)}</span>`;
- if(AUTH.mode==='guest')meta+=`<span class="ld-pill sm">${AUTH.backend?'Mode tamu':'Akun belum aktif · mode tamu'}</span>`;
+ if(AUTH.mode==='guest')meta+='<span class="ld-pill sm">Akun belum aktif</span>';
  if(S.started&&AUTH.mode!=='anon')meta+=`<span class="ld-pill sm">Hari ke-${S.day} · ${rp(S.money)}</span>`;
  $('#ldMeta').innerHTML=meta;
 }
@@ -1676,11 +1731,9 @@ function landing(){
  const L=$('#land'),anon=AUTH.mode==='anon';
  if(!anon&&S.started&&entered){ui.landing=false;L.hidden=true;return}
  ui.landing=true;ldStars();ldWeeds();ldGrow();ldLive();ldPaint();ldObserve();
- L.classList.toggle('auth',anon);
- $('#ldAuth').hidden=!anon;$('#ldGo').hidden=anon;
+ $('#ldCta').hidden=!anon;$('#ldGo').hidden=anon;
  $('#ldGoT').textContent=S.started?'Lanjutkan':'Mulai';$('#ldEndT').textContent=anon?'Masuk':(S.started?'Lanjutkan':'Mulai');
  $('#ldNew').hidden=anon||!S.started;
- $('#ldAcc').hidden=!(AUTH.mode==='guest'&&AUTH.backend);
  $('#ldOut').hidden=AUTH.mode!=='user';
  L.style.scrollBehavior='auto';L.scrollTop=0;L.style.scrollBehavior='';
  L.classList.remove('out');L.hidden=false;
@@ -1690,7 +1743,7 @@ function landing(){
 }
 function ldExit(next){ui.landing=false;clearInterval(LD.t);const L=$('#land');L.classList.add('out');setTimeout(()=>{L.hidden=true;if(next)next()},520)}
 function ldEnter(){
- if(AUTH.mode==='anon'){$('#land').scrollTo({top:0,behavior:'smooth'});setTimeout(()=>$('#auEmail').focus(),600);return}
+ if(AUTH.mode==='anon'){auOpen('in');return}
  if(S&&S.started){try{sessionStorage.setItem('tns.entered','1')}catch(e){}ldExit()}else ldExit(()=>intro());
 }
 $('#land').addEventListener('pointermove',e=>{const L=$('#land');L.style.setProperty('--px',((e.clientX/innerWidth-.5)*2).toFixed(3));L.style.setProperty('--py',((e.clientY/innerHeight-.5)*2).toFixed(3))});
@@ -1699,22 +1752,65 @@ $('#ldGo').onclick=ldEnter;$('#ldEndGo').onclick=ldEnter;
 $('#ldMore').onclick=()=>$('#ldFlow').scrollIntoView({behavior:'smooth'});
 $('#ldNew').onclick=()=>askReset();
 $('#ldOut').onclick=()=>doLogout();
-$('#ldAcc').onclick=()=>{try{sessionStorage.removeItem('tns.entered');localStorage.removeItem('tns.guest')}catch(e){}location.reload()};
-let auTab='in';
-function auSet(t){auTab=t;document.querySelectorAll('.ld-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#auGo span').textContent=t==='in'?'Masuk':'Daftar';$('#auPass').autocomplete=t==='in'?'current-password':'new-password';$('#auErr').textContent=''}
-document.querySelectorAll('.ld-tabs button').forEach(b=>b.onclick=()=>auSet(b.dataset.t));
-$('#auEye').onclick=()=>{const p=$('#auPass');p.type=p.type==='password'?'text':'password'};
-$('#auGuest').onclick=()=>{try{localStorage.setItem('tns.guest','1')}catch(e){}location.reload()};
-$('#ldAuth').addEventListener('submit',async e=>{
- e.preventDefault();
- const email=$('#auEmail').value.trim(),pw=$('#auPass').value,err=$('#auErr'),go=$('#auGo');
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err.textContent='Email tidak valid.';return}
+/* ---- kartu masuk/daftar: muncul sebagai jendela ---- */
+const AU={tab:'in',view:'main',lock:false,code:''};
+const EMAIL_OK=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function auView(v){AU.view=v;document.querySelectorAll('#ldAuth .au-view').forEach(x=>x.hidden=x.dataset.v!==v);$('#auTabs').hidden=v!=='main';$('#auX').hidden=AU.lock;$('#auErr').textContent='';$('#fgErr').textContent=''}
+function auSet(t){AU.tab=t;document.querySelectorAll('#auTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('#auGo span').textContent=t==='in'?'Masuk':'Daftar';$('#auPass').autocomplete=t==='in'?'current-password':'new-password';$('#auErr').textContent='';$('#auForgot').hidden=t!=='in'}
+function auEyeReset(){document.querySelectorAll('#ldAuth .eye').forEach(b=>{b.classList.add('hid');b.setAttribute('aria-pressed','false');b.setAttribute('aria-label','Tampilkan kata sandi');b.parentElement.querySelector('input').type='password'})}
+function auOpen(tab){
+ if(AUTH.mode!=='anon')return;AU.lock=false;
+ let em='',rem=true;try{em=localStorage.getItem('tns.email')||'';rem=localStorage.getItem('tns.remember')!=='0'}catch(e){}
+ $('#auEmail').value=em;$('#auPass').value='';$('#auRem').checked=rem;$('#auGo').disabled=false;
+ auEyeReset();auView('main');auSet(tab||'in');$('#authBox').hidden=false;
+ setTimeout(()=>{(em?$('#auPass'):$('#auEmail')).focus()},90);
+}
+function auClose(){if(AU.lock)return;$('#authBox').hidden=true}
+function auFinish(){try{sessionStorage.removeItem('tns.entered')}catch(e){}location.reload()}
+function auShowCode(code){AU.lock=true;AU.code=code;$('#auCode').textContent=code;$('#auSaved').checked=false;$('#auDone').disabled=true;$('#auCopyT').textContent='Salin kode';auView('code')}
+document.querySelectorAll('#auTabs button').forEach(b=>b.onclick=()=>auSet(b.dataset.t));
+document.querySelectorAll('#ldAuth .eye').forEach(b=>b.onclick=()=>{const i=b.parentElement.querySelector('input'),show=i.type==='password';i.type=show?'text':'password';b.classList.toggle('hid',!show);b.setAttribute('aria-pressed',String(show));b.setAttribute('aria-label',show?'Sembunyikan kata sandi':'Tampilkan kata sandi')});
+$('#auForgot').onclick=()=>{$('#fgEmail').value=$('#auEmail').value.trim();$('#fgCode').value='';$('#fgPass').value='';$('#fgGo').disabled=false;auEyeReset();auView('forgot');setTimeout(()=>($('#fgEmail').value?$('#fgCode'):$('#fgEmail')).focus(),70)};
+$('#fgBack').onclick=()=>{auView('main');auSet(AU.tab)};
+$('#auX').onclick=auClose;document.querySelector('#authBox .au-back').onclick=auClose;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#authBox').hidden)auClose()});
+$('#ldLogin').onclick=()=>auOpen('in');$('#ldSignup').onclick=()=>auOpen('up');
+$('#auSaved').onchange=()=>{$('#auDone').disabled=!$('#auSaved').checked};
+$('#auCopy').onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(AU.code);ok=true}catch(e){try{const t=document.createElement('textarea');t.value=AU.code;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();ok=document.execCommand('copy');t.remove()}catch(x){}}$('#auCopyT').textContent=ok?'Tersalin':'Salin manual';setTimeout(()=>{$('#auCopyT').textContent='Salin kode'},1800)};
+$('#auDone').onclick=()=>{if(!$('#auDone').disabled)auFinish()};
+async function auMain(){
+ const email=$('#auEmail').value.trim(),pw=$('#auPass').value,err=$('#auErr'),go=$('#auGo'),rem=$('#auRem').checked;
+ if(!EMAIL_OK.test(email)){err.textContent='Email tidak valid.';return}
  if(pw.length<8){err.textContent='Kata sandi minimal 8 karakter.';return}
  go.disabled=true;err.textContent='';
- const r=await api('POST',auTab==='in'?'login':'register',{email,password:pw},{timeout:15000});
- if(r.ok){try{sessionStorage.removeItem('tns.entered');localStorage.removeItem('tns.guest')}catch(x){}location.reload();return}
+ const r=await api('POST',AU.tab==='in'?'login':'register',{email,password:pw,remember:rem},{timeout:15000});
+ if(r.ok){try{if(rem)localStorage.setItem('tns.email',email);else localStorage.removeItem('tns.email');localStorage.setItem('tns.remember',rem?'1':'0')}catch(x){}
+  if(AU.tab==='up'&&r.json&&r.json.recovery)auShowCode(r.json.recovery);else auFinish();return}
  go.disabled=false;err.textContent=(r.json&&r.json.message)||(r.net?'Tidak bisa terhubung ke server.':'Gagal. Coba lagi.');
-});
+}
+async function auForgotGo(){
+ const email=$('#fgEmail').value.trim(),code=$('#fgCode').value.trim(),pw=$('#fgPass').value,err=$('#fgErr'),go=$('#fgGo');
+ if(!EMAIL_OK.test(email)){err.textContent='Email tidak valid.';return}
+ if(code.replace(/[^A-Za-z0-9]/g,'').length!==12){err.textContent='Kode pemulihan berisi 12 huruf dan angka.';return}
+ if(pw.length<8){err.textContent='Kata sandi baru minimal 8 karakter.';return}
+ go.disabled=true;err.textContent='';
+ const r=await api('POST','reset',{email,code,password:pw},{timeout:15000});
+ if(r.ok&&r.json&&r.json.recovery){auShowCode(r.json.recovery);return}
+ go.disabled=false;err.textContent=(r.json&&r.json.message)||(r.net?'Tidak bisa terhubung ke server.':'Gagal. Coba lagi.');
+}
+$('#ldAuth').addEventListener('submit',e=>{e.preventDefault();if(AU.view==='main')auMain();else if(AU.view==='forgot')auForgotGo();else if(AU.view==='code'&&!$('#auDone').disabled)auFinish()});
+function askRecovery(){
+ modal(`<h2>Kode pemulihan baru</h2><p>Kode lama tidak berlaku lagi. Masukkan kata sandi untuk membuat kode baru.</p><input id="rcPass" class="fld" type="password" autocomplete="current-password" placeholder="Kata sandi" maxlength="200"><p class="ref" id="rcErr" style="color:var(--bad)"></p><div class="row2"><button class="btn" id="mNo">Batal</button><button class="btn pri" id="mYes">Buat kode</button></div>`,m=>{
+  m.querySelector('#mNo').onclick=closeModal;
+  m.querySelector('#mYes').onclick=async()=>{
+   const pw=m.querySelector('#rcPass').value;if(!pw){m.querySelector('#rcErr').textContent='Masukkan kata sandi.';return}
+   m.querySelector('#mYes').disabled=true;const r=await api('POST','recovery',{password:pw});
+   if(r.ok&&r.json&&r.json.recovery){const c=r.json.recovery;
+    m.querySelector('.box').innerHTML=`<h2>Simpan kode ini</h2><p>Dipakai untuk "Lupa kata sandi". Simpan di tempat aman. Kode ini hanya tampil sekali.</p><div class="rcCode">${esc(c)}</div><div class="row2"><button class="btn" id="rcCopy">Salin</button><button class="btn pri" id="rcOk">Sudah saya simpan</button></div>`;
+    m.querySelector('#rcCopy').onclick=async()=>{try{await navigator.clipboard.writeText(c);m.querySelector('#rcCopy').textContent='Tersalin'}catch(e){m.querySelector('#rcCopy').textContent='Salin manual'}};
+    m.querySelector('#rcOk').onclick=closeModal;return}
+   m.querySelector('#mYes').disabled=false;m.querySelector('#rcErr').textContent=(r.json&&r.json.message)||'Gagal. Coba lagi.'}});
+}
 
 async function startNow(){
  if(typeof THREE==='undefined'){document.body.insertAdjacentHTML('beforeend','<div id="modal"><div class="box"><h2>Grafis 3D tidak termuat</h2><p>Periksa koneksi internet lalu muat ulang halaman.</p></div></div>');return}
