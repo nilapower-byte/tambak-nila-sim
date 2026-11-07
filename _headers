@@ -1,0 +1,27 @@
+# Header keamanan wanderIQ Nila (Cloudflare Pages).
+# Letakkan di akar repo, sejajar dengan index.html.
+# Berkas ini hanya berlaku untuk berkas statis. Header untuk /api/* diatur di functions/api/[[path]].js.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), fullscreen=(self), clipboard-write=(self)
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' blob:; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+
+# Selalu ambil versi terbaru halaman (mencegah HP menampilkan berkas lama)
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+# Berkas pendukung: jangan diindeks mesin pencari
+/schema.sql
+  X-Robots-Tag: noindex
+
+/README.md
+  X-Robots-Tag: noindex
