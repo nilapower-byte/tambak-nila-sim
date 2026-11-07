@@ -6,6 +6,7 @@ Game simulasi budidaya ikan nila 3D (Three.js). Bangun kolam, alirkan air, tebar
 - `index.html` : halaman web + game (satu berkas statis, tanpa build)
 - `functions/api/[[path]].js` : API akun dan data pemain (Cloudflare Pages Functions)
 - `schema.sql` : tabel database D1 (aman dijalankan ulang)
+- `_headers` : header keamanan (CSP, HSTS, anti-iframe, dll). Letakkan di akar repo. Jika menambah sumber luar (skrip, font, gambar), tambahkan hostnya ke baris Content-Security-Policy
 
 ## Hosting di Cloudflare Pages
 Workers & Pages → Create → Pages → Connect to Git → pilih repo ini.
