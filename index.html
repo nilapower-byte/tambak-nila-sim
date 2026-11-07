@@ -324,7 +324,7 @@ body.building #mission{display:none}
 .ld-more svg{width:22px;height:22px}
 @keyframes nudge{50%{transform:translateY(5px)}}
 /* bagian gulir */
-.ld-sec{position:relative;min-height:92vh;padding:96px 22px 84px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;text-align:center}
+.ld-sec{position:relative;padding:44px 22px;display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center}
 .ld-sec>*{position:relative;z-index:1}
 .ld-sec .bb{position:absolute;bottom:-24px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),rgba(255,255,255,.08));animation:bub linear infinite;pointer-events:none;z-index:0}
 @keyframes bub{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.8}100%{transform:translate3d(var(--dx,0),-110vh,0);opacity:0}}
@@ -332,7 +332,7 @@ body.building #mission{display:none}
 .ld-h span{background:linear-gradient(180deg,#fff,#7cf0d8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
 .rv{opacity:0;transform:translateY(26px) scale(.98);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i,0)*90ms)}
 .in .rv{opacity:1;transform:none}
-.ld-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:min(100%,520px)}
+.ld-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:min(100%,520px)}
 .ld-steps li{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 10px 18px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .ld-steps em{position:absolute;top:10px;left:14px;font-style:normal;font-family:var(--display);font-weight:800;font-size:13px;color:#7cf0d8}
 .ld-steps svg{width:36px;height:36px;fill:none;stroke:#7cf0d8;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -368,7 +368,7 @@ body.building #mission{display:none}
 .ld-badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .ld-badges span{padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);font-weight:800;font-size:14px}
 .ld-badges b{font-family:var(--display);font-size:20px;color:#7cf0d8;margin-right:5px}
-.ld-end{min-height:70vh;justify-content:center}
+.ld-end{padding:64px 22px 88px}
 .ld-foot{margin:0;opacity:.65;font-weight:700;font-size:13px;letter-spacing:.02em}
 /* kartu masuk/daftar sebagai jendela */
 .ld-cta{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
@@ -437,7 +437,7 @@ body.building #mission{display:none}
  <button data-nav="help"><span class="ic" data-icon="help"></span>Bantuan</button>
 </nav>
 <div id="sheet" hidden><button class="sx" id="sheetX" aria-label="Tutup">×</button><div id="sheetBody"></div></div>
-<div id="ver">v29</div>
+<div id="ver">v30</div>
 <div id="modal" hidden></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="ldFishA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd9b8"/><stop offset=".55" stop-color="#ff9a62"/><stop offset="1" stop-color="#ffeadb"/></linearGradient>
@@ -1368,7 +1368,7 @@ function helpSheet(){return`<div class="ph"><div><div class="eyebrow">Cara main<
  <h3>Kondisi nyata yang disimulasikan</h3>
  <ul class="list"><li>Oksigen naik siang (fotosintesis) dan turun malam. Paling rendah menjelang subuh, makin parah bila ikan padat, mendung, atau listrik padam.</li><li>Amonia naik dari pakan yang dimakan dan sisa pakan. Turun lewat ganti air, probiotik, dan plankton (kolam tanah).</li><li>Pertumbuhan mengikuti berat, suhu, oksigen, dan cukup tidaknya pakan. FCR dan SR dihitung dari kejadian di game.</li><li>Cuaca harian, listrik padam, penyakit Streptococcus (air panas) dan Aeromonas (air kotor), harga jual naik-turun Rp 26–35 rb/kg.</li><li>Harga: benih Rp 350/ekor, pakan Rp 12.500/kg, kolam terpal Rp 2 jt, aerator Rp 600 rb.</li></ul>
  <p class="ref">Angka dan ambang batas mengacu ke: SNI 7550:2009 Produksi ikan nila pembesaran di kolam air tenang; SNI 6141:2009 Benih ikan nila; Boyd & Tucker (1998) Pond Aquaculture Water Quality Management; El-Sayed (2020) Tilapia Culture, 2nd ed.; FAO Cultured Aquatic Species: Nile tilapia. Simulasi ini menyederhanakan kenyataan: hasil di kolam Anda bisa berbeda.</p>
- <p class="ref">Versi game: v29.</p>
+ <p class="ref">Versi game: v30.</p>
  ${DEV?devBlock():''}${accountBlock()}<h3>Pengaturan</h3>
  <div class="acts"><button class="btn wide" data-a="beranda">Kembali ke beranda<small>tampilan awal</small></button><button class="btn danger wide" data-a="reset">Mulai dari awal<small>hapus progres</small></button></div>`}
 function renderSheet(){const s=ui.sheet;if(!s)return;const b=$('#sheetBody'),st=b.scrollTop;
